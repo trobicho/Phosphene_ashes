@@ -57,3 +57,6 @@ tags
 *.spv
 phosphene
 Phosphene
+
+obj/
+spv/
