@@ -39,11 +39,14 @@ SRCS_NAME =	main.cpp \
 			vkImpl.cpp \
 			phosHelper.cpp \
 			command.cpp \
+			swapchain.cpp \
+			phosphene.cpp
 
 HDRS_NAME =	phosStartVk.hpp \
 			vkImpl.hpp \
 			phosHelper.hpp \
 			command.hpp \
+			phosphene.hpp
 
 OBJS_NAME	=	$(SRCS_NAME:.cpp=.o) 
 

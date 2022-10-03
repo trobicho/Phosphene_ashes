@@ -3,7 +3,7 @@
 
 namespace PhosStartVk {
 
-void              queueFamilyIndex(VkPhysicalDevice device, VkSurfaceKHR surface, uint32_t *queueFamily) {
+void              queueFamilyIndex(VkPhysicalDevice device, VkSurfaceKHR surface, uint32_t &queueFamily) {
   uint32_t queueCount;
   VkBool32  presentSupport;
 
@@ -18,7 +18,7 @@ void              queueFamilyIndex(VkPhysicalDevice device, VkSurfaceKHR surface
     if (queueProps[i].queueCount > 0
         && queueProps[i].queueFlags & VK_QUEUE_GRAPHICS_BIT
         && presentSupport) {
-      *queueFamily = i;
+      queueFamily = i;
       return ;
     }
   }
@@ -53,7 +53,7 @@ VkInstance        createInstance() {
   return (instance);
 }
 
-VkPhysicalDevice  choosePhysicalDevice(VkInstance instance) { //TODO: make the thing
+VkPhysicalDevice  choosePhysicalDevice(VkInstance &instance) { //TODO: make the thing
   uint32_t  deviceCount;
   std::vector<VkPhysicalDevice>   device;
 
@@ -69,15 +69,15 @@ VkPhysicalDevice  choosePhysicalDevice(VkInstance instance) { //TODO: make the t
 }
 
 void              createLogicalDeviceAndQueue(VkDevice &device
-                                              , VkPhysicalDevice physicalDevice
-                                              , VkSurfaceKHR &surface
+                                              , const VkPhysicalDevice &physicalDevice
+                                              , const VkSurfaceKHR &surface
                                               , VkQueue &queue
                                               , uint32_t &queueFamilyIndex) {
   float queuePriority = 1.0f;
 
   PhosHelper::infoRaytracingProperties(physicalDevice);
 
-  PhosStartVk::queueFamilyIndex(physicalDevice, surface, &queueFamilyIndex);
+  PhosStartVk::queueFamilyIndex(physicalDevice, surface, queueFamilyIndex);
   VkDeviceQueueCreateInfo queueInfo = {
     .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
     .queueFamilyIndex = queueFamilyIndex,

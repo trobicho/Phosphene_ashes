@@ -1,6 +1,4 @@
-#include "vkImpl.hpp"
-#include "command.hpp"
-#include "phosStartVk.hpp"
+#include "phosphene.hpp"
 #include <iostream>
 
 int main() {
@@ -10,11 +8,13 @@ int main() {
   GLFWwindow *win = glfwCreateWindow(800, 800, "Phosphene", NULL, NULL);
 
   PhosHelper::infoInstance();
+  Phosphene phosphene(win);
 
   while(!glfwWindowShouldClose(win)) {
     glfwPollEvents();
   }
 
+  phosphene.destroy();
   glfwDestroyWindow(win);
   glfwTerminate();
 

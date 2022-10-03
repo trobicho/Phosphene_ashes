@@ -17,3 +17,7 @@ void  CommandPool::init(VkDevice device
   if (vkCreateCommandPool(m_device, &poolInfo, nullptr, &m_commandPool) != VK_SUCCESS)
     throw PhosHelper::FatalVulkanInitError("Failed to create Command Pool !");
 }
+
+void  CommandPool::destroy() {
+  vkDestroyCommandPool(m_device, m_commandPool, nullptr);
+}
