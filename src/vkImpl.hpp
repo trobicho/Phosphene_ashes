@@ -2,6 +2,7 @@
 #include "phosHelper.hpp"
 #include <vulkan/vulkan.h>
 #include <vector>
+#include <array>
 
 #define MAX_FRAMES_IN_FLIGHT  3
 
@@ -24,20 +25,51 @@ class VkImpl {
     void  deviceWait() {vkDeviceWaitIdle(m_device);}
     void  destroy();
 
+    void  init(VkDevice &device
+              , VkPhysicalDevice &physicalDevice
+              , uint32_t queueFamilyIndex
+              , VkQueue defaultqueue = VK_NULL_HANDLE);
+
     void  createSwapchain(const VkSurfaceKHR &surface, uint32_t width, uint32_t height);
     void  createFramebuffer();
     void  cleanupSwapchain();
     void  recreateSwapchain(const VkSurfaceKHR &surface, uint32_t width, uint32_t height);
 
     void  createRenderPass();
+    void  createCommandPool();
+
+    void  createPipeline() {
+      createPostDescriptorSet();
+      createPostPipeline();
+    }
+    void  updatePostDescSet(VkImageView &offscreenImageView);
 
     VkInstance          m_instance = VK_NULL_HANDLE;
     VkDevice            m_device = VK_NULL_HANDLE;
     VkPhysicalDevice    m_physicalDevice = VK_NULL_HANDLE;
-    uint32_t            m_queueFamily;
+    uint32_t            m_queueFamilyIndex;
     VkQueue             m_queue = VK_NULL_HANDLE;
 
-    SwapchainWrap   m_swapchainWrap;
+    SwapchainWrap       m_swapchainWrap;
 
-    VkRenderPass    m_renderPass;
+    VkRenderPass        m_renderPass;
+
+  private:
+    void  createPostDescriptorSet();
+    void  createPostPipeline();
+
+    VkDescriptorSet         m_postDescSet = VK_NULL_HANDLE;
+    VkDescriptorPool        m_postDescPool = VK_NULL_HANDLE;
+    VkDescriptorSetLayout   m_postDescSetLayout = VK_NULL_HANDLE;
+    std::array<VkDescriptorSetLayoutBinding, 1>
+                            m_postDescSetLayoutBinds;
+    VkPipeline              m_postPipeline = VK_NULL_HANDLE;
+    VkPipelineLayout        m_postPipelineLayout = VK_NULL_HANDLE;
+
+    VkCommandPool                                       m_commandPool = VK_NULL_HANDLE;
+    std::array<VkCommandBuffer, MAX_FRAMES_IN_FLIGHT>   m_commandBuffers;
+    std::array<VkFence, MAX_FRAMES_IN_FLIGHT>           m_fences;
+    std::array<VkSemaphore, MAX_FRAMES_IN_FLIGHT>       m_semaphoreAvailable;
+    std::array<VkSemaphore, MAX_FRAMES_IN_FLIGHT>       m_semaphoreFinish;
+    uint32_t                                            m_currentFrame = 0;
 };

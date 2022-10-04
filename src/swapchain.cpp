@@ -8,6 +8,23 @@ struct  SupportDetails {
   std::vector<VkPresentModeKHR>     presentModes;
 };
 
+void  VkImpl::cleanupSwapchain() {
+  for (auto& imageView : m_swapchainWrap.imageView)
+    vkDestroyImageView(m_device, imageView, nullptr);
+  for (auto& framebuffer : m_swapchainWrap.framebuffer)
+    vkDestroyFramebuffer(m_device, framebuffer, nullptr);
+  vkDestroySwapchainKHR(m_device, m_swapchainWrap.chain, nullptr);
+}
+
+void  VkImpl::recreateSwapchain(const VkSurfaceKHR &surface, uint32_t width, uint32_t height) {
+  deviceWait();
+
+  cleanupSwapchain();
+
+  createSwapchain(surface, width, height);
+  createFramebuffer();
+}
+
 static void   getSupportDetails(VkPhysicalDevice device, VkSurfaceKHR surface, SupportDetails &details) {
   uint32_t  count;
 
@@ -165,21 +182,4 @@ void  VkImpl::createFramebuffer() {
           , nullptr, &m_swapchainWrap.framebuffer[i]) != VK_SUCCESS)
       throw PhosHelper::FatalVulkanInitError("Failed to create Framebuffer!");
   }
-}
-
-void  VkImpl::cleanupSwapchain() {
-  for (auto& imageView : m_swapchainWrap.imageView)
-    vkDestroyImageView(m_device, imageView, nullptr);
-  for (auto& framebuffer : m_swapchainWrap.framebuffer)
-    vkDestroyFramebuffer(m_device, framebuffer, nullptr);
-  vkDestroySwapchainKHR(m_device, m_swapchainWrap.chain, nullptr);
-}
-
-void  VkImpl::recreateSwapchain(const VkSurfaceKHR &surface, uint32_t width, uint32_t height) {
-  deviceWait();
-
-  cleanupSwapchain();
-
-  createSwapchain(surface, width, height);
-  createFramebuffer();
 }

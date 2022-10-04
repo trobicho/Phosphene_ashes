@@ -22,7 +22,7 @@ else
 	LDFLAGS = -L$(GLFW3_PATH)/lib -L$(VULKAN_SDK)/lib `pkg-config --static --libs glm` -lvulkan -lglfw -lm
 endif
 
-SHADERS_NAME =	shader.vert \
+SHADERS_NAME =	post.vert \
                 post.frag \
 				raytrace.rgen \
 				raytrace.rmiss \
@@ -36,6 +36,7 @@ SRCS_NAME =	main.cpp \
 			vkImpl.cpp \
 			phosHelper.cpp \
 			command.cpp \
+			postPipeline.cpp \
 			swapchain.cpp \
 			camera.cpp \
 			phosphene.cpp

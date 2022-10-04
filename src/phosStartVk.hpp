@@ -40,7 +40,7 @@ namespace PhosStartVk {
     return (exts);
   }
 
-  void              queueFamilyIndex(VkPhysicalDevice device, VkSurfaceKHR surface, uint32_t &queueFamily);
+  void              getQueueFamilyIndex(VkPhysicalDevice device, VkSurfaceKHR surface, uint32_t &queueFamilyIndex);
   VkInstance        createInstance();
   VkPhysicalDevice  choosePhysicalDevice(VkInstance &instance);
   void              createLogicalDeviceAndQueue(VkDevice &device

@@ -9,6 +9,7 @@ class Phosphene {
     ~Phosphene() {destroy();}
 
     void  destroy();
+    void  deviceWait() {vkDeviceWaitIdle(m_device);}
 
   private:
     GLFWwindow  *m_window;
@@ -19,6 +20,9 @@ class Phosphene {
     VkPhysicalDevice  m_physicalDevice = VK_NULL_HANDLE;
     VkQueue           m_graphicsQueue = VK_NULL_HANDLE;
     uint32_t          m_graphicsQueueFamilyIndex;
+
+    uint32_t  m_width;
+    uint32_t  m_height;
 
     VkImpl  m_vkImpl;
 };

@@ -3,7 +3,7 @@
 
 namespace PhosStartVk {
 
-void              queueFamilyIndex(VkPhysicalDevice device, VkSurfaceKHR surface, uint32_t &queueFamily) {
+void              getQueueFamilyIndex(VkPhysicalDevice device, VkSurfaceKHR surface, uint32_t &queueFamilyIndex) {
   uint32_t queueCount;
   VkBool32  presentSupport;
 
@@ -18,7 +18,7 @@ void              queueFamilyIndex(VkPhysicalDevice device, VkSurfaceKHR surface
     if (queueProps[i].queueCount > 0
         && queueProps[i].queueFlags & VK_QUEUE_GRAPHICS_BIT
         && presentSupport) {
-      queueFamily = i;
+      queueFamilyIndex = i;
       return ;
     }
   }
@@ -77,7 +77,7 @@ void              createLogicalDeviceAndQueue(VkDevice &device
 
   PhosHelper::infoRaytracingProperties(physicalDevice);
 
-  PhosStartVk::queueFamilyIndex(physicalDevice, surface, queueFamilyIndex);
+  PhosStartVk::getQueueFamilyIndex(physicalDevice, surface, queueFamilyIndex);
   VkDeviceQueueCreateInfo queueInfo = {
     .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
     .queueFamilyIndex = queueFamilyIndex,
