@@ -7,6 +7,7 @@ Phosphene::Phosphene(GLFWwindow *window): m_window(window) {
   m_physicalDevice = PhosStartVk::choosePhysicalDevice(m_instance);
   PhosStartVk::createLogicalDeviceAndQueue(m_device, m_physicalDevice, m_surface, m_graphicsQueue, m_graphicsQueueFamilyIndex);
 
+
   int width = 0;
   int height = 0;
   glfwGetWindowSize(m_window, &width, &height);
@@ -16,13 +17,23 @@ Phosphene::Phosphene(GLFWwindow *window): m_window(window) {
   m_height = static_cast<uint32_t>(height);
 
   {
-    m_vkImpl.init(m_device, m_physicalDevice, m_graphicsQueueFamilyIndex, m_graphicsQueue);
+    m_vkImpl.setup(m_device, m_physicalDevice, m_graphicsQueueFamilyIndex, m_graphicsQueue);
     m_vkImpl.createSwapchain(m_surface, m_width, m_height);
     m_vkImpl.createRenderPass();
     m_vkImpl.createCommandPool();
     m_vkImpl.createFramebuffer();
     m_vkImpl.createPipeline();
   }
+}
+
+void  Phosphene::callbackWindowResize(int width, int height) {
+  deviceWait();
+  m_vkImpl.cleanupSwapchain();
+  vkDestroySurfaceKHR(m_instance, m_surface, nullptr);
+
+  if (glfwCreateWindowSurface(m_instance, m_window, nullptr, &m_surface) != VK_SUCCESS)
+    throw PhosHelper::FatalVulkanInitError("Failed to create Surface");
+  m_vkImpl.recreateSwapchain(m_surface, width, height);
 }
 
 void  Phosphene::destroy() {

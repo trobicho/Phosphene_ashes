@@ -17,7 +17,7 @@ void  VkImpl::destroy() {
     vkDestroyDescriptorPool(m_device, m_postDescPool, nullptr);
   }
 }
-void  VkImpl::init(VkDevice &device
+void  VkImpl::setup(VkDevice &device
                   , VkPhysicalDevice &physicalDevice
                   , uint32_t queueFamilyIndex
                   , VkQueue defaultQueue) {

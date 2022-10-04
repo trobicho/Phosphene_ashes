@@ -17,10 +17,6 @@ void  VkImpl::cleanupSwapchain() {
 }
 
 void  VkImpl::recreateSwapchain(const VkSurfaceKHR &surface, uint32_t width, uint32_t height) {
-  deviceWait();
-
-  cleanupSwapchain();
-
   createSwapchain(surface, width, height);
   createFramebuffer();
 }

@@ -25,7 +25,7 @@ class VkImpl {
     void  deviceWait() {vkDeviceWaitIdle(m_device);}
     void  destroy();
 
-    void  init(VkDevice &device
+    void  setup(VkDevice &device
               , VkPhysicalDevice &physicalDevice
               , uint32_t queueFamilyIndex
               , VkQueue defaultqueue = VK_NULL_HANDLE);
