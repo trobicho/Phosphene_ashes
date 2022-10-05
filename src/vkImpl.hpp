@@ -44,6 +44,11 @@ class VkImpl {
     }
     void  updatePostDescSet(VkImageView &offscreenImageView);
 
+    VkCommandBuffer&  getCommandBuffer(VkSemaphore &semaphoreWait, VkSemaphore &semaphoreSignal);
+    VkResult          acquireNextImage(uint32_t &imageIndex, VkFence &fence);
+    void              recordCommandBuffer();
+    void              present();
+
     VkInstance          m_instance = VK_NULL_HANDLE;
     VkDevice            m_device = VK_NULL_HANDLE;
     VkPhysicalDevice    m_physicalDevice = VK_NULL_HANDLE;
@@ -57,6 +62,8 @@ class VkImpl {
   private:
     void  createPostDescriptorSet();
     void  createPostPipeline();
+
+    VkSampler               m_sampler = VK_NULL_HANDLE;
 
     VkDescriptorSet         m_postDescSet = VK_NULL_HANDLE;
     VkDescriptorPool        m_postDescPool = VK_NULL_HANDLE;
@@ -72,4 +79,5 @@ class VkImpl {
     std::array<VkSemaphore, MAX_FRAMES_IN_FLIGHT>       m_semaphoreAvailable;
     std::array<VkSemaphore, MAX_FRAMES_IN_FLIGHT>       m_semaphoreFinish;
     uint32_t                                            m_currentFrame = 0;
+    uint32_t                                            m_currentImageIndex = 0;
 };

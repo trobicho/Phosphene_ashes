@@ -39,7 +39,9 @@ SRCS_NAME =	main.cpp \
 			postPipeline.cpp \
 			swapchain.cpp \
 			camera.cpp \
-			phosphene.cpp
+			phosphene.cpp \
+			allocator.cpp \
+			rtTest.cpp
 
 HDRS_NAME =	phosStartVk.hpp \
 			vkImpl.hpp \
@@ -47,7 +49,10 @@ HDRS_NAME =	phosStartVk.hpp \
 			command.hpp \
 			camera.hpp \
 			../shaders/hostDevice.h \
-			phosphene.hpp
+			phosphene.hpp \
+			allocator.hpp \
+			rtTest.hpp 
+
 
 OBJS_NAME	=	$(SRCS_NAME:.cpp=.o) 
 

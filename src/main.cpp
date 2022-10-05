@@ -20,9 +20,7 @@ int main() {
     glfwSetWindowSizeCallback(window, callbackWindowSize);
   }
 
-  while(!glfwWindowShouldClose(window)) {
-    glfwPollEvents();
-  }
+  phosphene.renderLoop();
 
   phosphene.destroy();
   glfwDestroyWindow(window);

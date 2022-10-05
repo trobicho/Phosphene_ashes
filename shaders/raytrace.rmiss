@@ -16,5 +16,5 @@ layout(push_constant) uniform _PushConstantRay
 void main()
 {
   prd.hitValue = pcRay.clearColor.xyz * 0.8;
-  prd.hitValue = vec3(0, 0, 0);
+  prd.hitValue = vec3(0.1, 0.1, 0.1);
 }

@@ -6,7 +6,7 @@ class CommandPool {
     CommandPool() {};
 
     void  init(VkDevice device
-              , uint32_t familyIndex
+              , uint32_t queueFamilyIndex
               , VkCommandPoolCreateFlagBits flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT
               , VkQueue defaultQueue = VK_NULL_HANDLE);
 
@@ -15,5 +15,5 @@ class CommandPool {
   private:
     VkDevice        m_device = VK_NULL_HANDLE;
     VkCommandPool   m_commandPool = VK_NULL_HANDLE;
-    VkQueue         m_queue;
+    VkQueue         m_queue = VK_NULL_HANDLE;
 };

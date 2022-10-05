@@ -3,6 +3,7 @@
 void  VkImpl::destroy() {
   cleanupSwapchain();
 
+  vkDestroySampler(m_device, m_sampler, nullptr); 
   for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
     vkDestroySemaphore(m_device, m_semaphoreAvailable[i], nullptr);
     vkDestroySemaphore(m_device, m_semaphoreFinish[i], nullptr);
@@ -17,6 +18,7 @@ void  VkImpl::destroy() {
     vkDestroyDescriptorPool(m_device, m_postDescPool, nullptr);
   }
 }
+
 void  VkImpl::setup(VkDevice &device
                   , VkPhysicalDevice &physicalDevice
                   , uint32_t queueFamilyIndex
@@ -27,6 +29,79 @@ void  VkImpl::setup(VkDevice &device
   m_queue = defaultQueue;
   if (defaultQueue == VK_NULL_HANDLE)
     vkGetDeviceQueue(m_device, queueFamilyIndex, 0, &m_queue);
+}
+
+VkCommandBuffer&  VkImpl::getCommandBuffer(VkSemaphore &semaphoreWait, VkSemaphore &semaphoreSignal) {
+  semaphoreWait = m_semaphoreAvailable[m_currentFrame];
+  semaphoreSignal = m_semaphoreFinish[m_currentFrame];
+  return (m_commandBuffers[m_currentFrame]);
+}
+
+VkResult          VkImpl::acquireNextImage(uint32_t &imageIndex, VkFence &fence) {
+  vkWaitForFences(m_device, 1, &m_fences[m_currentFrame], VK_TRUE, UINT64_MAX);
+  vkResetFences(m_device, 1, &m_fences[m_currentFrame]);
+  fence = m_fences[m_currentFrame];
+  VkResult  result = vkAcquireNextImageKHR(m_device
+      , m_swapchainWrap.chain, UINT64_MAX
+      , m_semaphoreAvailable[m_currentFrame]
+      , VK_NULL_HANDLE, &m_currentImageIndex);
+  imageIndex = m_currentImageIndex;
+  return (result);
+}
+
+void              VkImpl::recordCommandBuffer() {
+  VkClearValue clearValue = (VkClearValue){0.0f, 0.0f, 0.0f, 1.0f};
+  VkRenderPassBeginInfo     renderPassInfo = {
+    .sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
+    .renderPass = m_renderPass,
+    .framebuffer = m_swapchainWrap.framebuffer[m_currentImageIndex],
+    .renderArea = (VkRect2D) {
+      .offset = (VkOffset2D){0, 0},
+      .extent = m_swapchainWrap.extent,
+    },
+    .clearValueCount = 1,
+    .pClearValues = &clearValue,
+  };
+  auto&  commandBuffer = m_commandBuffers[m_currentFrame];
+  
+  vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+  vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_postPipeline);
+
+  vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS
+      , m_postPipelineLayout, 0, 1, &m_postDescSet, 0, nullptr);
+
+  VkViewport viewport{
+    .x = 0.0f,
+    .y = 0.0f,
+    .width = static_cast<float>(m_swapchainWrap.extent.width),
+    .height= static_cast<float>(m_swapchainWrap.extent.height),
+    .minDepth = 0.0f,
+    .maxDepth = 1.0f,
+  };
+  vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
+
+  VkRect2D scissor{
+    .offset = {0, 0},
+    .extent = m_swapchainWrap.extent,
+  };
+  vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
+
+  vkCmdDraw(commandBuffer, 4, 1, 0, 0);
+  vkCmdEndRenderPass(commandBuffer);
+}
+
+void              VkImpl::present() {
+    VkPresentInfoKHR  presentInfo = {
+    .sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
+    .waitSemaphoreCount = 1,
+    .pWaitSemaphores = &m_semaphoreFinish[m_currentFrame],
+    .swapchainCount = 1,
+    .pSwapchains = &m_swapchainWrap.chain,
+    .pImageIndices = &m_currentImageIndex,
+    .pResults = nullptr,
+  };
+  vkQueuePresentKHR(m_queue, &presentInfo);
+  ++m_currentFrame %= MAX_FRAMES_IN_FLIGHT;
 }
 
 void  VkImpl::createCommandPool() {
@@ -113,10 +188,9 @@ void  VkImpl::createRenderPass() {
 
 void  VkImpl::updatePostDescSet(VkImageView &offscreenImageView) {
   VkSamplerCreateInfo samplerInfo{VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO};
-  VkSampler           sampler;
-  vkCreateSampler(m_device, &samplerInfo, nullptr, &sampler);
+  vkCreateSampler(m_device, &samplerInfo, nullptr, &m_sampler);
   VkDescriptorImageInfo imageInfo = {
-    .sampler = sampler,
+    .sampler = m_sampler,
     .imageView = offscreenImageView,
     .imageLayout = VK_IMAGE_LAYOUT_GENERAL,
   };
