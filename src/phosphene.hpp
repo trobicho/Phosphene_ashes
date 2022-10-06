@@ -17,7 +17,11 @@ class Phosphene {
     void  renderLoop();
     void  deviceWait() {vkDeviceWaitIdle(m_device);}
 
+    //Callback
     void  callbackWindowResize(int width, int height);
+    void  callbackKey(int key, int scancode, int action, int mods);
+    void  callbackCursor(double x_pos, double y_pos);
+    void  callbackMouseButton(int button, int action, int mod);
 
   private:
     void  draw();
@@ -25,6 +29,7 @@ class Phosphene {
     GLFWwindow  *m_window;
     uint32_t    m_width;
     uint32_t    m_height;
+    bool        m_quit = false;
 
     VkInstance        m_instance = VK_NULL_HANDLE;
     VkSurfaceKHR      m_surface;
@@ -35,7 +40,8 @@ class Phosphene {
 
     VkImpl  m_vkImpl;
 
-    Camera  m_camera;
+    Camera          m_camera;
+    GlobalUniforms  m_globalUniform;
 
 
     void  createOffscreenRender();

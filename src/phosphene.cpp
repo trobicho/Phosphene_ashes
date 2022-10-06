@@ -17,6 +17,12 @@ Phosphene::Phosphene(GLFWwindow *window): m_window(window) {
   m_height = static_cast<uint32_t>(height);
 
   {
+    m_camera.setAllowMoving(true);
+    m_camera.setFov(80.f);
+    m_camera.setAspectRatio(m_width, m_height);
+  }
+
+  {
     m_vkImpl.setup(m_device, m_physicalDevice, m_graphicsQueueFamilyIndex, m_graphicsQueue);
     m_vkImpl.createSwapchain(m_surface, m_width, m_height);
     m_vkImpl.createRenderPass();
@@ -66,28 +72,14 @@ Phosphene::Phosphene(GLFWwindow *window): m_window(window) {
   }
 }
 
-void  Phosphene::callbackWindowResize(int width, int height) {
-  deviceWait();
-  m_vkImpl.cleanupSwapchain();
-  vkDestroySurfaceKHR(m_instance, m_surface, nullptr);
-
-  if (glfwCreateWindowSurface(m_instance, m_window, nullptr, &m_surface) != VK_SUCCESS)
-    throw PhosHelper::FatalVulkanInitError("Failed to create Surface");
-  m_vkImpl.recreateSwapchain(m_surface, width, height);
-
-  vkDestroyImage(m_device, m_offscreenColor, nullptr);
-  vkFreeMemory(m_device, m_offscreenImageMemory, nullptr);
-  vkDestroyImageView(m_device, m_offscreenImageView, nullptr);
-  createOffscreenRender();
-  m_vkImpl.updatePostDescSet(m_offscreenImageView);
-  m_rtTest.updateDescriptorSet(m_offscreenImageView);
-}
-
 void  Phosphene::renderLoop() {
   uint32_t  frame_n = 1;
 
-  while(!glfwWindowShouldClose(m_window)) {
+  while(!glfwWindowShouldClose(m_window) && !m_quit) {
     glfwPollEvents();
+    m_camera.step();
+    if (m_camera.buildGlobalUniform(m_globalUniform)) {
+    }
     draw();
   }
 }
@@ -125,7 +117,7 @@ void  Phosphene::draw() {
     };
     if (vkQueueSubmit(m_graphicsQueue, 1, &submitInfo
           , VK_NULL_HANDLE) != VK_SUCCESS)
-      throw PhosHelper::FatalVulkanInitError("Failed to Raytrace");
+      throw PhosHelper::FatalVulkanInitError("Failed to submit Raytrace");
   }
   {
     vkBeginCommandBuffer(commandBufferPost, &beginInfo);
@@ -145,7 +137,7 @@ void  Phosphene::draw() {
     };
     if (vkQueueSubmit(m_graphicsQueue, 1, &submitInfo
           , fence) != VK_SUCCESS)
-      throw PhosHelper::FatalVulkanInitError("Failed to Raytrace");
+      throw PhosHelper::FatalVulkanInitError("Failed to submit Post");
   }
 
   m_vkImpl.present();

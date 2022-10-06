@@ -40,6 +40,7 @@ SRCS_NAME =	main.cpp \
 			swapchain.cpp \
 			camera.cpp \
 			phosphene.cpp \
+			phospheneCallback.cpp \
 			allocator.cpp \
 			rtTest.cpp
 
