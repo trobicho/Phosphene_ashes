@@ -30,6 +30,7 @@ class Phosphene {
     uint32_t    m_width;
     uint32_t    m_height;
     bool        m_quit = false;
+    bool        m_update = true;
 
     VkInstance        m_instance = VK_NULL_HANDLE;
     VkSurfaceKHR      m_surface;
@@ -43,7 +44,6 @@ class Phosphene {
     Camera          m_camera;
     GlobalUniforms  m_globalUniform;
 
-
     void  createOffscreenRender();
     VkImage           m_offscreenColor{VK_NULL_HANDLE};
     VkFormat          m_offscreenColorFormat{VK_FORMAT_R32G32B32A32_SFLOAT};
@@ -56,5 +56,4 @@ class Phosphene {
 
     //TESTING
     RtTest  m_rtTest;
-    MemoryAllocator m_alloc;
 };

@@ -18,12 +18,16 @@ class RtTest {
     void  destroy();
     void  createDescriptorSet(const VkImageView &imageView);
     void  updateDescriptorSet(const VkImageView &imageView);
+    void  updateUniformBuffer(const VkCommandBuffer &cmdBuffer, GlobalUniforms &uniform);
     void  createPipeline();
     void  createShaderBindingTable();
 
     VkDevice          m_device = VK_NULL_HANDLE;
     VkPhysicalDevice  m_physicalDevice = VK_NULL_HANDLE;
     MemoryAllocator   m_alloc;
+
+    BufferWrapper     m_globalUBO;
+
 
     VkPhysicalDeviceRayTracingPipelinePropertiesKHR m_properties {
       VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PIPELINE_PROPERTIES_KHR
@@ -39,9 +43,13 @@ class RtTest {
 
     std::vector<VkDescriptorSetLayoutBinding>
       m_descSetLayoutBinds;
+    std::vector<VkDescriptorSetLayoutBinding>
+      m_descSetLayoutGlobalBinds;
     VkDescriptorPool            m_descPool;
     VkDescriptorSetLayout       m_descSetLayout;
+    VkDescriptorSetLayout       m_descSetLayoutGlobal;
     VkDescriptorSet             m_descSet;
+    VkDescriptorSet             m_descSetGlobal;
 
     std::vector<VkRayTracingShaderGroupCreateInfoKHR>
       m_shaderGroups;

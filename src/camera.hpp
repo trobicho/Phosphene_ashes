@@ -72,6 +72,6 @@ class Camera {
     float     m_fovY = glm::radians(80.f);
     float     m_aspectRatio = 1.f;
     float     m_zNear = 0.1f;
-    float     m_zFar = 10.f;
+    float     m_zFar = 100.f;
     bool      m_update = true;
 };

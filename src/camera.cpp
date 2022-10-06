@@ -1,6 +1,7 @@
 #include "camera.hpp"
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtx/projection.hpp>
+#include <iostream>
 
 Camera::Camera() {
 }
@@ -62,7 +63,7 @@ void  Camera::forceBuildGlobalUniform(GlobalUniforms &uniform) {
   m_view = glm::lookAt(m_position, m_position + m_forward, m_up);
   m_projection = glm::perspective(m_fovY, m_aspectRatio, m_zNear, m_zFar);
   uniform = {
-    .viewProj = m_view * m_projection,
+    .viewProj = m_view ,
     .viewInverse = glm::inverse(m_view),
     .projInverse = glm::inverse(m_projection),
   };

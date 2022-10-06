@@ -5,7 +5,9 @@
 
 namespace PhosStartVk {
   inline std::vector<const char*>  validationLayers() {
-    std::vector<const char*> layers = {"VK_LAYER_KHRONOS_validation"};
+    std::vector<const char*> layers = {
+      "VK_LAYER_KHRONOS_validation",
+    };
     return (layers);
   }
 

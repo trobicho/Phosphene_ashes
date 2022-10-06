@@ -4,10 +4,12 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
+#include <glm/glm.hpp>
   
 namespace PhosHelper {
   void  infoInstance();
   void  infoRaytracingProperties(VkPhysicalDevice physicalDevice);
+  void  printMatrix(glm::mat4 matrix);
 }
 
 namespace PhosHelper {
@@ -17,6 +19,7 @@ namespace PhosHelper {
     return (createShaderModuleFromCode(device, readBinaryFile(filename)));
   }
 }
+
 
 namespace PhosHelper {
   class	FatalError: public std::exception

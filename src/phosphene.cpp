@@ -32,7 +32,6 @@ Phosphene::Phosphene(GLFWwindow *window): m_window(window) {
   }
 
   {
-    m_alloc.init(m_device, m_physicalDevice, m_graphicsQueueFamilyIndex, m_graphicsQueue);
     createOffscreenRender();
     m_vkImpl.updatePostDescSet(m_offscreenImageView);
   }
@@ -79,8 +78,12 @@ void  Phosphene::renderLoop() {
     glfwPollEvents();
     m_camera.step();
     if (m_camera.buildGlobalUniform(m_globalUniform)) {
+      std::cout << std::endl << "VIEW INVERSE:" << std::endl;
+      //PhosHelper::printMatrix(m_globalUniform.viewInverse);
+      m_update = true;
     }
     draw();
+    m_update = false;
   }
 }
 
@@ -102,6 +105,7 @@ void  Phosphene::draw() {
 
   {
     vkBeginCommandBuffer(m_commandBuffer, &beginInfo);
+    m_rtTest.updateUniformBuffer(m_commandBuffer, m_globalUniform);
     m_rtTest.raytrace(m_commandBuffer, m_width, m_height);
     vkEndCommandBuffer(m_commandBuffer);
     VkPipelineStageFlags  waitStage[] = {VK_PIPELINE_STAGE_RAY_TRACING_SHADER_BIT_KHR};
@@ -145,6 +149,7 @@ void  Phosphene::draw() {
 
 void  Phosphene::destroy() {
   if (m_instance != VK_NULL_HANDLE) {
+    std::cout << std::endl << "DESTROY" << std::endl;
     deviceWait();
 
     m_vkImpl.destroy();
