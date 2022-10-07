@@ -71,6 +71,11 @@ Phosphene::Phosphene(GLFWwindow *window): m_window(window) {
   }
 }
 
+void  Phosphene::loadScene(const std::string &filename) {
+  SceneLoader test;
+  test.test(filename);
+}
+
 void  Phosphene::renderLoop() {
   uint32_t  frame_n = 1;
 

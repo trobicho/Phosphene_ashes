@@ -1,5 +1,42 @@
 {
-  "objects": {
-
-  }
+  "meshs": [
+    {
+      "name" : "cow",
+      "filepath": "obj/cow.obj",
+      "type": "wavefront",
+      "load_scale": 0.1,
+      "load_normal": false,
+      "load_textCoord": false,
+      "invertY": true
+    }
+  ],
+  "shapes": [
+  ],
+  "lights": [
+    {
+      "position": [5.0, 10.0, 4.0],
+      "color": [1.0, 1.0, 1.0],
+      "intensity": 100.0
+    }
+  ],
+  "instance": [
+    {
+      "name": "cow1",
+      "mesh": "cow",
+      "position": [0.0, 0.0, 3.0],
+      "scale": 1.0
+    },
+    {
+      "name": "cow2",
+      "mesh": "cow",
+      "position": [5.0, 0.0, 3.0],
+      "scale": 1.0
+    },
+    {
+      "name": "cow3",
+      "mesh": "cow",
+      "position": [-5.0, 0.0, 3.0],
+      "scale": 1.0
+    }
+  ]
 }

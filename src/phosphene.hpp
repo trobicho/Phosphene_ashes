@@ -3,6 +3,8 @@
 #include "backend/vkImpl.hpp"
 #include "helper/command.hpp"
 #include "camera.hpp"
+#include "sceneLoader/sceneLoader.hpp"
+#include <string>
 
 //TESTING
 #include "raytracing/rtTest.hpp"
@@ -16,6 +18,7 @@ class Phosphene {
 
     void  renderLoop();
     void  deviceWait() {vkDeviceWaitIdle(m_device);}
+    void  loadScene(const std::string &filename);
 
     //Callback
     void  callbackWindowResize(int width, int height);

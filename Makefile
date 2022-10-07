@@ -44,6 +44,7 @@ SRCS_NAME =	main.cpp \
 			helper/allocator.cpp \
 			helper/phosHelper.cpp \
 			raytracing/rtTest.cpp \
+			sceneLoader/sceneLoader.cpp \
 
 HDRS_NAME =	phosphene.hpp \
 			camera.hpp \
@@ -54,6 +55,7 @@ HDRS_NAME =	phosphene.hpp \
 			helper/allocator.hpp \
 			raytracing/rtTest.hpp  \
 			../shaders/hostDevice.h \
+			sceneLoader/sceneLoader.hpp \
 
 EXTERNAL_LIB_NAME = json/json.hpp \
 					imgui/imgui.h \
@@ -99,7 +101,7 @@ $(EXTERNAL_LIB_PATH)/json/json.hpp:
 	@test -d $(EXTERNAL_LIB_PATH)/json || mkdir -pm 775 $(EXTERNAL_LIB_PATH)/json
 	@echo -e "\033[38;2;0;255;0m[download nlohmann/json]\033[0m"
 	@if ! [ -f "$(EXTERNAL_LIB_PATH)/json/json.hpp" ] ; then \
-		wget https://github.com/nlohmann/json/blob/develop/single_include/nlohmann/json.hpp ; \
+		wget https://raw.githubusercontent.com/nlohmann/json/develop/single_include/nlohmann/json.hpp ;\
 		mv ./json.hpp ./$(EXTERNAL_LIB_PATH)/json/ ; \
 	fi
 	@printf "\e[1A"
