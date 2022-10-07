@@ -93,7 +93,7 @@ $(SHADERS_RESULT): $(SHADERS) Makefile
 
 external_lib: $(EXTERNAL_LIBS) Makefile
 
-$(EXTERNAL_LIBS): Makefile
+$(EXTERNAL_LIB_PATH)/json/json.hpp:
 	echo $@
 	@test -d $(EXTERNAL_LIB_PATH) || mkdir -pm 775 $(EXTERNAL_LIB_PATH)
 	@test -d $(EXTERNAL_LIB_PATH)/json || mkdir -pm 775 $(EXTERNAL_LIB_PATH)/json
@@ -104,6 +104,9 @@ $(EXTERNAL_LIBS): Makefile
 	fi
 	@printf "\e[1A"
 	@printf "\e[0K"
+
+$(EXTERNAL_LIB_PATH)/imgui/imgui.h:
+	echo $@
 	@echo -e "\033[38;2;0;255;0m[download imgui]\033[0m"
 	@test -d $(EXTERNAL_LIB_PATH)/imgui || mkdir -pm 775 $(EXTERNAL_LIB_PATH)/imgui
 	@if ! [ -f "$(EXTERNAL_LIB_PATH)/imgui/imgui.h" ] ; then \
@@ -134,5 +137,6 @@ clean:
 
 fclean: clean
 	rm -f $(NAME)
+	rm -rf $(EXTERNAL_LIB_PATH)
 
 re: fclean all
