@@ -1,11 +1,11 @@
 #pragma once
-#include "vkImpl.hpp"
-#include "command.hpp"
-#include "phosStartVk.hpp"
+#include "backend/phosStartVk.hpp"
+#include "backend/vkImpl.hpp"
+#include "helper/command.hpp"
 #include "camera.hpp"
 
 //TESTING
-#include "rtTest.hpp"
+#include "raytracing/rtTest.hpp"
 
 class Phosphene {
   public:

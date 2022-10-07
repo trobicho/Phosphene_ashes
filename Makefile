@@ -33,31 +33,30 @@ SHADERS_NAME =	post.vert \
 SHADERS_RESULT_NAME =	$(addsuffix .spv, $(SHADERS_NAME))
 
 SRCS_NAME =	main.cpp \
-			phosStartVk.cpp \
-			vkImpl.cpp \
-			phosHelper.cpp \
-			command.cpp \
-			postPipeline.cpp \
-			swapchain.cpp \
-			camera.cpp \
 			phosphene.cpp \
+			camera.cpp \
 			phospheneCallback.cpp \
-			allocator.cpp \
-			rtTest.cpp
+			backend/phosStartVk.cpp \
+			backend/vkImpl.cpp \
+			backend/postPipeline.cpp \
+			backend/swapchain.cpp \
+			helper/command.cpp \
+			helper/allocator.cpp \
+			helper/phosHelper.cpp \
+			raytracing/rtTest.cpp \
 
-HDRS_NAME =	phosStartVk.hpp \
-			vkImpl.hpp \
-			phosHelper.hpp \
-			command.hpp \
+HDRS_NAME =	phosphene.hpp \
 			camera.hpp \
+			backend/phosStartVk.hpp \
+			backend/vkImpl.hpp \
+			helper/phosHelper.hpp \
+			helper/command.hpp \
+			helper/allocator.hpp \
+			raytracing/rtTest.hpp  \
 			../shaders/hostDevice.h \
-			phosphene.hpp \
-			allocator.hpp \
-			rtTest.hpp 
 
-EXTERNAL_LIB_NAME = json \
-					imgui
-
+EXTERNAL_LIB_NAME = json/json.hpp \
+					imgui/imgui.h \
 
 OBJS_NAME	=	$(SRCS_NAME:.cpp=.o) 
 
@@ -68,7 +67,7 @@ SHADERS = $(addprefix $(SHADERS_PATH)/, $(SHADERS_NAME))
 SHADERS_RESULT = $(addprefix $(SHADERS_SPV_PATH)/, $(SHADERS_RESULT_NAME))
 EXTERNAL_LIBS = $(addprefix $(EXTERNAL_LIB_PATH)/, $(EXTERNAL_LIB_NAME))
 
-all: $(EXTERNAL_LIBS) $(NAME) $(SHADERS) $(SHADER_RESULT) Makefile
+all: $(EXTERNAL_LIBS) $(NAME) $(SHADERS) $(SHADERS_RESULT) Makefile
 
 $(NAME): $(SRCS) $(HDRS) $(OBJS) Makefile
 	$(CC) $(CXXFLAGS) $(INCS_FLAGS) $(OBJS) $(LDFLAGS) -o $(NAME)
@@ -88,13 +87,14 @@ $(SHADERS_RESULT): $(SHADERS) Makefile
 	@for f in $(SHADERS_NAME); do \
 		echo -e "\033[38;2;0;255;0m[$(GLS)]\033[0m: $$f -> $$f.spv"; \
 		printf "\e[1A"; \
-		$(GLS) -V $(SHADERS_PATH)/$$f -o $(SHADERS_SPV_PATH)/$$f.spv; \
 		printf "\e[0K"; \
+		$(GLS) -V $(SHADERS_PATH)/$$f -o $(SHADERS_SPV_PATH)/$$f.spv; \
 	done
 
 external_lib: $(EXTERNAL_LIBS) Makefile
 
 $(EXTERNAL_LIBS): Makefile
+	echo $@
 	@test -d $(EXTERNAL_LIB_PATH) || mkdir -pm 775 $(EXTERNAL_LIB_PATH)
 	@test -d $(EXTERNAL_LIB_PATH)/json || mkdir -pm 775 $(EXTERNAL_LIB_PATH)/json
 	@echo -e "\033[38;2;0;255;0m[download nlohmann/json]\033[0m"
@@ -108,15 +108,21 @@ $(EXTERNAL_LIBS): Makefile
 	@test -d $(EXTERNAL_LIB_PATH)/imgui || mkdir -pm 775 $(EXTERNAL_LIB_PATH)/imgui
 	@if ! [ -f "$(EXTERNAL_LIB_PATH)/imgui/imgui.h" ] ; then \
 		wget https://github.com/ocornut/imgui/archive/refs/heads/master.zip ; \
-		unzip ./master.zip -d $(EXTERNAL_LIB_PATH)/imgui/ ; \
+		unzip ./master.zip -d $(EXTERNAL_LIB_PATH)/imgui/ \
+			-x imgui-master/.git* imgui-master/.editor* \
+			imgui-master/examples/* imgui-master/misc/* imgui-master/docs/* \
+			imgui-master/backends/imgui_impl_a* \
+			imgui-master/backends/imgui_impl_d* \
+			imgui-master/backends/imgui_impl_m* \
+			imgui-master/backends/imgui_impl_o* \
+			imgui-master/backends/imgui_impl_s* \
+			imgui-master/backends/imgui_impl_w* \
+			imgui-master/backends/imgui_impl_glut* ; \
 		rm ./master.zip ; \
 		mv $(EXTERNAL_LIB_PATH)/imgui/imgui-master/* $(EXTERNAL_LIB_PATH)/imgui/ ; \
 		mv $(EXTERNAL_LIB_PATH)/imgui/backends/vulkan $(EXTERNAL_LIB_PATH)/imgui/ ; \
 		mv $(EXTERNAL_LIB_PATH)/imgui/backends/imgui_impl_vulkan.* $(EXTERNAL_LIB_PATH)/imgui/ ; \
 		rm -r $(EXTERNAL_LIB_PATH)/imgui/imgui-master/ ; \
-		rm -r $(EXTERNAL_LIB_PATH)/imgui/misc/ ; \
-		rm -r $(EXTERNAL_LIB_PATH)/imgui/docs/ ; \
-		rm -r $(EXTERNAL_LIB_PATH)/imgui/examples/ ; \
 		rm -r $(EXTERNAL_LIB_PATH)/imgui/backends/ ; \
 	fi
 	@printf "\e[1A"
@@ -126,7 +132,6 @@ clean:
 	rm -f $(OBJS)
 	rm -f $(SHADERS_SPV_PATH)/*.spv
 
-	
 fclean: clean
 	rm -f $(NAME)
 

@@ -1,7 +1,7 @@
 #pragma once
-#include "phosHelper.hpp"
-#include "allocator.hpp"
-#include "../shaders/hostDevice.h"
+#include "../helper/phosHelper.hpp"
+#include "../helper/allocator.hpp"
+#include "../../shaders/hostDevice.h"
 
 class RtTest {
   private:
