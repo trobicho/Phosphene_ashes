@@ -55,7 +55,8 @@ HDRS_NAME =	phosStartVk.hpp \
 			allocator.hpp \
 			rtTest.hpp 
 
-EXTERNAL_LIB_NAME = json.hpp
+EXTERNAL_LIB_NAME = json \
+					imgui
 
 
 OBJS_NAME	=	$(SRCS_NAME:.cpp=.o) 
@@ -95,13 +96,31 @@ external_lib: $(EXTERNAL_LIBS) Makefile
 
 $(EXTERNAL_LIBS): Makefile
 	@test -d $(EXTERNAL_LIB_PATH) || mkdir -pm 775 $(EXTERNAL_LIB_PATH)
-	@echo -e "\033[38;2;0;255;0m[download json.hpp]\033[0m"
-	@printf "\e[1A"
-	@if ! [ -f "$(EXTERNAL_LIB_PATH)/json.hpp" ] ; then \
+	@test -d $(EXTERNAL_LIB_PATH)/json || mkdir -pm 775 $(EXTERNAL_LIB_PATH)/json
+	@echo -e "\033[38;2;0;255;0m[download nlohmann/json]\033[0m"
+	@if ! [ -f "$(EXTERNAL_LIB_PATH)/json/json.hpp" ] ; then \
 		wget https://github.com/nlohmann/json/blob/develop/single_include/nlohmann/json.hpp ; \
-		mv ./json.hpp ./$(EXTERNAL_LIB_PATH)/ ; \
+		mv ./json.hpp ./$(EXTERNAL_LIB_PATH)/json/ ; \
 	fi
-	@printf "\e[0K";
+	@printf "\e[1A"
+	@printf "\e[0K"
+	@echo -e "\033[38;2;0;255;0m[download imgui]\033[0m"
+	@test -d $(EXTERNAL_LIB_PATH)/imgui || mkdir -pm 775 $(EXTERNAL_LIB_PATH)/imgui
+	@if ! [ -f "$(EXTERNAL_LIB_PATH)/imgui/imgui.h" ] ; then \
+		wget https://github.com/ocornut/imgui/archive/refs/heads/master.zip ; \
+		unzip ./master.zip -d $(EXTERNAL_LIB_PATH)/imgui/ ; \
+		rm ./master.zip ; \
+		mv $(EXTERNAL_LIB_PATH)/imgui/imgui-master/* $(EXTERNAL_LIB_PATH)/imgui/ ; \
+		mv $(EXTERNAL_LIB_PATH)/imgui/backends/vulkan $(EXTERNAL_LIB_PATH)/imgui/ ; \
+		mv $(EXTERNAL_LIB_PATH)/imgui/backends/imgui_impl_vulkan.* $(EXTERNAL_LIB_PATH)/imgui/ ; \
+		rm -r $(EXTERNAL_LIB_PATH)/imgui/imgui-master/ ; \
+		rm -r $(EXTERNAL_LIB_PATH)/imgui/misc/ ; \
+		rm -r $(EXTERNAL_LIB_PATH)/imgui/docs/ ; \
+		rm -r $(EXTERNAL_LIB_PATH)/imgui/examples/ ; \
+		rm -r $(EXTERNAL_LIB_PATH)/imgui/backends/ ; \
+	fi
+	@printf "\e[1A"
+	@printf "\e[0K"
 
 clean:
 	rm -f $(OBJS)
