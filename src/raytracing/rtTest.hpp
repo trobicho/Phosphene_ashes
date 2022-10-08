@@ -4,12 +4,6 @@
 #include "../../shaders/hostDevice.h"
 
 class RtTest {
-  private:
-    struct  BufferWrapper {
-      VkBuffer        buffer = VK_NULL_HANDLE;
-      VkDeviceMemory  memory = VK_NULL_HANDLE;
-    };
-
   public:
     RtTest(){};
 

@@ -45,6 +45,7 @@ SRCS_NAME =	main.cpp \
 			helper/phosHelper.cpp \
 			raytracing/rtTest.cpp \
 			sceneLoader/sceneLoader.cpp \
+			sceneLoader/scene.cpp \
 
 HDRS_NAME =	phosphene.hpp \
 			camera.hpp \
@@ -56,6 +57,7 @@ HDRS_NAME =	phosphene.hpp \
 			raytracing/rtTest.hpp  \
 			../shaders/hostDevice.h \
 			sceneLoader/sceneLoader.hpp \
+			sceneLoader/scene.hpp \
 
 EXTERNAL_LIB_NAME = json/json.hpp \
 					imgui/imgui.h \

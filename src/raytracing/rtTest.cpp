@@ -15,7 +15,7 @@ void  RtTest::init(VkDevice device, VkPhysicalDevice physicalDevice, uint32_t qu
   m_alloc.createBuffer(sizeof(GlobalUniforms)
       , static_cast<VkBufferUsageFlagBits>(VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT)
       , VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
-      , m_globalUBO.buffer, m_globalUBO.memory);
+      , m_globalUBO);
   
   {
     pfnVkCreateRayTracingPipelinesKHR =
@@ -357,7 +357,7 @@ void  RtTest::createShaderBindingTable() {
         | VK_BUFFER_USAGE_SHADER_BINDING_TABLE_BIT_KHR),
       VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT
         | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-      m_SBTBuffer.buffer, m_SBTBuffer.memory);
+      m_SBTBuffer);
 
   VkBufferDeviceAddressInfo info{VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO, nullptr, m_SBTBuffer.buffer};
   VkDeviceAddress           sbtAddress = vkGetBufferDeviceAddress(m_device, &info);
