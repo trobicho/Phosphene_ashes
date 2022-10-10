@@ -19,21 +19,28 @@ using uint = unsigned int;
   #define END_BINDING()
 #endif
 
-struct GlobalUniforms {
+struct  GlobalUniforms {
   mat4  viewProj;
   mat4  viewInverse;
   mat4  projInverse;
 };
 
 // Push constant structure for the ray tracer
-struct PushConstantRay {
+struct  PushConstantRay {
   vec4  clearColor;
   vec3  lightPosition;
   float lightIntensity;
   int   lightType;
 };
 
-struct WaveFrontMaterial  // See ObjLoader, copy of MaterialObj, could be compressed for device
+struct  Vertex {
+  vec3  pos;
+  vec3  normal;
+  vec3  color;
+  vec2  textCoord;
+};
+
+struct  WaveFrontMaterial  // See ObjLoader, copy of MaterialObj, could be compressed for device
 {
   vec3  ambient;
   vec3  diffuse;

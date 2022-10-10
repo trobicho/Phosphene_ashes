@@ -46,6 +46,7 @@ class Phosphene {
 
     Camera          m_camera;
     GlobalUniforms  m_globalUniform;
+    PhosScene       m_scene;
 
     void  createOffscreenRender();
     VkImage           m_offscreenColor{VK_NULL_HANDLE};

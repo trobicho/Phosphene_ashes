@@ -4,9 +4,9 @@
       "name" : "cow",
       "filepath": "obj/cow.obj",
       "type": "wavefront",
-      "load_scale": 0.1,
-      "load_normal": false,
-      "load_textCoord": false,
+      "loadScale": 0.1,
+      "loadNormal": false,
+      "loadTextCoord": false,
       "invertY": true
     }
   ],

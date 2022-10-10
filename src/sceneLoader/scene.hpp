@@ -1,6 +1,7 @@
 #pragma once
 #include "../helper/phosHelper.hpp"
 #include "../helper/allocator.hpp"
+#include "../../shaders/hostDevice.h"
 #include <string>
 #include <vector>
 
@@ -17,7 +18,6 @@ class ObjectContainer {
     ObjectType  m_type;
 };
 
-template<class T>
 class PhosObjectMesh: public ObjectContainer {
   public:
     PhosObjectMesh(){m_type = eMesh;}
@@ -28,11 +28,11 @@ class PhosObjectMesh: public ObjectContainer {
       vkDestroyBuffer(device, m_indexBuffer.buffer, nullptr);
       vkFreeMemory(device, m_indexBuffer.memory, nullptr);
     }
-    uint32_t  strideVertex(){return(sizeof(T));}
+    uint32_t  strideVertex(){return(sizeof(Vertex));}
     void      createBuffer() {
     }
 
-    std::vector<T>        m_vertices;
+    std::vector<Vertex>   m_vertices;
     std::vector<uint32_t> m_indices;
     BufferWrapper         m_vertexBuffer;
     BufferWrapper         m_indexBuffer;

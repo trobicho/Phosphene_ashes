@@ -72,7 +72,7 @@ Phosphene::Phosphene(GLFWwindow *window): m_window(window) {
 }
 
 void  Phosphene::loadScene(const std::string &filename) {
-  SceneLoader test;
+  SceneLoader test(m_scene);
   test.test(filename);
 }
 

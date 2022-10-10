@@ -45,6 +45,7 @@ SRCS_NAME =	main.cpp \
 			helper/phosHelper.cpp \
 			raytracing/rtTest.cpp \
 			sceneLoader/sceneLoader.cpp \
+			sceneLoader/objLoader.cpp \
 			sceneLoader/scene.cpp \
 
 HDRS_NAME =	phosphene.hpp \
@@ -57,10 +58,12 @@ HDRS_NAME =	phosphene.hpp \
 			raytracing/rtTest.hpp  \
 			../shaders/hostDevice.h \
 			sceneLoader/sceneLoader.hpp \
+			sceneLoader/objLoader.hpp \
 			sceneLoader/scene.hpp \
 
 EXTERNAL_LIB_NAME = json/json.hpp \
 					imgui/imgui.h \
+					tinyobjloader/tiny_obj_loader.h
 
 OBJS_NAME	=	$(SRCS_NAME:.cpp=.o) 
 
@@ -98,7 +101,6 @@ $(SHADERS_RESULT): $(SHADERS) Makefile
 external_lib: $(EXTERNAL_LIBS) Makefile
 
 $(EXTERNAL_LIB_PATH)/json/json.hpp:
-	echo $@
 	@test -d $(EXTERNAL_LIB_PATH) || mkdir -pm 775 $(EXTERNAL_LIB_PATH)
 	@test -d $(EXTERNAL_LIB_PATH)/json || mkdir -pm 775 $(EXTERNAL_LIB_PATH)/json
 	@echo -e "\033[38;2;0;255;0m[download nlohmann/json]\033[0m"
@@ -110,7 +112,6 @@ $(EXTERNAL_LIB_PATH)/json/json.hpp:
 	@printf "\e[0K"
 
 $(EXTERNAL_LIB_PATH)/imgui/imgui.h:
-	echo $@
 	@echo -e "\033[38;2;0;255;0m[download imgui]\033[0m"
 	@test -d $(EXTERNAL_LIB_PATH)/imgui || mkdir -pm 775 $(EXTERNAL_LIB_PATH)/imgui
 	@if ! [ -f "$(EXTERNAL_LIB_PATH)/imgui/imgui.h" ] ; then \
@@ -131,6 +132,16 @@ $(EXTERNAL_LIB_PATH)/imgui/imgui.h:
 		mv $(EXTERNAL_LIB_PATH)/imgui/backends/imgui_impl_vulkan.* $(EXTERNAL_LIB_PATH)/imgui/ ; \
 		rm -r $(EXTERNAL_LIB_PATH)/imgui/imgui-master/ ; \
 		rm -r $(EXTERNAL_LIB_PATH)/imgui/backends/ ; \
+	fi
+	@printf "\e[1A"
+	@printf "\e[0K"
+
+$(EXTERNAL_LIB_PATH)/tinyobjloader/tiny_obj_loader.h:
+	@echo -e "\033[38;2;0;255;0m[download tinyobjloader]\033[0m"
+	@test -d $(EXTERNAL_LIB_PATH)/tinyobjloader || mkdir -pm 775 $(EXTERNAL_LIB_PATH)/tinyobjloader
+	@if ! [ -f "$(EXTERNAL_LIB_PATH)/tinyobjloader/tiny_obj_loader.h" ] ; then \
+		wget https://raw.githubusercontent.com/tinyobjloader/tinyobjloader/master/tiny_obj_loader.h ; \
+		mv ./tiny_obj_loader.h ./$(EXTERNAL_LIB_PATH)/tinyobjloader/ ; \
 	fi
 	@printf "\e[1A"
 	@printf "\e[0K"
