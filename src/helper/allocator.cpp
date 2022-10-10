@@ -57,3 +57,17 @@ uint32_t  MemoryAllocator::findMemoryType(uint32_t typeFilter, VkMemoryPropertyF
   }
   throw PhosHelper::FatalVulkanInitError("Unable to find memory type !");
 }
+
+void  MemoryAllocator::destroyBuffer(BufferWrapper &buffer) {
+  vkDestroyBuffer(m_device, buffer.buffer, nullptr);
+  vkFreeMemory(m_device, buffer.memory, nullptr);
+}
+
+VkDeviceAddress MemoryAllocator::getBufferDeviceAddress(BufferWrapper &buffer) {
+  VkBufferDeviceAddressInfo addrInfo = {
+    .sType = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO,
+    .buffer = buffer.buffer,
+  };
+
+  return (vkGetBufferDeviceAddress(m_device, &addrInfo));
+}

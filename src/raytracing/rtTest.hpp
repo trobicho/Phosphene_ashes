@@ -56,11 +56,4 @@ class RtTest {
     VkStridedDeviceAddressRegionKHR   m_missRegion{};
     VkStridedDeviceAddressRegionKHR   m_hitRegion{};
     VkStridedDeviceAddressRegionKHR   m_callRegion{};
-
-    //Function pointer
-    PFN_vkCreateRayTracingPipelinesKHR         pfnVkCreateRayTracingPipelinesKHR;
-    PFN_vkGetRayTracingShaderGroupHandlesKHR   pfnVkGetRayTracingShaderGroupHandlesKHR;
-    PFN_vkDestroyAccelerationStructureKHR      pfnVkDestroyAccelerationStructureKHR;
-    PFN_vkCmdTraceRaysKHR                      pfnVkCmdTraceRaysKHR;
-
 };

@@ -1,4 +1,5 @@
 #include "phosphene.hpp"
+#include "helper/extensions.hpp"
 #include <iostream>
 
 Phosphene::Phosphene(GLFWwindow *window): m_window(window) {
@@ -7,6 +8,7 @@ Phosphene::Phosphene(GLFWwindow *window): m_window(window) {
     throw PhosHelper::FatalVulkanInitError("Failed to create Surface");
   m_physicalDevice = PhosStartVk::choosePhysicalDevice(m_instance);
   PhosStartVk::createLogicalDeviceAndQueue(m_device, m_physicalDevice, m_surface, m_graphicsQueue, m_graphicsQueueFamilyIndex);
+  PhosHelper::loadRtExtension(m_device);
 
   int width = 0;
   int height = 0;
@@ -15,6 +17,7 @@ Phosphene::Phosphene(GLFWwindow *window): m_window(window) {
     throw PhosHelper::FatalError("Windows as invalid size");
   m_width = static_cast<uint32_t>(width);
   m_height = static_cast<uint32_t>(height);
+  m_alloc.init(m_device, m_physicalDevice, m_graphicsQueueFamilyIndex, m_graphicsQueue);
 
   {
     m_camera.setAllowMoving(true);
@@ -42,7 +45,7 @@ Phosphene::Phosphene(GLFWwindow *window): m_window(window) {
       .flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
       .queueFamilyIndex = m_graphicsQueueFamilyIndex,
     };
-    if (vkCreateCommandPool(m_device, &poolInfo
+  if (vkCreateCommandPool(m_device, &poolInfo
           , nullptr, &m_commandPool) != VK_SUCCESS)
       throw PhosHelper::FatalVulkanInitError("Failed to create Raytracing Command Pool !");
 
@@ -64,6 +67,7 @@ Phosphene::Phosphene(GLFWwindow *window): m_window(window) {
   }
 
   {
+    m_sceneBuilder.init(m_device, &m_alloc, m_graphicsQueueFamilyIndex);
     m_rtTest.init(m_device, m_physicalDevice, m_graphicsQueueFamilyIndex);
     m_rtTest.createDescriptorSet(m_offscreenImageView);
     m_rtTest.createPipeline();
@@ -74,6 +78,7 @@ Phosphene::Phosphene(GLFWwindow *window): m_window(window) {
 void  Phosphene::loadScene(const std::string &filename) {
   SceneLoader test(m_scene);
   test.test(filename);
+  m_sceneBuilder.buildBlas(m_scene, 0);
 }
 
 void  Phosphene::renderLoop() {

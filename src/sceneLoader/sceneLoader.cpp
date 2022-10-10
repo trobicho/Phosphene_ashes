@@ -32,6 +32,7 @@ void  SceneLoader::test(const std::string &filename) {
         std::string filepath = meshData["filepath"];
         ObjLoader::load(filepath, mesh, config);
       }
+      m_scene.m_meshs.push_back(mesh);
     }
   }
 }

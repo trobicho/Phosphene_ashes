@@ -40,8 +40,8 @@ int main() {
     glfwSetMouseButtonCallback(window, callbackMouseButton);
   }
 
-  //phosphene.renderLoop();
   phosphene.loadScene("./scene/test.json");
+  //phosphene.renderLoop();
 
   phosphene.destroy();
   glfwDestroyWindow(window);

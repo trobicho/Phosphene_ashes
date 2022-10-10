@@ -16,17 +16,6 @@ void  RtTest::init(VkDevice device, VkPhysicalDevice physicalDevice, uint32_t qu
       , static_cast<VkBufferUsageFlagBits>(VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT)
       , VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
       , m_globalUBO);
-  
-  {
-    pfnVkCreateRayTracingPipelinesKHR =
-      reinterpret_cast<PFN_vkCreateRayTracingPipelinesKHR>(vkGetDeviceProcAddr(device, "vkCreateRayTracingPipelinesKHR"));
-    pfnVkGetRayTracingShaderGroupHandlesKHR =
-      reinterpret_cast<PFN_vkGetRayTracingShaderGroupHandlesKHR>(vkGetDeviceProcAddr(device, "vkGetRayTracingShaderGroupHandlesKHR"));
-    pfnVkDestroyAccelerationStructureKHR =
-      reinterpret_cast<PFN_vkDestroyAccelerationStructureKHR>(vkGetDeviceProcAddr(device, "vkDestroyAccelerationStructureKHR"));
-    pfnVkCmdTraceRaysKHR =
-      reinterpret_cast<PFN_vkCmdTraceRaysKHR>(vkGetDeviceProcAddr(device, "vkCmdTraceRaysKHR"));
-  }
 }
 
 void  RtTest::raytrace(VkCommandBuffer commandBuffer, uint32_t width, uint32_t height) {
@@ -39,12 +28,12 @@ void  RtTest::raytrace(VkCommandBuffer commandBuffer, uint32_t width, uint32_t h
         | VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR
         | VK_SHADER_STAGE_MISS_BIT_KHR
       , 0, sizeof(PushConstantRay), &m_pcRay);
-  pfnVkCmdTraceRaysKHR(commandBuffer, &m_rgenRegion, &m_missRegion, &m_hitRegion, &m_callRegion, width, height, 1);
+  vkCmdTraceRaysKHR(commandBuffer, &m_rgenRegion, &m_missRegion, &m_hitRegion, &m_callRegion, width, height, 1);
 }
 
 void  RtTest::destroy() {
-  pfnVkDestroyAccelerationStructureKHR(m_device, m_blas, nullptr);
-  pfnVkDestroyAccelerationStructureKHR(m_device, m_tlas, nullptr);
+  vkDestroyAccelerationStructureKHR(m_device, m_blas, nullptr);
+  vkDestroyAccelerationStructureKHR(m_device, m_tlas, nullptr);
   vkFreeMemory(m_device, m_SBTBuffer.memory, nullptr);
   vkDestroyDescriptorSetLayout(m_device, m_descSetLayout, nullptr);
   vkDestroyDescriptorSetLayout(m_device, m_descSetLayoutGlobal, nullptr);
@@ -318,7 +307,7 @@ void  RtTest::createPipeline() {
     .maxPipelineRayRecursionDepth = 1,
     .layout = m_pipelineLayout,
   };
-  if (pfnVkCreateRayTracingPipelinesKHR(m_device, {}, {}, 1, &rayPipelineInfo
+  if (vkCreateRayTracingPipelinesKHR(m_device, {}, {}, 1, &rayPipelineInfo
         , nullptr, &m_pipeline) != VK_SUCCESS)
     throw PhosHelper::FatalError("failed to create RayTracing pipeline!");
   for(auto& s : stages)
@@ -346,7 +335,7 @@ void  RtTest::createShaderBindingTable() {
 
   uint32_t    dataSize = handleCount * handleSize;
   std::vector<uint8_t> handles(dataSize);
-  if (pfnVkGetRayTracingShaderGroupHandlesKHR(m_device, m_pipeline, 0, handleCount, dataSize, handles.data()) != VK_SUCCESS)
+  if (vkGetRayTracingShaderGroupHandlesKHR(m_device, m_pipeline, 0, handleCount, dataSize, handles.data()) != VK_SUCCESS)
     throw PhosHelper::FatalVulkanInitError("Unable get RT shader group handles !");
 
   VkDeviceSize sbtSize = m_rgenRegion.size + m_missRegion.size + m_hitRegion.size + m_callRegion.size;

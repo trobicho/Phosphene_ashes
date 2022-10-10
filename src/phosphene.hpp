@@ -4,6 +4,7 @@
 #include "helper/command.hpp"
 #include "camera.hpp"
 #include "sceneLoader/sceneLoader.hpp"
+#include "raytracing/rtBuilder.hpp"
 #include <string>
 
 //TESTING
@@ -58,6 +59,9 @@ class Phosphene {
     VkCommandPool     m_commandPool;
     VkCommandBuffer   m_commandBuffer;
 
+    MemoryAllocator   m_alloc;
+
     //TESTING
-    RtTest  m_rtTest;
+    RtTest                  m_rtTest;
+    RtBuilder::SceneBuilder m_sceneBuilder;
 };

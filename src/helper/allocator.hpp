@@ -6,10 +6,20 @@ struct  BufferWrapper {
   VkDeviceMemory  memory = VK_NULL_HANDLE;
 };
 
+struct  AccelKHR {
+  VkAccelerationStructureKHR  accel = VK_NULL_HANDLE;
+  BufferWrapper               buffer;
+};
+
 class MemoryAllocator { //TODO: Real allocator
   public:
     MemoryAllocator(){};
 
+    void  init(VkDevice device
+              , VkPhysicalDevice physicalDevice
+              , uint32_t queueFamilyIndex
+              , VkQueue defaultQueue = VK_NULL_HANDLE);
+    
     void  createBuffer(size_t size, VkBufferUsageFlagBits usage
                       , VkMemoryPropertyFlags propertyFlags
                       , VkBuffer &buffer, VkDeviceMemory &bufferMemory);
@@ -19,11 +29,11 @@ class MemoryAllocator { //TODO: Real allocator
                       , BufferWrapper &buffer) {
       createBuffer(size, usage, propertyFlags, buffer.buffer, buffer.memory);
     };
+    void  destroyBuffer(BufferWrapper &buffer);
+    
+    VkDeviceAddress getBufferDeviceAddress(BufferWrapper &buffer);
 
-    void  init(VkDevice device
-              , VkPhysicalDevice physicalDevice
-              , uint32_t queueFamilyIndex
-              , VkQueue defaultQueue = VK_NULL_HANDLE);
+
 
   private:
     uint32_t  findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags propertyFlags);

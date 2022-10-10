@@ -43,7 +43,9 @@ SRCS_NAME =	main.cpp \
 			helper/command.cpp \
 			helper/allocator.cpp \
 			helper/phosHelper.cpp \
+			helper/extensions.cpp \
 			raytracing/rtTest.cpp \
+			raytracing/rtBuilder.cpp \
 			sceneLoader/sceneLoader.cpp \
 			sceneLoader/objLoader.cpp \
 			sceneLoader/scene.cpp \
@@ -55,11 +57,13 @@ HDRS_NAME =	phosphene.hpp \
 			helper/phosHelper.hpp \
 			helper/command.hpp \
 			helper/allocator.hpp \
+			helper/extensions.hpp \
 			raytracing/rtTest.hpp  \
-			../shaders/hostDevice.h \
+			raytracing/rtBuilder.hpp \
 			sceneLoader/sceneLoader.hpp \
 			sceneLoader/objLoader.hpp \
 			sceneLoader/scene.hpp \
+			../shaders/hostDevice.h \
 
 EXTERNAL_LIB_NAME = json/json.hpp \
 					imgui/imgui.h \

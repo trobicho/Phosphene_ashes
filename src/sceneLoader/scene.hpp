@@ -5,22 +5,12 @@
 #include <string>
 #include <vector>
 
-enum  ObjectType {
-  eMesh,
-  eProceduralShape,
-};
+#define PHOS_OBJECT_TYPE_MESH         1
+#define PHOS_OBJECT_TYPE_PROCEDURAL   2
 
-class ObjectContainer {
+class PhosObjectMesh {
   public:
-    ObjectContainer(){};
-
-    std::string m_name = "";
-    ObjectType  m_type;
-};
-
-class PhosObjectMesh: public ObjectContainer {
-  public:
-    PhosObjectMesh(){m_type = eMesh;}
+    PhosObjectMesh(){};
     
     void      destroy(VkDevice &device) {
       vkDestroyBuffer(device, m_vertexBuffer.buffer, nullptr);
@@ -32,16 +22,18 @@ class PhosObjectMesh: public ObjectContainer {
     void      createBuffer() {
     }
 
+    std::string           m_name = "";
     std::vector<Vertex>   m_vertices;
     std::vector<uint32_t> m_indices;
     BufferWrapper         m_vertexBuffer;
     BufferWrapper         m_indexBuffer;
 };
 
-class PhosObjectProcedural: public ObjectContainer {
+class PhosObjectProcedural {
   public:
-    PhosObjectProcedural(){m_type = eProceduralShape;}
+    PhosObjectProcedural(){};
 
+    std::string m_name = "";
     std::string intersectionShaderName;
 };
 
@@ -50,7 +42,6 @@ class PhosObjectInstance {
     PhosObjectInstance(){};
 
     std::string name;
-    uint32_t    index;
     glm::mat4   transform;
 
     //MATERIAL
@@ -69,7 +60,8 @@ class PhosScene {
   public:
     PhosScene(){};
 
-    std::vector<ObjectContainer>    m_objects;
-    std::vector<PhosObjectInstance> m_instances;
-    std::vector<PhosLight>          m_lights;
+    std::vector<PhosObjectMesh>       m_meshs;
+    std::vector<PhosObjectProcedural> m_proceduraShapes;
+    std::vector<PhosObjectInstance>   m_instances;
+    std::vector<PhosLight>            m_lights;
 };
