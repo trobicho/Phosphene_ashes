@@ -34,6 +34,7 @@ class MemoryAllocator { //TODO: Real allocator
     void  destroyBuffer(BufferWrapper &buffer);
     
     VkDeviceAddress getBufferDeviceAddress(BufferWrapper &buffer);
+    VkDeviceAddress getAccelerationStructureDeviceAddress(AccelKHR &accel);
 
     void  stagingMakeAndCopy(size_t size, BufferWrapper &buffer, void *data);
 

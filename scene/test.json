@@ -19,7 +19,7 @@
       "intensity": 100.0
     }
   ],
-  "instance": [
+  "instances": [
     {
       "name": "cow1",
       "mesh": "cow",

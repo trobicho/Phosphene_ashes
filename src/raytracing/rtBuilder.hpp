@@ -45,10 +45,10 @@ class SceneBuilder {
   public:
     SceneBuilder(){};
 
-    void  init(VkDevice device, MemoryAllocator *alloc, uint32_t queueFamilyIndex);
+    void  init(VkDevice device, MemoryAllocator* alloc, uint32_t queueFamilyIndex);
 
-    void  buildBlas(PhosScene &scene, VkBuildAccelerationStructureFlagsKHR flags);
-    void  buildTlas();
+    void  buildBlas(PhosScene& scene, VkBuildAccelerationStructureFlagsKHR flags);
+    void  buildTlas(PhosScene& scene, VkBuildAccelerationStructureFlagsKHR flags);
 
   private:
 

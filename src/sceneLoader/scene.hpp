@@ -24,6 +24,7 @@ class PhosObjectMesh {
     std::vector<uint32_t> m_indices;
     BufferWrapper         m_vertexBuffer;
     BufferWrapper         m_indexBuffer;
+    VkDeviceAddress       m_blasDeviceAddress;
 };
 
 class PhosObjectProcedural {
@@ -39,6 +40,8 @@ class PhosObjectInstance {
     PhosObjectInstance(){};
 
     std::string name;
+    std::string objectName;
+    uint32_t    objectType;
     glm::mat4   transform;
 
     //MATERIAL
@@ -62,6 +65,12 @@ class PhosScene {
         mesh.destroy(alloc);
       }
     }
+    void* getInstanceObject(uint32_t idx) {
+      if (idx < m_instances.size())
+        return (getInstanceObject(m_instances[idx]));
+      return (nullptr);
+    }
+    void* getInstanceObject(PhosObjectInstance &instance);
 
     std::vector<PhosObjectMesh>       m_meshs;
     std::vector<PhosObjectProcedural> m_proceduraShapes;

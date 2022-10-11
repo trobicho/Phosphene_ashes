@@ -23,3 +23,13 @@ void  PhosObjectMesh::createBuffer(MemoryAllocator &alloc) {
       , m_indexBuffer);
   alloc.stagingMakeAndCopy(sizeIndex, m_indexBuffer, (void*)m_indices.data());
 }
+
+void* PhosScene::getInstanceObject(PhosObjectInstance &instance) {
+  if (instance.objectType == PHOS_OBJECT_TYPE_MESH) {
+    for (auto& mesh : m_meshs) {
+      if (instance.objectName == mesh.m_name)
+        return (&mesh);
+    }
+  }
+  return (nullptr);
+}

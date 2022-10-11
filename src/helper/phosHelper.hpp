@@ -10,6 +10,7 @@ namespace PhosHelper {
   void  infoInstance();
   void  infoRaytracingProperties(VkPhysicalDevice physicalDevice);
   void  printMatrix(glm::mat4 matrix);
+  VkTransformMatrixKHR  matrixToVkTransformMatrix(glm::mat4 matrix);
 }
 
 namespace PhosHelper {

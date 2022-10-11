@@ -81,6 +81,15 @@ VkDeviceAddress MemoryAllocator::getBufferDeviceAddress(BufferWrapper &buffer) {
   return (vkGetBufferDeviceAddress(m_device, &addrInfo));
 }
 
+VkDeviceAddress MemoryAllocator::getAccelerationStructureDeviceAddress(AccelKHR &accel) {
+  VkAccelerationStructureDeviceAddressInfoKHR addrInfo = {
+    .sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_DEVICE_ADDRESS_INFO_KHR,
+    .accelerationStructure = accel.accel,
+  };
+
+  return (vkGetAccelerationStructureDeviceAddressKHR(m_device, &addrInfo));
+}
+
 void  MemoryAllocator::stagingMakeAndCopy(size_t size, BufferWrapper &buffer, void *data) {
   BufferWrapper staging;
   createBuffer(size

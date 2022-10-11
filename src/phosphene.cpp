@@ -82,6 +82,7 @@ void  Phosphene::loadScene(const std::string &filename) {
     mesh.createBuffer(m_alloc);
   }
   m_sceneBuilder.buildBlas(m_scene, 0);
+  m_sceneBuilder.buildTlas(m_scene, 0); 
 }
 
 void  Phosphene::renderLoop() {

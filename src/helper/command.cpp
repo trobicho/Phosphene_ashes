@@ -48,5 +48,15 @@ void            CommandPool::submit(VkCommandBuffer& cmdBuffer) {
 
 void            CommandPool::submitAndWait(VkCommandBuffer& cmdBuffer) {
   submit(cmdBuffer);
-  vkQueueWaitIdle(m_queue);
+  VkResult result = vkQueueWaitIdle(m_queue);
+  if (result != VK_SUCCESS) {
+    std::string error;
+    if (result == VK_ERROR_OUT_OF_HOST_MEMORY)
+      error = "VK_ERROR_OUT_OF_HOST_MEMORY";
+    if (result == VK_ERROR_OUT_OF_DEVICE_MEMORY)
+      error = "VK_ERROR_OUT_OF_DEVICE_MEMORY";
+    if (result == VK_ERROR_DEVICE_LOST)
+      error = "VK_ERROR_DEVICE_LOST";
+    throw PhosHelper::FatalError(("Failed to submit and wait: " + error));
+  }
 }
