@@ -1,4 +1,5 @@
 #include "allocator.hpp"
+#include <cstring> //memcpy
 
 
 void  MemoryAllocator::init(VkDevice device
@@ -8,8 +9,16 @@ void  MemoryAllocator::init(VkDevice device
   m_device = device;
   m_physicalDevice = physicalDevice;
   m_queue = defaultQueue;
+  m_queueFamilyIndex = queueFamilyIndex;
+
+  m_cmdPool.init(m_device, m_queueFamilyIndex);
+
   if (defaultQueue == VK_NULL_HANDLE)
     vkGetDeviceQueue(m_device, queueFamilyIndex, 0, &m_queue);
+}
+
+void  MemoryAllocator::destroy() {
+  m_cmdPool.destroy();
 }
 
 void  MemoryAllocator::createBuffer(size_t size, VkBufferUsageFlagBits usage
@@ -70,4 +79,33 @@ VkDeviceAddress MemoryAllocator::getBufferDeviceAddress(BufferWrapper &buffer) {
   };
 
   return (vkGetBufferDeviceAddress(m_device, &addrInfo));
+}
+
+void  MemoryAllocator::stagingMakeAndCopy(size_t size, BufferWrapper &buffer, void *data) {
+  BufferWrapper staging;
+  createBuffer(size
+      , VK_BUFFER_USAGE_TRANSFER_SRC_BIT
+      , VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
+      , staging);
+
+  void* stagingData;
+  vkMapMemory(m_device, staging.memory, 0, size, 0, &stagingData);
+  memcpy(stagingData, data, size);
+  vkUnmapMemory(m_device, staging.memory);
+
+  auto cmdBuffer = m_cmdPool.createCommandBuffer();
+  VkCommandBufferBeginInfo beginInfo = {
+    .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+    .flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT,
+  };
+
+  vkBeginCommandBuffer(cmdBuffer, &beginInfo);
+  VkBufferCopy copyRegion = {
+    .srcOffset = 0,
+    .dstOffset = 0,
+    .size = size,
+  };
+  vkCmdCopyBuffer(cmdBuffer, staging.buffer, buffer.buffer, 1, &copyRegion);
+  vkEndCommandBuffer(cmdBuffer);
+  m_cmdPool.submitAndWait(cmdBuffer);
 }

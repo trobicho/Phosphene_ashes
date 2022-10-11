@@ -15,6 +15,8 @@ class MemoryAllocator { //TODO: Real allocator
   public:
     MemoryAllocator(){};
 
+    void  destroy();
+
     void  init(VkDevice device
               , VkPhysicalDevice physicalDevice
               , uint32_t queueFamilyIndex
@@ -33,6 +35,8 @@ class MemoryAllocator { //TODO: Real allocator
     
     VkDeviceAddress getBufferDeviceAddress(BufferWrapper &buffer);
 
+    void  stagingMakeAndCopy(size_t size, BufferWrapper &buffer, void *data);
+
 
 
   private:
@@ -41,4 +45,6 @@ class MemoryAllocator { //TODO: Real allocator
     VkDevice          m_device = VK_NULL_HANDLE;
     VkPhysicalDevice  m_physicalDevice = VK_NULL_HANDLE;
     VkQueue           m_queue = VK_NULL_HANDLE;
+    uint32_t          m_queueFamilyIndex;
+    CommandPool       m_cmdPool;
 };

@@ -79,7 +79,7 @@ void  SceneBuilder::modelToVkGeometry(PhosObjectMesh& model) {
   VkDeviceAddress indexAddress = m_alloc->getBufferDeviceAddress(model.m_indexBuffer);
 
   VkAccelerationStructureGeometryTrianglesDataKHR triangles = {
-    .sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_INSTANCES_DATA_KHR,
+    .sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_TRIANGLES_DATA_KHR,
     .vertexFormat = VK_FORMAT_R32G32B32_SFLOAT,
     .vertexData = {
       .deviceAddress = vertexAddress,
@@ -128,7 +128,7 @@ void  SceneBuilder::cmdCreateBlas(VkCommandBuffer cmdBuffer
     AccelKHR  blas;
     m_alloc->createBuffer(createInfo.size
                           , static_cast<VkBufferUsageFlagBits>(VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR 
-                                                              | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT)
+                              | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT)
                           , VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
                           , blas.buffer);
     vkCreateAccelerationStructureKHR(m_device, &createInfo, nullptr, &blas.accel);

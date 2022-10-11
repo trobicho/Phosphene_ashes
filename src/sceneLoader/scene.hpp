@@ -11,16 +11,13 @@
 class PhosObjectMesh {
   public:
     PhosObjectMesh(){};
-    
-    void      destroy(VkDevice &device) {
-      vkDestroyBuffer(device, m_vertexBuffer.buffer, nullptr);
-      vkFreeMemory(device, m_vertexBuffer.memory, nullptr);
-      vkDestroyBuffer(device, m_indexBuffer.buffer, nullptr);
-      vkFreeMemory(device, m_indexBuffer.memory, nullptr);
+
+    void      destroy(MemoryAllocator &alloc) {
+      alloc.destroyBuffer(m_vertexBuffer);
+      alloc.destroyBuffer(m_indexBuffer);
     }
     uint32_t  strideVertex(){return(sizeof(Vertex));}
-    void      createBuffer() {
-    }
+    void      createBuffer(MemoryAllocator &alloc);
 
     std::string           m_name = "";
     std::vector<Vertex>   m_vertices;
@@ -59,6 +56,12 @@ struct  PhosLight {
 class PhosScene {
   public:
     PhosScene(){};
+
+    void  destroy(MemoryAllocator &alloc) {
+      for (auto& mesh : m_meshs) {
+        mesh.destroy(alloc);
+      }
+    }
 
     std::vector<PhosObjectMesh>       m_meshs;
     std::vector<PhosObjectProcedural> m_proceduraShapes;

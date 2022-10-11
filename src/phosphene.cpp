@@ -78,6 +78,9 @@ Phosphene::Phosphene(GLFWwindow *window): m_window(window) {
 void  Phosphene::loadScene(const std::string &filename) {
   SceneLoader test(m_scene);
   test.test(filename);
+  for (auto& mesh : m_scene.m_meshs) {
+    mesh.createBuffer(m_alloc);
+  }
   m_sceneBuilder.buildBlas(m_scene, 0);
 }
 
@@ -164,6 +167,7 @@ void  Phosphene::destroy() {
 
     m_vkImpl.destroy();
     m_rtTest.destroy();
+    m_scene.destroy(m_alloc);
 
     {
       vkDestroyCommandPool(m_device, m_commandPool, nullptr);
@@ -172,6 +176,8 @@ void  Phosphene::destroy() {
       vkFreeMemory(m_device, m_offscreenImageMemory, nullptr);
       vkDestroyImageView(m_device, m_offscreenImageView, nullptr);
     }
+    
+    m_alloc.destroy();
 
     vkDestroyDevice(m_device, nullptr);
     vkDestroySurfaceKHR(m_instance, m_surface, nullptr);

@@ -41,7 +41,7 @@ int main() {
   }
 
   phosphene.loadScene("./scene/test.json");
-  //phosphene.renderLoop();
+  phosphene.renderLoop();
 
   phosphene.destroy();
   glfwDestroyWindow(window);
