@@ -40,6 +40,5 @@ void main()
   );
 
   vec4 color = vec4(prd.hitValue, 1.0);
-  color.xyz *= normalize(vec3(d, 1.0) * direction.xyz);
   imageStore(image, ivec2(gl_LaunchIDEXT.xy), color);
 }

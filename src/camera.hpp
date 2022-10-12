@@ -24,7 +24,7 @@ class Camera {
     }
     void  resetKeyState() {m_keyState = 0;}
     void  setKeyState(uint32_t state) {m_keyState |= state;}
-    void  unsetKeyState(uint32_t state) {m_keyState &= !state;}
+    void  unsetKeyState(uint32_t state) {m_keyState &= ((~state) & 0b111111);}
 
     void  setAllowMoving(bool allow) {m_allowMoving = allow;}
     void  setAllowRotation(bool allow) {
@@ -58,13 +58,13 @@ class Camera {
   private:
     glm::vec3 m_position{0.f, 0.f, 0.f};
     glm::vec3 m_forward{0.f, 0.f, 1.f};
-    glm::vec3 m_up{0.f, -1.f, 0.f};
+    glm::vec3 m_up{0.f, 1.f, 0.f};
     glm::vec3 m_right{1.f, 0.f, 0.f};
     glm::mat4 m_projection;
     glm::mat4 m_view;
 
     uint32_t  m_keyState = 0;
-    float     m_speed = 0.1;
+    float     m_speed = 0.02;
 
     double    m_lastX = 0.0;
     double    m_lastY = 0.0;

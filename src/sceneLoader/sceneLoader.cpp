@@ -57,6 +57,15 @@ void  SceneLoader::test(const std::string &filename) {
       instance.transform[1][1] = instanceData["scale"];
       instance.transform[2][2] = instanceData["scale"];
     }
+    if (instanceData["transform"].is_array()) {
+      glm::mat4 matrix(1.0f);
+      for (uint32_t r = 0; r < 3; r++) {
+        for (uint32_t c = 0; c < instanceData["transform"][r].size(); c++) {
+          matrix[r][c] = instanceData["transform"][r][c];
+        }
+      }
+      instance.transform = matrix * instance.transform;
+    }
     m_scene.m_instances.push_back(instance);
   }
 }

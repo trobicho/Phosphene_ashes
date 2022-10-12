@@ -10,8 +10,9 @@ class RtTest {
     void  init(VkDevice device, VkPhysicalDevice physicalDevice, uint32_t queueFamilyIndex);
     void  raytrace(VkCommandBuffer commandBuffer, uint32_t width, uint32_t height);
     void  destroy();
-    void  createDescriptorSet(const VkImageView &imageView);
+    void  createDescriptorSet(const VkImageView &imageView, const VkAccelerationStructureKHR tlas = VK_NULL_HANDLE);
     void  updateDescriptorSet(const VkImageView &imageView);
+    void  updateDescriptorSet(const VkAccelerationStructureKHR &tlas);
     void  updateUniformBuffer(const VkCommandBuffer &cmdBuffer, GlobalUniforms &uniform);
     void  createPipeline();
     void  createShaderBindingTable();
@@ -30,12 +31,7 @@ class RtTest {
     VkPipeline        m_pipeline = VK_NULL_HANDLE;
     VkPipelineLayout  m_pipelineLayout = VK_NULL_HANDLE;
 
-    VkAccelerationStructureKHR  m_blas = VK_NULL_HANDLE;
-    VkAccelerationStructureKHR  m_tlas = VK_NULL_HANDLE;
-    BufferWrapper               m_blasBuffer;
-    BufferWrapper               m_tlasBuffer;
-
-    std::vector<VkDescriptorSetLayoutBinding>
+   std::vector<VkDescriptorSetLayoutBinding>
       m_descSetLayoutBinds;
     std::vector<VkDescriptorSetLayoutBinding>
       m_descSetLayoutGlobalBinds;

@@ -1,4 +1,5 @@
 #include "rtBuilder.hpp"
+#include <iostream>
 
 
 namespace RtBuilder {
@@ -16,6 +17,15 @@ void  SceneBuilder::init(VkDevice device, MemoryAllocator* alloc, uint32_t queue
   m_device = device;
   m_alloc = alloc;
   m_cmdPool.init(device, queueFamilyIndex);
+}
+
+void  SceneBuilder::destroy() {
+  vkDestroyAccelerationStructureKHR(m_device, m_tlas.accel, nullptr);
+  m_alloc->destroyBuffer(m_tlas.buffer);
+  for (auto& blas : m_blas) {
+    vkDestroyAccelerationStructureKHR(m_device, blas.accel, nullptr);
+    m_alloc->destroyBuffer(blas.buffer);
+  }
 }
 
 void  SceneBuilder::buildBlas(PhosScene& scene, VkBuildAccelerationStructureFlagsKHR flags) {
@@ -85,6 +95,7 @@ void  SceneBuilder::buildBlas(PhosScene& scene, VkBuildAccelerationStructureFlag
 
 void  SceneBuilder::buildTlas(PhosScene& scene, VkBuildAccelerationStructureFlagsKHR flags) {
   std::vector<VkAccelerationStructureInstanceKHR> tlasInstance;
+  uint32_t  instanceCount = 0;
   for (auto& instance : scene.m_instances) {
     VkDeviceAddress blasAddr = 0;
     void*           objectAddr = scene.getInstanceObject(instance);
@@ -93,6 +104,7 @@ void  SceneBuilder::buildTlas(PhosScene& scene, VkBuildAccelerationStructureFlag
       blasAddr = meshAddr->m_blasDeviceAddress;
     }
     if (blasAddr != 0) {
+      instanceCount++;
       VkAccelerationStructureInstanceKHR  inst = {
         .transform = PhosHelper::matrixToVkTransformMatrix(instance.transform),
         .instanceCustomIndex = 0,
@@ -117,8 +129,7 @@ void  SceneBuilder::buildTlas(PhosScene& scene, VkBuildAccelerationStructureFlag
       , VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
       , instanceBuffer);
   auto instanceBufferAddr = m_alloc->getBufferDeviceAddress(instanceBuffer);
-  m_alloc->stagingMakeAndCopy(instanceBufferSize, instanceBuffer, &tlasInstance);
-
+  m_alloc->stagingMakeAndCopy(instanceBufferSize, instanceBuffer, tlasInstance.data());
 
   VkAccelerationStructureGeometryInstancesDataKHR asGeomData = {
     .sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_INSTANCES_DATA_KHR,
@@ -145,7 +156,6 @@ void  SceneBuilder::buildTlas(PhosScene& scene, VkBuildAccelerationStructureFlag
   VkAccelerationStructureBuildSizesInfoKHR  buildSizeInfo = {
     .sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_SIZES_INFO_KHR,
   };
-  uint32_t  instanceCount = tlasInstance.size();
   vkGetAccelerationStructureBuildSizesKHR(m_device
       , VK_ACCELERATION_STRUCTURE_BUILD_TYPE_HOST_OR_DEVICE_KHR
       , &buildGeomInfo, &instanceCount, &buildSizeInfo);

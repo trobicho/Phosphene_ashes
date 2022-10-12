@@ -24,7 +24,7 @@ class PhosObjectMesh {
     std::vector<uint32_t> m_indices;
     BufferWrapper         m_vertexBuffer;
     BufferWrapper         m_indexBuffer;
-    VkDeviceAddress       m_blasDeviceAddress;
+    VkDeviceAddress       m_blasDeviceAddress = 0;
 };
 
 class PhosObjectProcedural {

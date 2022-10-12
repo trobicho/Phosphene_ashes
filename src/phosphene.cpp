@@ -83,6 +83,7 @@ void  Phosphene::loadScene(const std::string &filename) {
   }
   m_sceneBuilder.buildBlas(m_scene, 0);
   m_sceneBuilder.buildTlas(m_scene, 0); 
+  m_rtTest.updateDescriptorSet(m_sceneBuilder.getTlas().accel);
 }
 
 void  Phosphene::renderLoop() {
@@ -169,6 +170,7 @@ void  Phosphene::destroy() {
     m_vkImpl.destroy();
     m_rtTest.destroy();
     m_scene.destroy(m_alloc);
+    m_sceneBuilder.destroy();
 
     {
       vkDestroyCommandPool(m_device, m_commandPool, nullptr);

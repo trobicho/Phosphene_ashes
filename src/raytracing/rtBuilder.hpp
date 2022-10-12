@@ -46,9 +46,12 @@ class SceneBuilder {
     SceneBuilder(){};
 
     void  init(VkDevice device, MemoryAllocator* alloc, uint32_t queueFamilyIndex);
+    void  destroy();
 
     void  buildBlas(PhosScene& scene, VkBuildAccelerationStructureFlagsKHR flags);
     void  buildTlas(PhosScene& scene, VkBuildAccelerationStructureFlagsKHR flags);
+
+    AccelKHR& getTlas() {return (m_tlas);}
 
   private:
 

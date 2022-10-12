@@ -32,8 +32,6 @@ void  RtTest::raytrace(VkCommandBuffer commandBuffer, uint32_t width, uint32_t h
 }
 
 void  RtTest::destroy() {
-  vkDestroyAccelerationStructureKHR(m_device, m_blas, nullptr);
-  vkDestroyAccelerationStructureKHR(m_device, m_tlas, nullptr);
   vkFreeMemory(m_device, m_SBTBuffer.memory, nullptr);
   vkDestroyDescriptorSetLayout(m_device, m_descSetLayout, nullptr);
   vkDestroyDescriptorSetLayout(m_device, m_descSetLayoutGlobal, nullptr);
@@ -42,10 +40,6 @@ void  RtTest::destroy() {
   vkDestroyPipelineLayout(m_device, m_pipelineLayout, nullptr);
   vkDestroyBuffer(m_device, m_globalUBO.buffer, nullptr);
   vkFreeMemory(m_device, m_globalUBO.memory, nullptr);
-  vkDestroyBuffer(m_device, m_blasBuffer.buffer, nullptr);
-  vkFreeMemory(m_device, m_blasBuffer.memory, nullptr);
-  vkDestroyBuffer(m_device, m_tlasBuffer.buffer, nullptr);
-  vkFreeMemory(m_device, m_tlasBuffer.memory, nullptr);
 }
 
 void  RtTest::updateUniformBuffer(const VkCommandBuffer &cmdBuffer, GlobalUniforms &hostUBO) {
@@ -76,7 +70,7 @@ void  RtTest::updateUniformBuffer(const VkCommandBuffer &cmdBuffer, GlobalUnifor
                        nullptr, 1, &afterBarrier, 0, nullptr);
 }
 
-void  RtTest::createDescriptorSet(const VkImageView &imageView) {
+void  RtTest::createDescriptorSet(const VkImageView &imageView, const VkAccelerationStructureKHR tlas) {
   m_descSetLayoutBinds.resize(2);
   m_descSetLayoutBinds[0] = {
     .binding = 0,
@@ -163,7 +157,7 @@ void  RtTest::createDescriptorSet(const VkImageView &imageView) {
   VkWriteDescriptorSetAccelerationStructureKHR  descASInfo = {
     .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR,
     .accelerationStructureCount = 1,
-    .pAccelerationStructures = &m_tlas,
+    .pAccelerationStructures = &tlas,
   };
   VkDescriptorImageInfo imageInfo = {
     .imageView = imageView,
@@ -226,6 +220,24 @@ void  RtTest::updateDescriptorSet(const VkImageView &imageView) {
     .descriptorCount = 1,
     .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,
     .pImageInfo = &imageInfo,
+  };
+  vkUpdateDescriptorSets(m_device, 1, &writeDescSet, 0, nullptr);
+}
+
+void  RtTest::updateDescriptorSet(const VkAccelerationStructureKHR &tlas) {
+  VkWriteDescriptorSetAccelerationStructureKHR  descASInfo = {
+    .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR,
+    .accelerationStructureCount = 1,
+    .pAccelerationStructures = &tlas,
+  };
+  VkWriteDescriptorSet  writeDescSet = {
+    .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+    .pNext = &descASInfo,
+    .dstSet = m_descSet,
+    .dstBinding = 0,
+    .dstArrayElement = 0,
+    .descriptorCount = 1,
+    .descriptorType = VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR,
   };
   vkUpdateDescriptorSets(m_device, 1, &writeDescSet, 0, nullptr);
 }
