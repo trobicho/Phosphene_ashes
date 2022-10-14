@@ -28,9 +28,6 @@ struct  GlobalUniforms {
 // Push constant structure for the ray tracer
 struct  PushConstantRay {
   vec4  clearColor;
-  vec3  lightPosition;
-  float lightIntensity;
-  int   lightType;
 };
 
 struct  Vertex {
@@ -52,6 +49,12 @@ struct  WaveFrontMaterial  // See ObjLoader, copy of MaterialObj, could be compr
   float dissolve;  // 1 == opaque; 0 == fully transparent
   int   illum;     // illumination model (see http://www.fileformat.info/format/material/)
   int   textureId;
+};
+
+struct  Light {
+  vec3  pos;
+  vec3  color;
+  float intensity;
 };
 
 #endif

@@ -23,6 +23,10 @@ Phosphene::Phosphene(GLFWwindow *window): m_window(window) {
     m_camera.setAllowMoving(true);
     m_camera.setFov(80.f);
     m_camera.setAspectRatio(m_width, m_height);
+    m_alloc.createBuffer(sizeof(GlobalUniforms)
+        , static_cast<VkBufferUsageFlagBits>(VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT)
+        , VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
+        , m_globalUBO);
   }
 
   {
@@ -68,22 +72,19 @@ Phosphene::Phosphene(GLFWwindow *window): m_window(window) {
 
   {
     m_sceneBuilder.init(m_device, &m_alloc, m_graphicsQueueFamilyIndex);
-    m_rtTest.init(m_device, m_physicalDevice, m_graphicsQueueFamilyIndex);
-    m_rtTest.createDescriptorSet(m_offscreenImageView);
-    m_rtTest.createPipeline();
-    m_rtTest.createShaderBindingTable();
+    buildRtPipelineBasic();
   }
 }
 
 void  Phosphene::loadScene(const std::string &filename) {
-  SceneLoader test(m_scene);
-  test.test(filename);
+  SceneLoader sceneLoader(m_scene);
+  sceneLoader.load(filename);
   for (auto& mesh : m_scene.m_meshs) {
     mesh.createBuffer(m_alloc);
   }
   m_sceneBuilder.buildBlas(m_scene, 0);
   m_sceneBuilder.buildTlas(m_scene, 0); 
-  m_rtTest.updateDescriptorSet(m_sceneBuilder.getTlas().accel);
+  updateRtTlas();
 }
 
 void  Phosphene::renderLoop() {
@@ -93,7 +94,7 @@ void  Phosphene::renderLoop() {
     glfwPollEvents();
     m_camera.step();
     if (m_camera.buildGlobalUniform(m_globalUniform)) {
-      std::cout << std::endl << "VIEW INVERSE:" << std::endl;
+      //std::cout << std::endl << "VIEW INVERSE:" << std::endl;
       //PhosHelper::printMatrix(m_globalUniform.viewInverse);
       m_update = true;
     }
@@ -120,8 +121,8 @@ void  Phosphene::draw() {
 
   {
     vkBeginCommandBuffer(m_commandBuffer, &beginInfo);
-    m_rtTest.updateUniformBuffer(m_commandBuffer, m_globalUniform);
-    m_rtTest.raytrace(m_commandBuffer, m_width, m_height);
+    updateRtGlobalUBO(m_commandBuffer);
+    m_rtPipeline.raytrace(m_commandBuffer, m_width, m_height);
     vkEndCommandBuffer(m_commandBuffer);
     VkPipelineStageFlags  waitStage[] = {VK_PIPELINE_STAGE_RAY_TRACING_SHADER_BIT_KHR};
     VkSubmitInfo  submitInfo = {
@@ -168,9 +169,10 @@ void  Phosphene::destroy() {
     deviceWait();
 
     m_vkImpl.destroy();
-    m_rtTest.destroy();
+    m_rtPipeline.destroy();
     m_scene.destroy(m_alloc);
     m_sceneBuilder.destroy();
+    m_globalUBO.destroy(m_device);
 
     {
       vkDestroyCommandPool(m_device, m_commandPool, nullptr);

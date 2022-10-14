@@ -7,9 +7,6 @@
 #include "raytracing/rtBuilder.hpp"
 #include <string>
 
-//TESTING
-#include "raytracing/rtTest.hpp"
-
 class Phosphene {
   public:
     Phosphene(GLFWwindow *window);
@@ -30,6 +27,16 @@ class Phosphene {
   private:
     void  draw();
 
+    //Raytracing pipeline building
+    void  buildRtPipelineBasic();
+    void  updateRtGlobalUBO();
+    void  updateRtGlobalUBO(const VkCommandBuffer &cmdBuffer);
+    void  updateRtImage();
+    void  updateRtTlas() {
+      updateRtTlas(m_sceneBuilder.getTlas());
+    }
+    void  updateRtTlas(AccelKHR &tlas);
+
     GLFWwindow  *m_window;
     uint32_t    m_width;
     uint32_t    m_height;
@@ -47,6 +54,9 @@ class Phosphene {
 
     Camera          m_camera;
     GlobalUniforms  m_globalUniform;
+    BufferWrapper   m_globalUBO;
+    PushConstantRay m_pcRay;
+
     PhosScene       m_scene;
 
     void  createOffscreenRender();
@@ -61,7 +71,6 @@ class Phosphene {
 
     MemoryAllocator   m_alloc;
 
-    //TESTING
-    RtTest                  m_rtTest;
     RtBuilder::SceneBuilder m_sceneBuilder;
+    RtBuilder::Pipeline     m_rtPipeline;
 };

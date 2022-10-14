@@ -1,17 +1,7 @@
 #include "rtBuilder.hpp"
 #include <iostream>
 
-
 namespace RtBuilder {
-
-/*
-void  PipelineBuilder::build() {
-
-  VkRayTracingPipelineCreateInfoKHR rayPipelineInfo = {
-    .sType = VK_STRUCTURE_TYPE_RAY_TRACING_PIPELINE_CREATE_INFO_KHR,
-  }
-}
-*/
 
 void  SceneBuilder::init(VkDevice device, MemoryAllocator* alloc, uint32_t queueFamilyIndex) {
   m_device = device;

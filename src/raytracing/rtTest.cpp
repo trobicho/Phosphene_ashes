@@ -316,7 +316,7 @@ void  RtTest::createPipeline() {
     .pStages = stages.data(),
     .groupCount = static_cast<uint32_t>(m_shaderGroups.size()),
     .pGroups = m_shaderGroups.data(),
-    .maxPipelineRayRecursionDepth = 1,
+    .maxPipelineRayRecursionDepth = 2,
     .layout = m_pipelineLayout,
   };
   if (vkCreateRayTracingPipelinesKHR(m_device, {}, {}, 1, &rayPipelineInfo

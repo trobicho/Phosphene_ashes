@@ -47,15 +47,6 @@ class PhosObjectInstance {
     //MATERIAL
 };
 
-struct  PhosLight {
-  public:
-    PhosLight(){};
-
-    float     intensity;
-    glm::vec3 color;
-    glm::vec3 position;
-};
-
 class PhosScene {
   public:
     PhosScene(){};
@@ -75,5 +66,5 @@ class PhosScene {
     std::vector<PhosObjectMesh>       m_meshs;
     std::vector<PhosObjectProcedural> m_proceduraShapes;
     std::vector<PhosObjectInstance>   m_instances;
-    std::vector<PhosLight>            m_lights;
+    std::vector<Light>                m_lights;
 };

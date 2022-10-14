@@ -11,7 +11,7 @@ class SceneLoader
   public:
     SceneLoader(PhosScene &scene); //Do I pass the reference here? probably not!
 
-    void  test(const std::string &filename);
+    void  load(const std::string &filename);
 
   private:
     PhosScene&  m_scene;

@@ -8,13 +8,15 @@
 SceneLoader::SceneLoader(PhosScene &scene): m_scene(scene) {
 }
 
-void  SceneLoader::test(const std::string &filename) {
+void  SceneLoader::load(const std::string &filename) {
   std::ifstream file(filename);
   json data = json::parse(file);
 
+  /*
   std::cout << std::endl << "----------------JSON--------------" << std::endl;
   std::cout << data.dump(4) << std::endl;
   std::cout << "----------------------------------" << std::endl;
+  */
 
   std::string scenePath = filename.substr(0, filename.find_last_of('/') + 1);
 

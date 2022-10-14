@@ -36,6 +36,7 @@ SRCS_NAME =	main.cpp \
 			phosphene.cpp \
 			camera.cpp \
 			phospheneCallback.cpp \
+			phosphenePipeline.cpp \
 			backend/phosStartVk.cpp \
 			backend/vkImpl.cpp \
 			backend/postPipeline.cpp \
@@ -44,8 +45,9 @@ SRCS_NAME =	main.cpp \
 			helper/allocator.cpp \
 			helper/phosHelper.cpp \
 			helper/extensions.cpp \
-			raytracing/rtTest.cpp \
-			raytracing/rtBuilder.cpp \
+			raytracing/sceneBuilder.cpp \
+			raytracing/pipelineBuilder.cpp \
+			raytracing/pipeline.cpp \
 			sceneLoader/sceneLoader.cpp \
 			sceneLoader/objLoader.cpp \
 			sceneLoader/scene.cpp \
@@ -58,7 +60,6 @@ HDRS_NAME =	phosphene.hpp \
 			helper/command.hpp \
 			helper/allocator.hpp \
 			helper/extensions.hpp \
-			raytracing/rtTest.hpp  \
 			raytracing/rtBuilder.hpp \
 			sceneLoader/sceneLoader.hpp \
 			sceneLoader/objLoader.hpp \

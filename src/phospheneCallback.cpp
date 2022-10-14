@@ -18,7 +18,7 @@ void  Phosphene::callbackWindowResize(int width, int height) {
   createOffscreenRender();
   m_camera.setAspectRatio(m_width, m_height);
   m_vkImpl.updatePostDescSet(m_offscreenImageView);
-  m_rtTest.updateDescriptorSet(m_offscreenImageView);
+  updateRtImage();
 }
 
 void  Phosphene::callbackKey(int key, int scancode, int action, int mods) {

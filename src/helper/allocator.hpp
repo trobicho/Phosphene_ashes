@@ -4,6 +4,11 @@
 struct  BufferWrapper {
   VkBuffer        buffer = VK_NULL_HANDLE;
   VkDeviceMemory  memory = VK_NULL_HANDLE;
+
+  void  destroy(VkDevice device) {
+    vkDestroyBuffer(device, buffer, nullptr);
+    vkFreeMemory(device, memory, nullptr);
+  }
 };
 
 struct  AccelKHR {
