@@ -50,11 +50,15 @@ class PhosObjectInstance {
 class PhosScene {
   public:
     PhosScene(){};
+    void  init(MemoryAllocator *alloc) {
+      m_alloc = alloc;
+    }
 
-    void  destroy(MemoryAllocator &alloc) {
+    void  destroy() {
       for (auto& mesh : m_meshs) {
-        mesh.destroy(alloc);
+        mesh.destroy(*m_alloc);
       }
+      m_alloc->destroyBuffer(m_lightsBuffer);
     }
     void* getInstanceObject(uint32_t idx) {
       if (idx < m_instances.size())
@@ -63,8 +67,13 @@ class PhosScene {
     }
     void* getInstanceObject(PhosObjectInstance &instance);
 
+    void  createLightsBuffer();
+    void  updateLightsBuffer(const VkCommandBuffer &cmdBuffer);
+
+    MemoryAllocator*                  m_alloc;
     std::vector<PhosObjectMesh>       m_meshs;
     std::vector<PhosObjectProcedural> m_proceduraShapes;
     std::vector<PhosObjectInstance>   m_instances;
     std::vector<Light>                m_lights;
+    BufferWrapper                     m_lightsBuffer;
 };

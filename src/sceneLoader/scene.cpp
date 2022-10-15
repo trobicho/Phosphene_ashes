@@ -33,3 +33,45 @@ void* PhosScene::getInstanceObject(PhosObjectInstance &instance) {
   }
   return (nullptr);
 }
+
+void  PhosScene::createLightsBuffer() {
+  size_t  sizeLights = static_cast<size_t>(sizeof(m_lights[0]) * m_lights.size()); 
+  if (sizeLights > 0) {
+    m_alloc->createBuffer(sizeLights
+        , static_cast<VkBufferUsageFlagBits>(VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT)
+        , VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
+        , m_lightsBuffer);
+  }
+}
+
+void  PhosScene::updateLightsBuffer(const VkCommandBuffer &cmdBuffer) {
+  auto     uboUsageStages = VK_PIPELINE_STAGE_RAY_TRACING_SHADER_BIT_KHR;
+
+  size_t  sizeLights = static_cast<size_t>(sizeof(m_lights[0]) * m_lights.size()); 
+  VkBufferMemoryBarrier beforeBarrier = {
+    .sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
+    .srcAccessMask = VK_ACCESS_SHADER_READ_BIT,
+    .dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT,
+    .buffer        = m_lightsBuffer.buffer,
+    .offset        = 0,
+    .size          = sizeLights,
+  };
+  vkCmdPipelineBarrier(cmdBuffer, uboUsageStages
+      , VK_PIPELINE_STAGE_TRANSFER_BIT, VK_DEPENDENCY_DEVICE_GROUP_BIT, 0
+      , nullptr, 1, &beforeBarrier, 0, nullptr);
+
+
+  vkCmdUpdateBuffer(cmdBuffer, m_lightsBuffer.buffer, 0, sizeof(GlobalUniforms), &m_lights);
+
+  VkBufferMemoryBarrier afterBarrier = {
+    .sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
+    .srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT,
+    .dstAccessMask = VK_ACCESS_SHADER_READ_BIT,
+    .buffer        = m_lightsBuffer.buffer,
+    .offset        = 0,
+    .size          = sizeLights,
+  };
+  vkCmdPipelineBarrier(cmdBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT
+      , uboUsageStages, VK_DEPENDENCY_DEVICE_GROUP_BIT, 0
+      , nullptr, 1, &afterBarrier, 0, nullptr);
+}

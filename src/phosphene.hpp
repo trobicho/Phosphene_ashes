@@ -29,13 +29,15 @@ class Phosphene {
 
     //Raytracing pipeline building
     void  buildRtPipelineBasic();
-    void  updateRtGlobalUBO();
-    void  updateRtGlobalUBO(const VkCommandBuffer &cmdBuffer);
+    void  buildRtPipelineBasicLights();
     void  updateRtImage();
     void  updateRtTlas() {
       updateRtTlas(m_sceneBuilder.getTlas());
     }
     void  updateRtTlas(AccelKHR &tlas);
+    void  updateRtGlobalUBO();
+    void  updateRtGlobalUBO(const VkCommandBuffer &cmdBuffer);
+    void  updateRtLights();
 
     GLFWwindow  *m_window;
     uint32_t    m_width;

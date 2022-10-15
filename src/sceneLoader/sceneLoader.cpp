@@ -70,4 +70,16 @@ void  SceneLoader::load(const std::string &filename) {
     }
     m_scene.m_instances.push_back(instance);
   }
+  for (auto &instanceData : data["lights"]) {
+    Light light;
+    if (instanceData["position"].is_array()) {
+      light.pos.x = instanceData["position"][0];
+      light.pos.y = instanceData["position"][1];
+      light.pos.z = instanceData["position"][2];
+    }
+    if (instanceData["intensity"].is_number_float()) {
+      light.intensity = instanceData["intensity"];
+    }
+    m_scene.m_lights.push_back(light);
+  }
 }
