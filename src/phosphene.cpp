@@ -73,6 +73,7 @@ Phosphene::Phosphene(GLFWwindow *window): m_window(window) {
   {
     m_sceneBuilder.init(m_device, &m_alloc, m_graphicsQueueFamilyIndex);
     buildRtPipelineBasic();
+    updateRtImage();
   }
 }
 

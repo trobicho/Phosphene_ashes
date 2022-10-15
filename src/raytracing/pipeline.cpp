@@ -4,18 +4,21 @@
 namespace RtBuilder {
 
 void  Pipeline::destroy() {
-  for (auto& descSet : m_descSets) {
-    descSet.destroy(m_device);
+  if (m_device != VK_NULL_HANDLE) {
+    for (auto& descSet : m_descSets) {
+      descSet.destroy(m_device);
+    }
+    m_descSets.clear();
+    vkDestroyDescriptorPool(m_device, m_descPool, nullptr);
+    m_descPool = VK_NULL_HANDLE;
+    vkDestroyPipeline(m_device, m_pipeline, nullptr);
+    m_pipeline = VK_NULL_HANDLE;
+    vkDestroyPipelineLayout(m_device, m_pipelineLayout, nullptr);
+    m_pipelineLayout = VK_NULL_HANDLE;
+    m_shaderBindingTable.buffer.destroy(m_device);
+    m_shaderBindingTable = ShaderBindingTable();
+    m_shaderGroups.clear();
   }
-  m_descSets.clear();
-  vkDestroyDescriptorPool(m_device, m_descPool, nullptr);
-  m_descPool = VK_NULL_HANDLE;
-  vkDestroyPipeline(m_device, m_pipeline, nullptr);
-  m_pipeline = VK_NULL_HANDLE;
-  vkDestroyPipelineLayout(m_device, m_pipelineLayout, nullptr);
-  m_pipelineLayout = VK_NULL_HANDLE;
-  m_shaderBindingTable.buffer.destroy(m_device);
-  m_shaderBindingTable = ShaderBindingTable();
 }
 
 void  Pipeline::raytrace(VkCommandBuffer commandBuffer, uint32_t width, uint32_t height) {
@@ -42,12 +45,90 @@ void  Pipeline::raytrace(VkCommandBuffer commandBuffer, uint32_t width, uint32_t
       , width, height, 1);
 }
 
+void  Pipeline::build(std::vector<VkPipelineShaderStageCreateInfo> stages) {
+  buildDescriptorSets();
+  std::vector<VkDescriptorSetLayout>  descSetLayouts;
+  for (auto& descSet : m_descSets)
+    descSetLayouts.push_back(descSet.layout);
+  std::vector<VkPushConstantRange>    pushConstantRanges;
+  for (auto& pushConstant: m_pushConstants)
+    pushConstantRanges.push_back(pushConstant.range);
+
+  VkPipelineLayoutCreateInfo  pipelineLayoutCreateInfo = {
+    .sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
+    .setLayoutCount = static_cast<uint32_t>(descSetLayouts.size()),
+    .pSetLayouts = descSetLayouts.data(),
+    .pushConstantRangeCount = static_cast<uint32_t>(pushConstantRanges.size()),
+    .pPushConstantRanges = pushConstantRanges.data(),
+  };
+  if (vkCreatePipelineLayout(m_device, &pipelineLayoutCreateInfo
+        , nullptr, &m_pipelineLayout) != VK_SUCCESS)
+    throw PhosHelper::FatalError("failed to create RayTracing pipeline layout!");
+
+  VkRayTracingPipelineCreateInfoKHR pipelineCreateInfo = {
+    .sType = VK_STRUCTURE_TYPE_RAY_TRACING_PIPELINE_CREATE_INFO_KHR,
+    .stageCount = static_cast<uint32_t>(stages.size()),
+    .pStages = stages.data(),
+    .groupCount = static_cast<uint32_t>(m_shaderGroups.size()),
+    .pGroups = m_shaderGroups.data(),
+    .maxPipelineRayRecursionDepth = m_maxRayRecursion,
+    .layout = m_pipelineLayout,
+  };
+  if (vkCreateRayTracingPipelinesKHR(m_device, {}, {}, 1, &pipelineCreateInfo
+        , nullptr, &m_pipeline) != VK_SUCCESS)
+    throw PhosHelper::FatalError("failed to create RayTracing pipeline!");
+
+}
+
+void  Pipeline::buildDescriptorSets() {
+  std::vector<VkDescriptorPoolSize> descPoolSize;
+
+  for (auto& descSet : m_descSets) {
+    for (auto& binding : descSet.layoutBinds) {
+      descPoolSize.push_back((VkDescriptorPoolSize){
+        .type = binding.descriptorType,
+        .descriptorCount = 1,
+      });
+    }
+  }
+  VkDescriptorPoolCreateInfo  descPoolInfo = {
+    .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
+    .flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT | VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT,
+    .maxSets = static_cast<uint32_t>(m_descSets.size()),
+    .poolSizeCount = static_cast<uint32_t>(descPoolSize.size()),
+    .pPoolSizes = descPoolSize.data(),
+  };
+  if(vkCreateDescriptorPool(m_device, &descPoolInfo, nullptr, &m_descPool) != VK_SUCCESS)
+    throw PhosHelper::FatalVulkanInitError("Failed to create RT descriptor pool !");
+
+  for (auto& descSet : m_descSets) {
+    VkDescriptorSetLayoutCreateInfo descSetLayoutInfo = {
+      .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
+      .flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_UPDATE_AFTER_BIND_POOL_BIT,
+      .bindingCount = static_cast<uint32_t>(descSet.layoutBinds.size()),
+      .pBindings = descSet.layoutBinds.data(),
+    };
+    if (vkCreateDescriptorSetLayout(m_device, &descSetLayoutInfo, nullptr, &descSet.layout) != VK_SUCCESS)
+      throw PhosHelper::FatalVulkanInitError("Failed to create RT descriptor set layout !");
+    VkDescriptorSetAllocateInfo descSetAllocInfo = {
+      .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
+      .descriptorPool = m_descPool,
+      .descriptorSetCount = 1,
+      .pSetLayouts = &descSet.layout,
+    };
+    if (vkAllocateDescriptorSets(m_device, &descSetAllocInfo, &descSet.set) != VK_SUCCESS)
+      throw PhosHelper::FatalVulkanInitError("Failed to Allocate RT descriptor set !");
+  }
+}
+
 void  Pipeline::updateDescSet(const std::string name, const DescriptorSetUpdateInfo* info, uint32_t count) {
   DescriptorSetWrapper  *descSetPtr = nullptr;
 
   for (auto& descSet : m_descSets) {
-    if (descSet.name == name)
+    if (descSet.name == name) {
       descSetPtr = &descSet;
+      break;
+    }
   }
   if (descSetPtr == nullptr)
     return ;

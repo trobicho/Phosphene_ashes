@@ -68,9 +68,6 @@ void  Phosphene::updateRtGlobalUBO(const VkCommandBuffer &cmdBuffer) {
 }
 
 void  Phosphene::buildRtPipelineBasic() {
-  RtBuilder::PipelineBuilder  builder;
-  builder.init(m_device, m_physicalDevice, &m_alloc, m_graphicsQueueFamilyIndex);
-
   std::vector<RtBuilder::DescriptorSetWrapper>  descSets = {
     (RtBuilder::DescriptorSetWrapper) {
       .name = "common",
@@ -111,9 +108,22 @@ void  Phosphene::buildRtPipelineBasic() {
     },
     .pValues = &m_pcRay,
   };
-  builder.addPushConstant(pushConsant);
+  RtBuilder::PipelineBuilder  builder;
+  builder.init(m_device, m_physicalDevice, &m_alloc, m_graphicsQueueFamilyIndex);
   builder.addDescSet(descSets);
+  builder.addPushConstant(pushConsant);
+  builder.setRayGenStage("./spv/raytrace.rgen.spv");
+  builder.addMissStage("./spv/raytrace.rmiss.spv");
+  builder.addHitShader("cHit", "./spv/raytrace.rchit.spv", VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR);
+  RtBuilder::HitGroup hitGroup = {
+    .type = VK_RAY_TRACING_SHADER_GROUP_TYPE_TRIANGLES_HIT_GROUP_KHR,
+    .closestHitName = "cHit",
+  };
+  builder.addHitGroup(hitGroup);
   builder.setMaxRecursion(1);
   m_rtPipeline.destroy();
+  builder.build(m_rtPipeline);
+  builder.destroyModules();
+
   updateRtGlobalUBO();
 }
