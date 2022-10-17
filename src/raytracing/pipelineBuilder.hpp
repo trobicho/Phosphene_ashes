@@ -122,6 +122,7 @@ class   Pipeline {
 class   PipelineBuilder {
   public:
     PipelineBuilder() {};
+    ~PipelineBuilder();
     
     void  init(VkDevice device, VkPhysicalDevice physicalDevice, MemoryAllocator* alloc, uint32_t queueFamilyIndex);
 

@@ -67,10 +67,6 @@ class Phosphene {
     VkImageView       m_offscreenImageView{VK_NULL_HANDLE};
     VkDeviceMemory    m_offscreenImageMemory{VK_NULL_HANDLE};
 
-    VkSemaphore       m_semaphoreRTFinish;
-    VkCommandPool     m_commandPool;
-    VkCommandBuffer   m_commandBuffer;
-
     MemoryAllocator   m_alloc;
 
     RtBuilder::SceneBuilder m_sceneBuilder;

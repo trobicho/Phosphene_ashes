@@ -117,4 +117,5 @@ void  MemoryAllocator::stagingMakeAndCopy(size_t size, BufferWrapper &buffer, vo
   vkCmdCopyBuffer(cmdBuffer, staging.buffer, buffer.buffer, 1, &copyRegion);
   vkEndCommandBuffer(cmdBuffer);
   m_cmdPool.submitAndWait(cmdBuffer);
+  destroyBuffer(staging);
 }

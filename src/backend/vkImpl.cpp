@@ -49,7 +49,7 @@ VkResult          VkImpl::acquireNextImage(uint32_t &imageIndex, VkFence &fence)
   return (result);
 }
 
-void              VkImpl::recordCommandBuffer() {
+void              VkImpl::recordCommandBuffer(VkCommandBuffer &commandBuffer) {
   VkClearValue clearValue = (VkClearValue){0.0f, 0.0f, 0.0f, 1.0f};
   VkRenderPassBeginInfo     renderPassInfo = {
     .sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
@@ -62,8 +62,6 @@ void              VkImpl::recordCommandBuffer() {
     .clearValueCount = 1,
     .pClearValues = &clearValue,
   };
-  auto&  commandBuffer = m_commandBuffers[m_currentFrame];
-  
   vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
   vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_postPipeline);
 
@@ -188,6 +186,7 @@ void  VkImpl::createRenderPass() {
 
 void  VkImpl::updatePostDescSet(VkImageView &offscreenImageView) {
   VkSamplerCreateInfo samplerInfo{VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO};
+  vkDestroySampler(m_device, m_sampler, nullptr);
   vkCreateSampler(m_device, &samplerInfo, nullptr, &m_sampler);
   VkDescriptorImageInfo imageInfo = {
     .sampler = m_sampler,

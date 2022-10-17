@@ -57,12 +57,7 @@ class PhosScene {
       m_alloc = alloc;
     }
 
-    void  destroy() {
-      for (auto& mesh : m_meshs) {
-        mesh.destroy(*m_alloc);
-      }
-      m_alloc->destroyBuffer(m_lightsBuffer);
-    }
+    void  destroy();
     void* getInstanceObject(uint32_t idx) {
       if (idx < m_instances.size())
         return (getInstanceObject(m_instances[idx]));

@@ -24,6 +24,15 @@ void  PhosObjectMesh::createBuffer(MemoryAllocator &alloc) {
       , m_indexBuffer);
   alloc.stagingMakeAndCopy(sizeIndex, m_indexBuffer, (void*)m_indices.data());
 }
+    
+void  PhosScene::destroy() {
+  for (auto& mesh : m_meshs) {
+    mesh.destroy(*m_alloc);
+  }
+  m_alloc->destroyBuffer(m_lightsBuffer);
+  m_alloc->destroyBuffer(m_meshDescsBuffer);
+
+}
 
 void* PhosScene::getInstanceObject(PhosObjectInstance &instance) {
   if (instance.objectType == PHOS_OBJECT_TYPE_MESH) {

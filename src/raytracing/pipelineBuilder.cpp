@@ -16,6 +16,10 @@ void  PipelineBuilder::init(VkDevice device, VkPhysicalDevice physicalDevice, Me
   vkGetPhysicalDeviceProperties2(m_physicalDevice, &props2);
 }
 
+PipelineBuilder::~PipelineBuilder() {
+  m_cmdPool.destroy();
+}
+
 void  PipelineBuilder::destroyModules() {
   vkDestroyShaderModule(m_device, m_rayGenStage.stageInfo.module, nullptr);
   for (auto& missStage : m_missStages)

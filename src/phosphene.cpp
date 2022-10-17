@@ -44,33 +44,6 @@ Phosphene::Phosphene(GLFWwindow *window): m_window(window) {
   }
 
   {
-    VkCommandPoolCreateInfo poolInfo = {
-      .sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
-      .flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
-      .queueFamilyIndex = m_graphicsQueueFamilyIndex,
-    };
-  if (vkCreateCommandPool(m_device, &poolInfo
-          , nullptr, &m_commandPool) != VK_SUCCESS)
-      throw PhosHelper::FatalVulkanInitError("Failed to create Raytracing Command Pool !");
-
-    VkCommandBufferAllocateInfo allocateInfo = {
-      .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
-      .commandPool = m_commandPool,
-      .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
-      .commandBufferCount = 1,
-    };
-    if (vkAllocateCommandBuffers(m_device, &allocateInfo, &m_commandBuffer) != VK_SUCCESS)
-        throw PhosHelper::FatalVulkanInitError("Failed to create Rasytracing commandBuffer !");
-
-    VkSemaphoreCreateInfo semaphoreInfo = {
-      .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
-    };
-    if (vkCreateSemaphore(m_device, &semaphoreInfo, nullptr
-          , &m_semaphoreRTFinish) != VK_SUCCESS)
-        throw PhosHelper::FatalVulkanInitError("Failed to create Raytracing Semaphore !");
-  }
-
-  {
     m_sceneBuilder.init(m_device, &m_alloc, m_graphicsQueueFamilyIndex);
     m_scene.init(&m_alloc);
     buildRtPipelineBasicLights();
@@ -112,56 +85,39 @@ void  Phosphene::draw() {
   uint32_t    imageIndex;
 
   VkResult result = m_vkImpl.acquireNextImage(imageIndex, fence);
-  auto& commandBufferPost = m_vkImpl.getCommandBuffer(semaphoreWait, semaphoreSignal);
-  vkResetCommandBuffer(m_commandBuffer, 0);
-  vkResetCommandBuffer(commandBufferPost, 0);
+  auto& commandBuffer = m_vkImpl.getCommandBuffer(semaphoreWait, semaphoreSignal);
+  vkResetCommandBuffer(commandBuffer, 0);
   VkCommandBufferBeginInfo  beginInfo = {
     .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
     .flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT,
     .pInheritanceInfo = nullptr,
   };
+  vkBeginCommandBuffer(commandBuffer, &beginInfo);
 
   {
-    vkBeginCommandBuffer(m_commandBuffer, &beginInfo);
-    m_rtPipeline.updateUBO(m_commandBuffer, sizeof(m_globalUniform), m_globalUBO, &m_globalUniform);
-    m_scene.update(m_rtPipeline, m_commandBuffer, true);
-    m_rtPipeline.raytrace(m_commandBuffer, m_width, m_height);
-    vkEndCommandBuffer(m_commandBuffer);
-    VkPipelineStageFlags  waitStage[] = {VK_PIPELINE_STAGE_RAY_TRACING_SHADER_BIT_KHR};
-    VkSubmitInfo  submitInfo = {
-      .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
-      .waitSemaphoreCount = 1,
-      .pWaitSemaphores = &semaphoreWait,
-      .pWaitDstStageMask = waitStage,
-      .commandBufferCount = 1,
-      .pCommandBuffers = &m_commandBuffer,
-      .signalSemaphoreCount = 1,
-      .pSignalSemaphores = &m_semaphoreRTFinish,
-    };
-    if (vkQueueSubmit(m_graphicsQueue, 1, &submitInfo
-          , VK_NULL_HANDLE) != VK_SUCCESS)
-      throw PhosHelper::FatalVulkanInitError("Failed to submit Raytrace");
+    m_rtPipeline.updateUBO(commandBuffer, sizeof(m_globalUniform), m_globalUBO, &m_globalUniform);
+    m_scene.update(m_rtPipeline, commandBuffer, true);
+    m_rtPipeline.raytrace(commandBuffer, m_width, m_height);
   }
   {
-    vkBeginCommandBuffer(commandBufferPost, &beginInfo);
-    m_vkImpl.recordCommandBuffer();
-    vkEndCommandBuffer(commandBufferPost);
-    VkPipelineStageFlags  waitStage[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
-    VkSubmitInfo  submitInfo = {
-      .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
-      .waitSemaphoreCount = 1,
-      .pWaitSemaphores = &m_semaphoreRTFinish,
-      //.pWaitSemaphores = &semaphoreWait,
-      .pWaitDstStageMask = waitStage,
-      .commandBufferCount = 1,
-      .pCommandBuffers = &commandBufferPost,
-      .signalSemaphoreCount = 1,
-      .pSignalSemaphores = &semaphoreSignal,
-    };
-    if (vkQueueSubmit(m_graphicsQueue, 1, &submitInfo
-          , fence) != VK_SUCCESS)
-      throw PhosHelper::FatalVulkanInitError("Failed to submit Post");
+    m_vkImpl.recordCommandBuffer(commandBuffer);
   }
+  vkEndCommandBuffer(commandBuffer);
+  VkPipelineStageFlags  waitStage[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+  VkSubmitInfo  submitInfo = {
+    .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
+    .waitSemaphoreCount = 1,
+    //.pWaitSemaphores = &m_semaphore,
+    .pWaitSemaphores = &semaphoreWait,
+    .pWaitDstStageMask = waitStage,
+    .commandBufferCount = 1,
+    .pCommandBuffers = &commandBuffer,
+    .signalSemaphoreCount = 1,
+    .pSignalSemaphores = &semaphoreSignal,
+  };
+  if (vkQueueSubmit(m_graphicsQueue, 1, &submitInfo
+        , fence) != VK_SUCCESS)
+    throw PhosHelper::FatalVulkanInitError("Failed to submit Post");
 
   m_vkImpl.present();
 }
@@ -173,13 +129,11 @@ void  Phosphene::destroy() {
 
     m_vkImpl.destroy();
     m_rtPipeline.destroy();
-    m_scene.destroy();
     m_sceneBuilder.destroy();
+    m_scene.destroy();
     m_globalUBO.destroy(m_device);
 
     {
-      vkDestroyCommandPool(m_device, m_commandPool, nullptr);
-      vkDestroySemaphore(m_device, m_semaphoreRTFinish, nullptr);
       vkDestroyImage(m_device, m_offscreenColor, nullptr);
       vkFreeMemory(m_device, m_offscreenImageMemory, nullptr);
       vkDestroyImageView(m_device, m_offscreenImageView, nullptr);

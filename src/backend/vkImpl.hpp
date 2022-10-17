@@ -46,7 +46,7 @@ class VkImpl {
 
     VkCommandBuffer&  getCommandBuffer(VkSemaphore &semaphoreWait, VkSemaphore &semaphoreSignal);
     VkResult          acquireNextImage(uint32_t &imageIndex, VkFence &fence);
-    void              recordCommandBuffer();
+    void              recordCommandBuffer(VkCommandBuffer &commandBuffer);
     void              present();
 
     VkInstance          m_instance = VK_NULL_HANDLE;

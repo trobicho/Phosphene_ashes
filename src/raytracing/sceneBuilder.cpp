@@ -10,6 +10,7 @@ void  SceneBuilder::init(VkDevice device, MemoryAllocator* alloc, uint32_t queue
 }
 
 void  SceneBuilder::destroy() {
+  m_cmdPool.destroy();
   vkDestroyAccelerationStructureKHR(m_device, m_tlas.accel, nullptr);
   m_alloc->destroyBuffer(m_tlas.buffer);
   for (auto& blas : m_blas) {
@@ -201,6 +202,7 @@ void  SceneBuilder::buildTlas(PhosScene& scene, VkBuildAccelerationStructureFlag
     m_cmdPool.submitAndWait(cmdBuffer);
   }
   m_alloc->destroyBuffer(scratchBuffer);
+  m_alloc->destroyBuffer(instanceBuffer);
 }
 
 void  SceneBuilder::modelToVkGeometry(PhosObjectMesh& model) {
@@ -252,23 +254,18 @@ void  SceneBuilder::cmdCreateBlas(VkCommandBuffer cmdBuffer
     , VkDeviceAddress scratchAddress) {
   for (const auto& idx : indices) {
     BufferWrapper blasBuffer;
-    m_alloc->createBuffer(buildAs[idx].sizeInfo.accelerationStructureSize
-        , static_cast<VkBufferUsageFlagBits>(VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR
-          | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT)
-        , VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
-        , blasBuffer);
-    VkAccelerationStructureCreateInfoKHR  createInfo = {
-      .sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CREATE_INFO_KHR,
-      .buffer = blasBuffer.buffer,
-      .size = buildAs[idx].sizeInfo.accelerationStructureSize,
-      .type = VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR,
-    };
     AccelKHR  blas;
-    m_alloc->createBuffer(createInfo.size
+    m_alloc->createBuffer(buildAs[idx].sizeInfo.accelerationStructureSize
         , static_cast<VkBufferUsageFlagBits>(VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR 
           | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT)
         , VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
         , blas.buffer);
+    VkAccelerationStructureCreateInfoKHR  createInfo = {
+      .sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CREATE_INFO_KHR,
+      .buffer = blas.buffer.buffer,
+      .size = buildAs[idx].sizeInfo.accelerationStructureSize,
+      .type = VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR,
+    };
     vkCreateAccelerationStructureKHR(m_device, &createInfo, nullptr, &blas.accel);
     buildAs[idx].buildInfo.dstAccelerationStructure = blas.accel;
     buildAs[idx].buildInfo.scratchData.deviceAddress = scratchAddress;
