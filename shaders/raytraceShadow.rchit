@@ -7,8 +7,8 @@
 #include "hostDevice.h"
 #include "raycommon.glsl"
 
-layout(set = 0, binding = 0) uniform accelerationStructureEXT topLevelAS;
-layout(set = 2, binding = 0) uniform _Light { Light lights; };
+layout(set = 0, binding = eTlas) uniform accelerationStructureEXT topLevelAS;
+layout(set = 3, binding = eLights) uniform _Light { Light lights; };
 
 layout(location = 0) rayPayloadInEXT hitPayload prd;
 layout(location = 1) rayPayloadEXT bool isShadowed;
@@ -27,7 +27,7 @@ void main()
   normal = normalize(normal);
 
   float specular = 0.0;
-  vec3  diffuse = vec3(0.0001, 0, 0);
+  vec3  diffuse = vec3(0.1, 0, 0);
   if(dot(normal, lightDir) > 0)
   {
     float tMin   = 0.001;
@@ -69,4 +69,6 @@ void main()
     }
   }
   prd.hitValue = vec3(lights.intensity * attenuation * (diffuse + specular));
+  if (length(prd.hitValue.xyz) < 0.1)
+    prd.hitValue = vec3(0.2);
 }

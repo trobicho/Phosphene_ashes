@@ -1,4 +1,4 @@
-#include "rtBuilder.hpp"
+#include "pipelineBuilder.hpp"
 #include <iostream>
 
 namespace RtBuilder {
@@ -136,10 +136,9 @@ void  Pipeline::updateDescSet(const std::string name, const DescriptorSetUpdateI
   std::vector<VkWriteDescriptorSet>  writes;
   writes.reserve(count);
   for (uint32_t idx = 0; idx < count; idx++) {
-    uint32_t  typeIdx = 0;
     for (auto& layout : descSetPtr->layoutBinds) {
-      if (layout.descriptorType == info[idx].type) {
-        if (typeIdx == info[idx].index) {
+      if (layout.binding == info[idx].binding) {
+        if (layout.descriptorType == info[idx].type) {
           VkWriteDescriptorSet  write = {
             .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
             .dstSet = descSetPtr->set,
@@ -156,13 +155,40 @@ void  Pipeline::updateDescSet(const std::string name, const DescriptorSetUpdateI
           else
             write.pNext = info[idx].pInfo;
           writes.push_back(write);
-          break ;
         }
-        typeIdx++;
+        break ;
       }
     }
   }
   vkUpdateDescriptorSets(m_device, writes.size(), writes.data(), 0, nullptr);
+}
+
+void  Pipeline::updateUBO(const VkCommandBuffer &cmdBuffer, const uint32_t size, BufferWrapper &deviceUBO, void* hostUBO) {
+  auto     uboUsageStages = VK_PIPELINE_STAGE_RAY_TRACING_SHADER_BIT_KHR;
+
+  VkBufferMemoryBarrier beforeBarrier{VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER};
+  beforeBarrier.srcAccessMask = VK_ACCESS_SHADER_READ_BIT;
+  beforeBarrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+  beforeBarrier.buffer        = deviceUBO.buffer;
+  beforeBarrier.offset        = 0;
+  beforeBarrier.size          = size;
+  vkCmdPipelineBarrier(cmdBuffer, uboUsageStages, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_DEPENDENCY_DEVICE_GROUP_BIT, 0,
+                       nullptr, 1, &beforeBarrier, 0, nullptr);
+
+
+  // Schedule the host-to-device upload. (hostUBO is copied into the cmd
+  // buffer so it is okay to deallocate when the function returns).
+  vkCmdUpdateBuffer(cmdBuffer, deviceUBO.buffer, 0, size, hostUBO);
+
+  // Making sure the updated UBO will be visible.
+  VkBufferMemoryBarrier afterBarrier{VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER};
+  afterBarrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+  afterBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+  afterBarrier.buffer        = deviceUBO.buffer;
+  afterBarrier.offset        = 0;
+  afterBarrier.size          = size;
+  vkCmdPipelineBarrier(cmdBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, uboUsageStages, VK_DEPENDENCY_DEVICE_GROUP_BIT, 0,
+                       nullptr, 1, &afterBarrier, 0, nullptr);
 }
 
 }

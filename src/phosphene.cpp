@@ -86,8 +86,9 @@ void  Phosphene::loadScene(const std::string &filename) {
   }
   m_sceneBuilder.buildBlas(m_scene, 0);
   m_sceneBuilder.buildTlas(m_scene, 0); 
-  m_scene.createLightsBuffer();
-  updateRtLights();
+  m_scene.allocateResources();
+  m_scene.update(m_rtPipeline, true);
+  m_pcRay.nbLights = m_scene.getLightCount();
   updateRtTlas();
 }
 
@@ -125,8 +126,8 @@ void  Phosphene::draw() {
 
   {
     vkBeginCommandBuffer(m_commandBuffer, &beginInfo);
-    updateRtGlobalUBO(m_commandBuffer);
-    m_scene.updateLightsBuffer(m_commandBuffer);
+    m_rtPipeline.updateUBO(m_commandBuffer, sizeof(m_globalUniform), m_globalUBO, &m_globalUniform);
+    m_scene.update(m_rtPipeline, m_commandBuffer, true);
     m_rtPipeline.raytrace(m_commandBuffer, m_width, m_height);
     vkEndCommandBuffer(m_commandBuffer);
     VkPipelineStageFlags  waitStage[] = {VK_PIPELINE_STAGE_RAY_TRACING_SHADER_BIT_KHR};

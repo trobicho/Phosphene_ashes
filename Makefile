@@ -62,7 +62,8 @@ HDRS_NAME =	phosphene.hpp \
 			helper/command.hpp \
 			helper/allocator.hpp \
 			helper/extensions.hpp \
-			raytracing/rtBuilder.hpp \
+			raytracing/sceneBuilder.hpp \
+			raytracing/pipelineBuilder.hpp \
 			sceneLoader/sceneLoader.hpp \
 			sceneLoader/objLoader.hpp \
 			sceneLoader/scene.hpp \

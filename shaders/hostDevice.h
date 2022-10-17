@@ -19,6 +19,24 @@ using uint = unsigned int;
   #define END_BINDING()
 #endif
 
+START_BINDING(BindingsRtx) //Binding set 0
+  eTlas = 0,
+  eImageOut = 1
+END_BINDING();
+
+START_BINDING(BindingsCommon) //Binding set 1
+  eGlobals = 0
+END_BINDING();
+
+START_BINDING(BindingsScene) //Binding set 2
+  eObjDescs = 0,
+  eTextures = 1
+END_BINDING();
+
+START_BINDING(BindingsSceneOther) //Binding set 3
+  eLights = 0
+END_BINDING();
+
 struct  GlobalUniforms {
   mat4  viewProj;
   mat4  viewInverse;
@@ -28,6 +46,7 @@ struct  GlobalUniforms {
 // Push constant structure for the ray tracer
 struct  PushConstantRay {
   vec4  clearColor;
+  uint  nbLights;
 };
 
 struct  Vertex {
@@ -55,6 +74,12 @@ struct  Light {
   vec3  pos;
   vec3  color;
   float intensity;
+};
+
+struct  MeshDesc {
+  int       textOffset;
+  uint64_t  vertexAddress;
+  uint64_t  indexAddress;
 };
 
 #endif

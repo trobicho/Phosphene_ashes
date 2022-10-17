@@ -1,4 +1,4 @@
-#include "rtBuilder.hpp"
+#include "sceneBuilder.hpp"
 #include <iostream>
 
 namespace RtBuilder {

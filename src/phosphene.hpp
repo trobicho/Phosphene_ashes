@@ -4,7 +4,8 @@
 #include "helper/command.hpp"
 #include "camera.hpp"
 #include "sceneLoader/sceneLoader.hpp"
-#include "raytracing/rtBuilder.hpp"
+#include "raytracing/pipelineBuilder.hpp"
+#include "raytracing/sceneBuilder.hpp"
 #include <string>
 
 class Phosphene {
@@ -36,7 +37,6 @@ class Phosphene {
     }
     void  updateRtTlas(AccelKHR &tlas);
     void  updateRtGlobalUBO();
-    void  updateRtGlobalUBO(const VkCommandBuffer &cmdBuffer);
     void  updateRtLights();
 
     GLFWwindow  *m_window;

@@ -2,6 +2,7 @@
 #include "../helper/phosHelper.hpp"
 #include "../helper/allocator.hpp"
 #include "../../shaders/hostDevice.h"
+#include "../raytracing/pipelineBuilder.hpp"
 #include <string>
 #include <vector>
 
@@ -48,6 +49,7 @@ class PhosObjectInstance {
 };
 
 class PhosScene {
+  using Pipeline = RtBuilder::Pipeline;
   public:
     PhosScene(){};
     void  init(MemoryAllocator *alloc) {
@@ -65,15 +67,20 @@ class PhosScene {
         return (getInstanceObject(m_instances[idx]));
       return (nullptr);
     }
-    void* getInstanceObject(PhosObjectInstance &instance);
+    void*     getInstanceObject(PhosObjectInstance &instance);
+    uint32_t  getLightCount() {return (m_lights.size());}
 
-    void  createLightsBuffer();
-    void  updateLightsBuffer(const VkCommandBuffer &cmdBuffer);
+    void  allocateResources();
+    void  update(Pipeline pipeline, bool forceUpdate = false);
+    void  update(Pipeline pipeline, const VkCommandBuffer &cmdBuffer, bool forceUpdate = false);
 
     MemoryAllocator*                  m_alloc;
     std::vector<PhosObjectMesh>       m_meshs;
     std::vector<PhosObjectProcedural> m_proceduraShapes;
     std::vector<PhosObjectInstance>   m_instances;
     std::vector<Light>                m_lights;
+
+  private:
+    uint32_t  event = 0;
     BufferWrapper                     m_lightsBuffer;
 };
