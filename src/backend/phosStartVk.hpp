@@ -38,6 +38,8 @@ namespace PhosStartVk {
 
       VK_KHR_SPIRV_1_4_EXTENSION_NAME,
       VK_KHR_SHADER_FLOAT_CONTROLS_EXTENSION_NAME,
+
+      VK_EXT_SCALAR_BLOCK_LAYOUT_EXTENSION_NAME,
     };
     return (exts);
   }

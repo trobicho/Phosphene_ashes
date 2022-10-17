@@ -87,9 +87,15 @@ void              createLogicalDeviceAndQueue(VkDevice &device
   auto  deviceExtentions = PhosStartVk::deviceExtensions();
   //VkPhysicalDeviceFeatures  deviceFeature = {};
 
+  //FEATURES
+  VkPhysicalDeviceScalarBlockLayoutFeatures     scalarBlockFeatures = {
+    .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SCALAR_BLOCK_LAYOUT_FEATURES,
+    .scalarBlockLayout = VK_TRUE,
+  };
   //RAYTRACING FEATURES
   VkPhysicalDeviceBufferDeviceAddressFeatures   deviceAddressFeatures = {
     .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES,
+    .pNext = &scalarBlockFeatures,
     .bufferDeviceAddress = VK_TRUE,
   };
   VkPhysicalDeviceRayTracingPipelineFeaturesKHR rtpFeatures = {
@@ -105,6 +111,9 @@ void              createLogicalDeviceAndQueue(VkDevice &device
   VkPhysicalDeviceFeatures2KHR  features = {
     .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2_KHR,
     .pNext = &asFeatures,
+    .features = {
+      .shaderInt64 = VK_TRUE,
+    },
   };
   //-------------------------
 

@@ -74,8 +74,8 @@ static std::vector<RtBuilder::DescriptorSetWrapper> commonBindings() {
       .name = "scene",
       .layoutBinds = {
         (VkDescriptorSetLayoutBinding) {
-          .binding = BindingsScene::eObjDescs,
-          .descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+          .binding = BindingsScene::eMeshDescs,
+          .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
           .descriptorCount = 1,
           .stageFlags = VK_SHADER_STAGE_RAYGEN_BIT_KHR | VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR,
         }
@@ -123,7 +123,7 @@ void  Phosphene::buildRtPipelineBasicLights() {
     .layoutBinds = {
     (VkDescriptorSetLayoutBinding) {
       .binding = BindingsSceneOther::eLights,
-      .descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+      .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
       .descriptorCount = 1,
       .stageFlags = VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR,
       }

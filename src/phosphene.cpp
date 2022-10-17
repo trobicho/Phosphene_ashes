@@ -81,12 +81,9 @@ Phosphene::Phosphene(GLFWwindow *window): m_window(window) {
 void  Phosphene::loadScene(const std::string &filename) {
   SceneLoader sceneLoader(m_scene);
   sceneLoader.load(filename);
-  for (auto& mesh : m_scene.m_meshs) {
-    mesh.createBuffer(m_alloc);
-  }
+  m_scene.allocateResources();
   m_sceneBuilder.buildBlas(m_scene, 0);
   m_sceneBuilder.buildTlas(m_scene, 0); 
-  m_scene.allocateResources();
   m_scene.update(m_rtPipeline, true);
   m_pcRay.nbLights = m_scene.getLightCount();
   updateRtTlas();

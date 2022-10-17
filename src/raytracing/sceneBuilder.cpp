@@ -73,9 +73,9 @@ void  SceneBuilder::buildBlas(PhosScene& scene, VkBuildAccelerationStructureFlag
       cmdCreateBlas(cmdBuffer, indices, buildAs, scratchAddress);
       vkEndCommandBuffer(cmdBuffer);
       m_cmdPool.submitAndWait(cmdBuffer);
+      batchSize = 0;
+      indices.clear();
     }
-    batchSize = 0;
-    indices.clear();
   }
   for (uint32_t idx = 0; idx < nbBlas; idx++) {
     scene.m_meshs[idx].m_blasDeviceAddress = m_alloc->getAccelerationStructureDeviceAddress(m_blas[idx]);

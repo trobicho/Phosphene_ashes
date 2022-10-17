@@ -29,7 +29,7 @@ START_BINDING(BindingsCommon) //Binding set 1
 END_BINDING();
 
 START_BINDING(BindingsScene) //Binding set 2
-  eObjDescs = 0,
+  eMeshDescs = 0,
   eTextures = 1
 END_BINDING();
 
@@ -71,9 +71,9 @@ struct  WaveFrontMaterial  // See ObjLoader, copy of MaterialObj, could be compr
 };
 
 struct  Light {
+  float intensity;
   vec3  pos;
   vec3  color;
-  float intensity;
 };
 
 struct  MeshDesc {

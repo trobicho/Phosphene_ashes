@@ -1,42 +1,72 @@
 #version 460
 #extension GL_EXT_ray_tracing : require
 #extension GL_EXT_nonuniform_qualifier : enable
+#extension GL_EXT_scalar_block_layout : enable
 #extension GL_GOOGLE_include_directive : enable
+
 #extension GL_EXT_shader_explicit_arithmetic_types_int64 : require
+#extension GL_EXT_buffer_reference2 : require
 
 #include "hostDevice.h"
 #include "raycommon.glsl"
 
-layout(set = 0, binding = eTlas) uniform accelerationStructureEXT topLevelAS;
-layout(set = 3, binding = eLights) uniform _Light { Light lights; };
 
 layout(location = 0) rayPayloadInEXT hitPayload prd;
 layout(location = 1) rayPayloadEXT bool isShadowed;
+
+layout(buffer_reference, scalar) buffer Vertices {Vertex v[]; }; // Positions of an object
+layout(buffer_reference, scalar) buffer Indices {ivec3 i[]; }; // Triangle indices
+
+layout(set = 0, binding = eTlas) uniform accelerationStructureEXT topLevelAS;
+layout(set = 2, binding = eMeshDescs, scalar) buffer MeshDesc_ { MeshDesc i[]; } meshDesc;
+layout(set = 3, binding = eLights, scalar) buffer Light_ { Light i[]; } light;
 hitAttributeEXT vec3 attribs;
 
 void main()
 {
+
+  // Object data                                                                    
+  MeshDesc  objResource = meshDesc.i[gl_InstanceCustomIndexEXT];
+  Indices   indices     = Indices(objResource.indexAddress);
+  Vertices  vertices    = Vertices(objResource.vertexAddress);
+
+  // Indices of the triangle                                                        
+  ivec3 ind = indices.i[gl_PrimitiveID];
+
+  // Vertex of the triangle
+  Vertex v0 = vertices.v[ind.x];
+  Vertex v1 = vertices.v[ind.y];
+  Vertex v2 = vertices.v[ind.z];
+
+  const vec3 barycentrics = vec3(1.0 - attribs.x - attribs.y, attribs.x, attribs.y);
+
+  // Computing the coordinates of the hit position
+  const vec3 pos = v0.pos * barycentrics.x + v1.pos * barycentrics.y + v2.pos * barycentrics.z;
+  const vec3 worldPos = vec3(gl_ObjectToWorldEXT * vec4(pos, 1.0));  // Transforming the position to world space
+
+  // Computing the normal at hit position
+  const vec3 normal = v0.normal * barycentrics.x + v1.normal * barycentrics.y + v2.normal * barycentrics.z;
+  const vec3 worldNrm = normalize(vec3(normal * gl_WorldToObjectEXT));  // Transforming the normal to world space
+
+
   float attenuation = 1;
 
   // Tracing shadow ray only if the light is visible from the surface
-  vec3  origin = attribs.xyz;
-  vec3  lightDir = lights.pos - origin;
+  vec3  lightDir = light.i[0].pos - worldPos;
   float lightDistance = length(lightDir);
   lightDir = normalize(lightDir);
-  vec3  normal = vec3(0, 0, -1);
-  normal = normalize(normal);
 
   float specular = 0.0;
-  vec3  diffuse = vec3(0.1, 0, 0);
-  if(dot(normal, lightDir) > 0)
+  vec3  diffuse = vec3(0.1, 0.1, 0.1);
+  if(dot(worldNrm, lightDir) > 0)
   {
     float tMin   = 0.001;
     float tMax   = lightDistance;
+    vec3  origin = gl_WorldRayOriginEXT + gl_WorldRayDirectionEXT * gl_HitTEXT;
     vec3  rayDir = lightDir;
     uint  flags =
       gl_RayFlagsTerminateOnFirstHitEXT | gl_RayFlagsOpaqueEXT | gl_RayFlagsSkipClosestHitShaderEXT;
     isShadowed = true;
-    origin = gl_WorldRayOriginEXT + gl_WorldRayDirectionEXT * gl_HitTEXT;
     traceRayEXT(topLevelAS,  // acceleration structure
       flags,       // rayFlags
       0xFF,        // cullMask
@@ -68,7 +98,5 @@ void main()
       specular = kEnergyConservation * pow(max(dot(V, R), 0.0), kShininess);
     }
   }
-  prd.hitValue = vec3(lights.intensity * attenuation * (diffuse + specular));
-  if (length(prd.hitValue.xyz) < 0.1)
-    prd.hitValue = vec3(0.2);
+  prd.hitValue = vec3(light.i[0].intensity * attenuation * (diffuse + specular));
 }

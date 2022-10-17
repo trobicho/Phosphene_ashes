@@ -44,6 +44,7 @@ class PhosObjectInstance {
     std::string objectName;
     uint32_t    objectType;
     glm::mat4   transform;
+    uint32_t    customIndex = 0;
 
     //MATERIAL
 };
@@ -82,5 +83,7 @@ class PhosScene {
 
   private:
     uint32_t  event = 0;
-    BufferWrapper                     m_lightsBuffer;
+    BufferWrapper           m_lightsBuffer;
+    std::vector<MeshDesc>   m_meshDescs;
+    BufferWrapper           m_meshDescsBuffer;
 };
