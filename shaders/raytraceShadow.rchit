@@ -10,7 +10,6 @@
 #include "hostDevice.h"
 #include "raycommon.glsl"
 
-
 layout(location = 0) rayPayloadInEXT hitPayload prd;
 layout(location = 1) rayPayloadEXT bool isShadowed;
 
@@ -20,7 +19,7 @@ layout(buffer_reference, scalar) buffer Indices {ivec3 i[]; }; // Triangle indic
 layout(set = 0, binding = eTlas) uniform accelerationStructureEXT topLevelAS;
 layout(set = 2, binding = eMeshDescs, scalar) buffer MeshDesc_ { MeshDesc i[]; } meshDesc;
 layout(set = 3, binding = eLights, scalar) buffer Light_ { Light i[]; } light;
-hitAttributeEXT vec3 attribs;
+hitAttributeEXT vec2 attribs;
 
 void main()
 {

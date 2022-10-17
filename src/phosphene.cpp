@@ -75,6 +75,7 @@ void  Phosphene::renderLoop() {
     }
     draw();
     m_update = false;
+    //m_quit = true;
   }
 }
 

@@ -63,3 +63,4 @@ obj/
 spv/
 external_lib/
 compile_commands.json
+out

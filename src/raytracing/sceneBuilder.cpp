@@ -98,7 +98,7 @@ void  SceneBuilder::buildTlas(PhosScene& scene, VkBuildAccelerationStructureFlag
       instanceCount++;
       VkAccelerationStructureInstanceKHR  inst = {
         .transform = PhosHelper::matrixToVkTransformMatrix(instance.transform),
-        .instanceCustomIndex = 0,
+        .instanceCustomIndex = instance.customIndex,
         .mask = 0xFF,
         .instanceShaderBindingTableRecordOffset = 0,
         .flags = VK_GEOMETRY_INSTANCE_TRIANGLE_FACING_CULL_DISABLE_BIT_KHR,

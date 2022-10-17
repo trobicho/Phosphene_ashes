@@ -27,8 +27,6 @@ void  SceneLoader::load(const std::string &filename) {
         .scenePath = scenePath,
         .useRelativePath = true,
       };
-      if (meshData["invertY"].is_boolean())
-        config.invertY = meshData["invertY"];
       if (meshData["scale"].is_number_float())
         config.scale = meshData["scale"];
       if (meshData["name"].is_string())

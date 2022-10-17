@@ -4,24 +4,19 @@
       "name" : "cow",
       "filepath": "obj/cow.obj",
       "type": "wavefront",
-      "loadScale": 0.1,
-      "loadNormal": false,
-      "loadTextCoord": false,
-      "invertY": true
+      "loadScale": 0.1
     },
     {
       "name" : "viking_room",
       "filepath" : "obj/viking_room.obj",
-      "type": "wavefront",
-      "loadNormal": false,
-      "loadTextCoord": false
+      "type": "wavefront"
     }
   ],
   "shapes": [
   ],
   "lights": [
     {
-      "position": [5.0, 10.0, 15.0],
+      "position": [5.0, -10.0, 16.0],
       "color": [1.0, 1.0, 1.0],
       "intensity": 1.0
     }
@@ -30,7 +25,7 @@
     {
       "name": "room",
       "mesh": "viking_room",
-      "position": [0.0, 30.0, 10.0],
+      "position": [0.0, 20.0, -10.0],
       "scale": 100.0,
       "transform": [
         [1.0, 0.0, 0.0],
@@ -42,19 +37,34 @@
       "name": "cow1",
       "mesh": "cow",
       "position": [0.0, 0.0, 13.0],
-      "scale": 0.5
+      "scale": 0.5,
+      "transform": [
+        [1.0, 0.0, 0.0],
+        [0.0, -1.0, 0.0],
+        [0.0, 0.0, 1.0]
+      ]
     },
     {
       "name": "cow2",
       "mesh": "cow",
       "position": [5.0, 0.0, 16.0],
-      "scale": 0.5
+      "scale": 0.5,
+      "transform": [
+        [1.0, 0.0, 0.0],
+        [0.0, -1.0, 0.0],
+        [0.0, 0.0, 1.0]
+      ]
     },
     {
       "name": "cow3",
       "mesh": "cow",
       "position": [-5.0, 0.0, 16.0],
-      "scale": 0.5
+      "scale": 0.5,
+      "transform": [
+        [1.0, 0.0, 0.0],
+        [0.0, -1.0, 0.0],
+        [0.0, 0.0, 1.0]
+      ]
     }
   ]
 }

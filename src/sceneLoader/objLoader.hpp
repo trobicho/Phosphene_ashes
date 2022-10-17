@@ -5,7 +5,6 @@ namespace ObjLoader {
 
 struct  ObjLoaderConfig {
   bool        loadMaterial = true;
-  bool        invertY = false;
   float       scale = 1.0;
   std::string scenePath;
   bool        useRelativePath = false;
