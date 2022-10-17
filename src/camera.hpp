@@ -64,12 +64,12 @@ class Camera {
     glm::mat4 m_view;
 
     uint32_t  m_keyState = 0;
-    float     m_speed = 0.02;
+    float     m_speed = 0.05;
 
     double    m_lastX = 0.0;
     double    m_lastY = 0.0;
 
-    float     m_fovY = glm::radians(80.f);
+    float     m_fovY = glm::radians(45.f);
     float     m_aspectRatio = 1.f;
     float     m_zNear = 0.1f;
     float     m_zFar = 100.f;

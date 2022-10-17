@@ -21,7 +21,7 @@ Phosphene::Phosphene(GLFWwindow *window): m_window(window) {
 
   {
     m_camera.setAllowMoving(true);
-    m_camera.setFov(80.f);
+    //m_camera.setFov(80.f);
     m_camera.setAspectRatio(m_width, m_height);
     m_alloc.createBuffer(sizeof(GlobalUniforms)
         , static_cast<VkBufferUsageFlagBits>(VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT)
@@ -97,7 +97,7 @@ void  Phosphene::draw() {
 
   {
     m_rtPipeline.updateUBO(commandBuffer, sizeof(m_globalUniform), m_globalUBO, &m_globalUniform);
-    m_scene.update(m_rtPipeline, commandBuffer, true);
+    m_scene.update(m_rtPipeline, commandBuffer, false);
     m_rtPipeline.raytrace(commandBuffer, m_width, m_height);
   }
   {

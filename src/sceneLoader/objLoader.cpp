@@ -87,7 +87,7 @@ void  load(const std::string filename, PhosObjectMesh &mesh, const ObjLoaderConf
         uint32_t lastVertexIdx = mesh.m_vertices.size() - 1;
         glm::vec3 v1 = mesh.m_vertices[lastVertexIdx].pos - mesh.m_vertices[lastVertexIdx - 1].pos;
         glm::vec3 v2 = mesh.m_vertices[lastVertexIdx].pos - mesh.m_vertices[lastVertexIdx - 2].pos;
-        glm::vec3 normal = glm::cross(v1, v2);
+        glm::vec3 normal = glm::cross(v2, v1);
         normal = glm::normalize(normal);
         for (uint32_t n = 0; n < fv; n++) {
           mesh.m_vertices[lastVertexIdx - n].normal = normal;

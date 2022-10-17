@@ -110,14 +110,18 @@ void  PhosScene::update(Pipeline pipeline, bool forceUpdate) {
 }
 
 void  PhosScene::update(Pipeline pipeline, const VkCommandBuffer &cmdBuffer, bool forceUpdate) {
-  if (forceUpdate) {
+  static bool need_update = true;
+
+  if (forceUpdate || need_update) {
     size_t  sizeLights = static_cast<size_t>(sizeof(m_lights[0]) * m_lights.size()); 
     if (sizeLights > 0)
       pipeline.updateUBO(cmdBuffer, sizeLights, m_lightsBuffer, m_lights.data());
   }
-  if (forceUpdate) {
+  if (forceUpdate || need_update) {
     size_t  sizeMeshDescs = static_cast<size_t>(sizeof(m_meshDescs[0]) * m_meshDescs.size()); 
     if (sizeMeshDescs > 0)
       pipeline.updateUBO(cmdBuffer, sizeMeshDescs, m_meshDescsBuffer, m_meshDescs.data());
   }
+
+  need_update = false;
 }

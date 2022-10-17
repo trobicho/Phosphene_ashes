@@ -56,7 +56,7 @@ void main()
   lightDir = normalize(lightDir);
 
   float specular = 0.0;
-  vec3  diffuse = vec3(0.1, 0.1, 0.1);
+  vec3  diffuse = vec3(0, 0, 0);
   if(dot(worldNrm, lightDir) > 0)
   {
     float tMin   = 0.001;

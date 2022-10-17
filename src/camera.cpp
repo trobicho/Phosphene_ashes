@@ -32,7 +32,7 @@ void  Camera::step() {
       rotateRad -= 0.002f;
     if (m_keyState & CAMERA_KEY_STATE_ROLL_CLOCKWISE || m_keyState & CAMERA_KEY_STATE_ROLL_COUNTER_CLOCKWISE) {
       m_up = glm::rotate(m_up, rotateRad, m_forward);
-      m_right = glm::normalize(glm::cross(m_up, m_forward));
+      m_right = -glm::normalize(glm::cross(m_up, m_forward));
     }
 
     m_update = true;
@@ -48,7 +48,8 @@ void  Camera::rotate(double x, double y) {
     glm::vec3 axis = m_right * (float)(y - m_lastY) + -m_up * (float)(x - m_lastX);
     axis = glm::normalize(axis);
     m_forward = glm::rotate(m_forward, norme * glm::radians(0.1f), axis);
-    m_up = glm::rotate(m_up, norme * glm::radians(0.1f), axis);
+    //m_right = glm::rotate(m_right, norme * glm::radians(0.1f), axis);
+    //m_right = glm::normalize(m_right);
     m_right = -glm::normalize(glm::cross(m_up, m_forward));
     m_update = true;
   }
