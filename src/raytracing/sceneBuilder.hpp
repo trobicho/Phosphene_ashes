@@ -30,6 +30,7 @@ class   SceneBuilder {
       const VkAccelerationStructureBuildRangeInfoKHR* rangeInfo;
     };
 
+    void  modelToVkGeometry(PhosObjectProcedural& model);
     void  modelToVkGeometry(PhosObjectMesh& model);
     void  cmdCreateBlas(VkCommandBuffer cmdBuffer
                         , std::vector<uint32_t> indices

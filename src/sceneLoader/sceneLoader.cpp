@@ -5,10 +5,30 @@
 #include <numeric>
 #include <limits>
 
-SceneLoader::SceneLoader(PhosScene &scene): m_scene(scene) {
+static bool  parseVec3(const json& vecData, glm::vec3& vec) {
+  if (vecData.is_array() && vecData.size() == 3) {
+    vec.x = vecData[0];
+    vec.y = vecData[1];
+    vec.z = vecData[2];
+    return (true);
+  }
+  else if (vecData.is_object()) {
+    if (vecData["x"].is_number()
+        && vecData["y"].is_number()
+        && vecData["z"].is_number()) {
+      vec.x = static_cast<float>(vecData["x"]);
+      vec.y = static_cast<float>(vecData["y"]);
+      vec.z = static_cast<float>(vecData["z"]);
+      return (true);
+    }
+  }
+  return (false);
 }
 
-void  SceneLoader::load(const std::string &filename) {
+SceneLoader::SceneLoader(PhosScene& scene): m_scene(scene) {
+}
+
+void  SceneLoader::load(const std::string& filename) {
   std::ifstream file(filename);
   json data = json::parse(file);
 
@@ -18,66 +38,121 @@ void  SceneLoader::load(const std::string &filename) {
   std::cout << "----------------------------------" << std::endl;
   */
 
-  std::string scenePath = filename.substr(0, filename.find_last_of('/') + 1);
+  m_scenePath = filename.substr(0, filename.find_last_of('/') + 1);
 
   for (auto &meshData : data["meshs"]) {
-    if (meshData["type"] == "wavefront") {
-      PhosObjectMesh  mesh;
-      ObjLoader::ObjLoaderConfig  config = {
-        .scenePath = scenePath,
-        .useRelativePath = true,
-      };
-      if (meshData["scale"].is_number_float())
-        config.scale = meshData["scale"];
-      if (meshData["name"].is_string())
-        mesh.m_name = meshData["name"];
-      if (meshData["filepath"].is_string()) {
-        std::string filepath = meshData["filepath"];
-        ObjLoader::load(filepath, mesh, config);
-      }
+    PhosObjectMesh  mesh;
+    if (parseMesh(meshData, mesh))
       m_scene.m_meshs.push_back(mesh);
-    }
+  }
+  for (auto &shapeData : data["shapes"]) {
+    PhosObjectProcedural  shape;
+    if (parseProceduralShape(shapeData, shape))
+      m_scene.m_proceduraShapes.push_back(shape);
   }
   for (auto &instanceData : data["instances"]) {
-    PhosObjectInstance instance;
-    instance.transform = glm::mat4(1.f);
-    if (instanceData["name"].is_string())
-      instance.name = instanceData["name"];
-    if (instanceData["mesh"].is_string()) {
-      instance.objectName = instanceData["mesh"];
-      instance.objectType = PHOS_OBJECT_TYPE_MESH;
-    }
-    if (instanceData["position"].is_array()) {
-      instance.transform[0][3] = instanceData["position"][0];
-      instance.transform[1][3] = instanceData["position"][1];
-      instance.transform[2][3] = instanceData["position"][2];
-    }
-    if (instanceData["scale"].is_number_float()) {
-      instance.transform[0][0] = instanceData["scale"];
-      instance.transform[1][1] = instanceData["scale"];
-      instance.transform[2][2] = instanceData["scale"];
-    }
-    if (instanceData["transform"].is_array()) {
-      glm::mat4 matrix(1.0f);
-      for (uint32_t r = 0; r < 3; r++) {
-        for (uint32_t c = 0; c < instanceData["transform"][r].size(); c++) {
-          matrix[r][c] = instanceData["transform"][r][c];
-        }
-      }
-      instance.transform = matrix * instance.transform;
-    }
-    m_scene.m_instances.push_back(instance);
+    PhosObjectInstance  instance;
+    if (parseInstance(instanceData, instance))
+      m_scene.m_instances.push_back(instance);
   }
-  for (auto &instanceData : data["lights"]) {
+  for (auto &lightData : data["lights"]) {
     Light light;
-    if (instanceData["position"].is_array()) {
-      light.pos.x = instanceData["position"][0];
-      light.pos.y = instanceData["position"][1];
-      light.pos.z = instanceData["position"][2];
-    }
-    if (instanceData["intensity"].is_number_float()) {
-      light.intensity = instanceData["intensity"];
+    parseVec3(lightData["position"], light.pos);
+    if (lightData["intensity"].is_number_float()) {
+      light.intensity = lightData["intensity"];
     }
     m_scene.m_lights.push_back(light);
   }
+}
+
+bool  SceneLoader::parseInstance(json& instanceData, PhosObjectInstance& instance) {
+  instance.transform = glm::mat4(1.f);
+  instance.objectType = 0;
+  if (instanceData["mesh"].is_string()) {
+    instance.objectName = instanceData["mesh"];
+    instance.objectType = PHOS_OBJECT_TYPE_MESH;
+  }
+  else if (instanceData["shape"].is_string()) {
+    instance.objectName = instanceData["shape"];
+    instance.objectType = PHOS_OBJECT_TYPE_PROCEDURAL;
+  }
+  else {
+    return (false);
+  }
+  if (instanceData["name"].is_string())
+    instance.name = instanceData["name"];
+  glm::vec3 v;
+  if (parseVec3(instanceData["position"], v)) {
+    instance.transform[0][3] = v.x;
+    instance.transform[1][3] = v.y;
+    instance.transform[2][3] = v.z;
+  }
+  if (instanceData["scale"].is_number_float()) {
+    instance.transform[0][0] = instanceData["scale"];
+    instance.transform[1][1] = instanceData["scale"];
+    instance.transform[2][2] = instanceData["scale"];
+  }
+  if (instanceData["transform"].is_array()) {
+    glm::mat4 matrix(1.0f);
+    for (uint32_t r = 0; r < 3; r++) {
+      for (uint32_t c = 0; c < instanceData["transform"][r].size(); c++) {
+        matrix[r][c] = instanceData["transform"][r][c];
+      }
+    }
+    instance.transform = matrix * instance.transform;
+  }
+  return (true);
+}
+
+bool  SceneLoader::parseMesh(json& meshData, PhosObjectMesh& mesh) {
+  if (meshData["type"] == "wavefront") {
+    ObjLoader::ObjLoaderConfig  config = {
+      .scenePath = m_scenePath,
+      .useRelativePath = true,
+    };
+    if (meshData["scale"].is_number_float())
+      config.scale = meshData["scale"];
+    if (meshData["name"].is_string())
+      mesh.m_name = meshData["name"];
+    if (meshData["filepath"].is_string()) {
+      std::string filepath = meshData["filepath"];
+      ObjLoader::load(filepath, mesh, config);
+    }
+    return (true);
+  }
+  return (false);
+}
+
+bool  SceneLoader::parseProceduralShape(json& shapeData, PhosObjectProcedural& shape) {
+  if (shapeData["name"].is_string())
+    shape.m_name = shapeData["name"];
+  if (shapeData["aabb"].is_object()) {
+    glm::vec3 min, max;
+    if (parseVec3(shapeData["aabb"]["min"], min) && parseVec3(shapeData["aabb"]["min"], max)) {
+      shape.aabb = {
+        .minX = min.x,
+        .minY = min.y,
+        .minZ = min.z,
+        .maxX = max.x,
+        .maxY = max.y,
+        .maxZ = max.z,
+      };
+    }
+    else
+      return (false);
+  }
+  if (shapeData["shaders"].is_array()) {
+    for (auto& shaderData : shapeData["shaders"]) {
+      if (shaderData["type"] == "intersection"
+          || shaderData["type"] == "rint") {
+        if (shaderData["spv"].is_string()) {
+          std::string spvName = shaderData["spv"];
+          shape.intersectionShaderName = "./spv/" + spvName;
+        }
+      }
+    }
+  }
+  else
+    return (false);
+  return (shape.intersectionShaderName != "");
 }

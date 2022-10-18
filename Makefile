@@ -28,9 +28,11 @@ SHADERS_NAME =	post.vert \
                 post.frag \
 				raytrace.rgen \
 				raytrace.rmiss \
-				raytrace.rchit \
 				raytraceShadow.rmiss \
-				raytraceShadow.rchit \
+				raytraceMesh.rchit \
+				raytraceMeshShadow.rchit \
+				raytraceShape.rchit \
+				sphere.rint \
 
 SHADERS_RESULT_NAME =	$(addsuffix .spv, $(SHADERS_NAME))
 

@@ -9,6 +9,10 @@ Phosphene::Phosphene(GLFWwindow *window): m_window(window) {
   m_physicalDevice = PhosStartVk::choosePhysicalDevice(m_instance);
   PhosStartVk::createLogicalDeviceAndQueue(m_device, m_physicalDevice, m_surface, m_graphicsQueue, m_graphicsQueueFamilyIndex);
   PhosHelper::loadRtExtension(m_device);
+  m_pcRay = (PushConstantRay){
+    .clearColor = glm::vec4(0.1, 0.1, 0.1, 1.0),
+    .nbLights = 0,
+  };
 
   int width = 0;
   int height = 0;

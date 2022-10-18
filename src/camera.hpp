@@ -1,5 +1,7 @@
 #include "../shaders/hostDevice.h"
 
+#define CAMERA_EVENT_ASPECT_CHANGE                0b000001
+
 #define CAMERA_KEY_STATE_RIGHT                    0b000001
 #define CAMERA_KEY_STATE_LEFT                     0b000010
 #define CAMERA_KEY_STATE_FORWARD                  0b000100
@@ -42,6 +44,10 @@ class Camera {
       m_fovY = glm::radians(degree);
       m_update = true;
     }
+    void  eventChangeAspectRatio(uint32_t width, uint32_t height) {
+      m_newAspectRatio = (float)width / (float)height;
+      m_event |= CAMERA_EVENT_ASPECT_CHANGE;
+    }
     void  setAspectRatio(uint32_t width, uint32_t height) {
       m_aspectRatio = (float)width / (float)height;
       m_update = true;
@@ -63,6 +69,7 @@ class Camera {
     glm::mat4 m_projection;
     glm::mat4 m_view;
 
+    uint32_t  m_event = 0;
     uint32_t  m_keyState = 0;
     float     m_speed = 0.05;
 
@@ -71,6 +78,7 @@ class Camera {
 
     float     m_fovY = glm::radians(45.f);
     float     m_aspectRatio = 1.f;
+    float     m_newAspectRatio = 1.f;
     float     m_zNear = 0.1f;
     float     m_zFar = 100.f;
     bool      m_update = true;

@@ -102,7 +102,7 @@ void  Phosphene::buildRtPipelineBasic() {
   builder.addPushConstant(pushConsant);
   builder.setRayGenStage("./spv/raytrace.rgen.spv");
   builder.addMissStage("./spv/raytrace.rmiss.spv");
-  builder.addHitShader("cHit", "./spv/raytrace.rchit.spv", VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR);
+  builder.addHitShader("cHit", "./spv/raytraceMesh.rchit.spv", VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR);
   RtBuilder::HitGroup hitGroup = {
     .type = VK_RAY_TRACING_SHADER_GROUP_TYPE_TRIANGLES_HIT_GROUP_KHR,
     .closestHitName = "cHit",
@@ -146,7 +146,7 @@ void  Phosphene::buildRtPipelineBasicLights() {
   builder.setRayGenStage("./spv/raytrace.rgen.spv");
   builder.addMissStage("./spv/raytrace.rmiss.spv");
   builder.addMissStage("./spv/raytraceShadow.rmiss.spv");
-  builder.addHitShader("cHit", "./spv/raytraceShadow.rchit.spv", VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR);
+  builder.addHitShader("cHit", "./spv/raytraceMeshShadow.rchit.spv", VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR);
   RtBuilder::HitGroup hitGroup = {
     .type = VK_RAY_TRACING_SHADER_GROUP_TYPE_TRIANGLES_HIT_GROUP_KHR,
     .closestHitName = "cHit",

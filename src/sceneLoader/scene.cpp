@@ -24,6 +24,17 @@ void  PhosObjectMesh::createBuffer(MemoryAllocator &alloc) {
       , m_indexBuffer);
   alloc.stagingMakeAndCopy(sizeIndex, m_indexBuffer, (void*)m_indices.data());
 }
+
+void  PhosObjectProcedural::createBuffer(MemoryAllocator &alloc) {
+  alloc.createBuffer(strideAabb()
+      , static_cast<VkBufferUsageFlagBits>(VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT
+          | VK_BUFFER_USAGE_TRANSFER_DST_BIT
+          | VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR
+          | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT)
+      , VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
+      , aabbBuffer);
+  alloc.stagingMakeAndCopy(strideAabb(), aabbBuffer, (void*)&aabb);
+}
     
 void  PhosScene::destroy() {
   for (auto& mesh : m_meshs) {
@@ -41,6 +52,12 @@ void* PhosScene::getInstanceObject(PhosObjectInstance &instance) {
         return (&mesh);
     }
   }
+  else if (instance.objectType == PHOS_OBJECT_TYPE_PROCEDURAL) {
+    for (auto& shape : m_proceduraShapes) {
+      if (instance.objectName == shape.m_name)
+        return (&shape);
+    }
+  }
   return (nullptr);
 }
 
@@ -48,7 +65,11 @@ void  PhosScene::allocateResources() {
   for (auto& mesh : m_meshs) {
     mesh.createBuffer(*m_alloc);
   }
+  for (auto& shape : m_proceduraShapes) {
+    shape.createBuffer(*m_alloc);
+  }
   uint32_t meshCustomIndex = 0;
+  uint32_t shapeCustomIndex = 0;
   uint32_t proceduralShapeCustomIndex = 0;
   for (auto& instance : m_instances) {
     void* obj = getInstanceObject(instance);

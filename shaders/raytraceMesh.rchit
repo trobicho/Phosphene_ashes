@@ -15,7 +15,6 @@ hitAttributeEXT vec2 attribs;
 layout(buffer_reference, scalar) buffer Vertices {Vertex v[]; }; // Positions of an object
 layout(buffer_reference, scalar) buffer Indices {ivec3 i[]; }; // Triangle indices
 
-layout(set = 0, binding = eTlas) uniform accelerationStructureEXT topLevelAS;
 layout(set = 2, binding = eMeshDescs, scalar) buffer MeshDesc_ { MeshDesc i[]; } meshDesc;
 
 void main()

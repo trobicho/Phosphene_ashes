@@ -26,6 +26,9 @@ void  SceneBuilder::buildBlas(PhosScene& scene, VkBuildAccelerationStructureFlag
   for (auto& mesh : scene.m_meshs) {
     modelToVkGeometry(mesh);
   }
+  for (auto& shape : scene.m_proceduraShapes) {
+    modelToVkGeometry(shape);
+  }
 
   uint32_t  nbBlas = static_cast<uint32_t>(m_blasInput.size());
   std::vector<BuildAccelerationStructure>  buildAs(nbBlas);
@@ -88,11 +91,27 @@ void  SceneBuilder::buildTlas(PhosScene& scene, VkBuildAccelerationStructureFlag
   std::vector<VkAccelerationStructureInstanceKHR> tlasInstance;
   uint32_t  instanceCount = 0;
   for (auto& instance : scene.m_instances) {
-    VkDeviceAddress blasAddr = 0;
-    void*           objectAddr = scene.getInstanceObject(instance);
+    VkDeviceAddress               blasAddr = 0;
+    void*                         objectAddr = scene.getInstanceObject(instance);
+    VkGeometryInstanceFlagBitsKHR flags{};
+
     if (instance.objectType == PHOS_OBJECT_TYPE_MESH) {
       auto meshAddr = static_cast<PhosObjectMesh*>(objectAddr);
+      if (meshAddr == nullptr) {
+        std::string error = "unable to get mesh address for: " + instance.objectName;
+        throw PhosHelper::FatalError(error);
+      }
       blasAddr = meshAddr->m_blasDeviceAddress;
+      flags =  VK_GEOMETRY_INSTANCE_TRIANGLE_FACING_CULL_DISABLE_BIT_KHR;
+    }
+    else if (instance.objectType == PHOS_OBJECT_TYPE_PROCEDURAL) {
+      auto shapeAddr = static_cast<PhosObjectMesh*>(objectAddr);
+      if (shapeAddr == nullptr) {
+        std::string error = "unable to get shape address for: " + instance.objectName;
+        throw PhosHelper::FatalError(error);
+      }
+      blasAddr = shapeAddr->m_blasDeviceAddress;
+      flags =  VK_GEOMETRY_INSTANCE_FORCE_OPAQUE_BIT_KHR;
     }
     if (blasAddr != 0) {
       instanceCount++;
@@ -101,7 +120,7 @@ void  SceneBuilder::buildTlas(PhosScene& scene, VkBuildAccelerationStructureFlag
         .instanceCustomIndex = instance.customIndex,
         .mask = 0xFF,
         .instanceShaderBindingTableRecordOffset = 0,
-        .flags = VK_GEOMETRY_INSTANCE_TRIANGLE_FACING_CULL_DISABLE_BIT_KHR,
+        .flags = flags,
         .accelerationStructureReference = blasAddr,
       };
       tlasInstance.push_back(inst);
@@ -203,6 +222,40 @@ void  SceneBuilder::buildTlas(PhosScene& scene, VkBuildAccelerationStructureFlag
   }
   m_alloc->destroyBuffer(scratchBuffer);
   m_alloc->destroyBuffer(instanceBuffer);
+}
+
+void  SceneBuilder::modelToVkGeometry(PhosObjectProcedural& shape) {
+  VkDeviceAddress aabbAddress = m_alloc->getBufferDeviceAddress(shape.aabbBuffer);
+  
+  VkAccelerationStructureGeometryAabbsDataKHR aabbs = {
+    .sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_AABBS_DATA_KHR,
+    .data = {
+      .deviceAddress = aabbAddress,
+    },
+    .stride = shape.strideAabb(),
+  };
+
+  VkAccelerationStructureGeometryKHR  asGeom = {
+    .sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_KHR,
+    .geometryType = VK_GEOMETRY_TYPE_AABBS_KHR,
+    .geometry = {
+      .aabbs = aabbs,
+    },
+    .flags = VK_GEOMETRY_OPAQUE_BIT_KHR,
+  };
+
+  VkAccelerationStructureBuildRangeInfoKHR buildOffsetInfo = {
+    .primitiveCount = 1,
+    .primitiveOffset = 0,
+    .firstVertex = 0,
+    .transformOffset = 0,
+  };
+
+  BlasInput input = {
+    .asGeometry = asGeom,
+    .asBuildOffsetInfo = buildOffsetInfo,
+  };
+  m_blasInput.push_back(input);
 }
 
 void  SceneBuilder::modelToVkGeometry(PhosObjectMesh& model) {

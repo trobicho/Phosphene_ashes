@@ -1,0 +1,48 @@
+#version 460
+#extension GL_EXT_ray_tracing : require
+#extension GL_EXT_nonuniform_qualifier : enable
+#extension GL_EXT_scalar_block_layout : enable
+#extension GL_GOOGLE_include_directive : enable
+
+#extension GL_EXT_shader_explicit_arithmetic_types_int64 : require
+#extension GL_EXT_buffer_reference2 : require
+
+#include "raycommon.glsl"
+#include "wavefront.glsl"
+
+struct  Ray {
+  vec3  origin;
+  vec3  direction;
+};
+
+struct  Sphere {
+  vec3  center;
+  float radius;
+};
+
+float hitSphere(const Sphere s, const Ray r)
+{
+  vec3  oc           = r.origin - s.center;
+  float a            = dot(r.direction, r.direction);
+  float b            = 2.0 * dot(oc, r.direction);
+  float c            = dot(oc, oc) - s.radius * s.radius;
+  float discriminant = b * b - 4 * a * c;
+  if(discriminant < 0)
+  {
+    return -1.0;
+  }
+  else
+  {
+    return (-b - sqrt(discriminant)) / (2.0 * a);
+  }
+}
+
+void  main()
+{
+  Ray     ray = {gl_WorldRayOriginEXT, gl_WorldRayDirectionEXT};
+  Sphere  sphere = {vec3(0.f), 1.0f};
+  float   hit = hitSphere(sphere, ray);
+  if (hit > 0)
+    reportIntersectionEXT(hit, 1);
+  
+}

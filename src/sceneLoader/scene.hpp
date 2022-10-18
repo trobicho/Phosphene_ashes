@@ -28,12 +28,20 @@ class PhosObjectMesh {
     VkDeviceAddress       m_blasDeviceAddress = 0;
 };
 
-class PhosObjectProcedural {
+class PhosObjectProcedural { //TODO: m_ or not m_ ?
   public:
     PhosObjectProcedural(){};
+    void      destroy(MemoryAllocator &alloc) {
+      alloc.destroyBuffer(aabbBuffer);
+    }
+    uint32_t  strideAabb(){return(sizeof(VkAabbPositionsKHR));}
+    void      createBuffer(MemoryAllocator &alloc);
 
-    std::string m_name = "";
-    std::string intersectionShaderName;
+    std::string         m_name = "";
+    std::string         intersectionShaderName = "";
+    VkAabbPositionsKHR  aabb;
+    BufferWrapper       aabbBuffer;
+    VkDeviceAddress     m_blasDeviceAddress = 0;
 };
 
 class PhosObjectInstance {
@@ -42,7 +50,7 @@ class PhosObjectInstance {
 
     std::string name;
     std::string objectName;
-    uint32_t    objectType;
+    uint32_t    objectType = 0;
     glm::mat4   transform;
     uint32_t    customIndex = 0;
 

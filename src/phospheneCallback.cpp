@@ -16,7 +16,7 @@ void  Phosphene::callbackWindowResize(int width, int height) {
   vkFreeMemory(m_device, m_offscreenImageMemory, nullptr);
   vkDestroyImageView(m_device, m_offscreenImageView, nullptr);
   createOffscreenRender();
-  m_camera.setAspectRatio(m_width, m_height);
+  m_camera.eventChangeAspectRatio(m_width, m_height);
   m_vkImpl.updatePostDescSet(m_offscreenImageView);
   updateRtImage();
 }

@@ -37,6 +37,11 @@ void  Camera::step() {
 
     m_update = true;
   }
+  if (m_event & CAMERA_EVENT_ASPECT_CHANGE) {
+    m_aspectRatio = m_newAspectRatio;
+    m_event &= ~(CAMERA_EVENT_ASPECT_CHANGE);
+    m_update = true;
+  }
 }
 
 void  Camera::rotate(double x, double y) {
