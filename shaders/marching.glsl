@@ -1,8 +1,6 @@
 #extension GL_EXT_ray_tracing : require
 
-#define MAX_DIST    100 
-#define MIN_DIST    0.001
-#define MAX_STEP    1000
+#define MAX_DIST    20.0 
 
 struct  Ray {
   vec3  origin;
@@ -16,29 +14,67 @@ struct  Hit {
   uint  step;
 };
 
-Hit marching(Ray ray)
+struct  Sphere {
+  vec3  center;
+  float radius;
+};
+
+float hitSphere(const Sphere s, const Ray r)
+{
+  vec3  oc           = r.origin - s.center;
+  float a            = dot(r.direction, r.direction);
+  float b            = 2.0 * dot(oc, r.direction);
+  float c            = dot(oc, oc) - s.radius * s.radius;
+  float discriminant = b * b - 4 * a * c;
+  if(discriminant < 0)
+  {
+    return -1.0;
+  }
+  else
+  {
+    return (-b - sqrt(discriminant)) / (2.0 * a);
+  }
+}
+
+Hit   marching(Ray ray, float minDist, uint maxStep)
 {
   float   d = 0.;
   float   ds = 0.;
-  vec3    p;
+  vec3    p = ray.origin;
 
-  for(int i = 0; i < MAX_STEP; i++)
+  for(int step = 0; step < maxStep; step++)
   {
-    p = ray.origin + (ray.direction * d);
     ds = sdf(p);
     d += ds;
     if (d > MAX_DIST) {
-      return (Hit(false, vec3(0.f), d, MAX_STEP));
+      return (Hit(false, vec3(0.f), d, step));
     }
-    if (ds <= MIN_DIST) {
+    if (ds <= minDist) {
       Hit hit = {
         true,
-        ray.origin,
+        p,
         d,
-        i
+        step
       };
       return (hit);
     }
+    p = ray.origin + (ray.direction * d);
   }
-  return (Hit(false, vec3(0.f), d, MAX_STEP));
+  return (Hit(true, p, d, maxStep));
+}
+
+vec3  getNormal(Ray ray, float minDist)
+{
+    float   d;
+    float   epsi;
+    vec3    n;
+    vec3    p;
+
+    p = ray.origin;
+    epsi = minDist / 2.0;
+    d = sdf(p);
+    n = vec3(d - sdf(vec3(p.x - epsi, p.yz))
+        , d - sdf(vec3(p.x, p.y - epsi, p.z))
+        , d - sdf(vec3(p.xy, p.z - epsi)));
+    return (normalize(n));
 }

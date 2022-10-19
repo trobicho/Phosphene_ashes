@@ -40,6 +40,9 @@ void  PhosScene::destroy() {
   for (auto& mesh : m_meshs) {
     mesh.destroy(*m_alloc);
   }
+  for (auto& shape: m_proceduraShapes) {
+    shape.destroy(*m_alloc);
+  }
   m_alloc->destroyBuffer(m_lightsBuffer);
   m_alloc->destroyBuffer(m_meshDescsBuffer);
 

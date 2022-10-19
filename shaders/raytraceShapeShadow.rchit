@@ -13,39 +13,30 @@
 layout(location = 0) rayPayloadInEXT hitPayload prd;
 layout(location = 1) rayPayloadEXT bool isShadowed;
 
-layout(buffer_reference, scalar) buffer Vertices {Vertex v[]; }; // Positions of an object
-layout(buffer_reference, scalar) buffer Indices {ivec3 i[]; }; // Triangle indices
-
 layout(set = 0, binding = eTlas) uniform accelerationStructureEXT topLevelAS;
-layout(set = 2, binding = eMeshDescs, scalar) buffer MeshDesc_ { MeshDesc i[]; } meshDesc;
+//layout(set = 2, binding = eMeshDescs, scalar) buffer MeshDesc_ { MeshDesc i[]; } meshDesc;
 layout(set = 3, binding = eLights, scalar) buffer Light_ { Light i[]; } light;
-hitAttributeEXT vec2 attribs;
+
+hitAttributeEXT block {
+  vec3  pos;
+  vec3  normal;
+  uint  step;
+}attribs;
 
 void main()
 {
 
   // Object data                                                                    
-  MeshDesc  objResource = meshDesc.i[gl_InstanceCustomIndexEXT];
-  Indices   indices     = Indices(objResource.indexAddress);
-  Vertices  vertices    = Vertices(objResource.vertexAddress);
 
   // Indices of the triangle                                                        
-  ivec3 ind = indices.i[gl_PrimitiveID];
 
   // Vertex of the triangle
-  Vertex v0 = vertices.v[ind.x];
-  Vertex v1 = vertices.v[ind.y];
-  Vertex v2 = vertices.v[ind.z];
-
-  const vec3 barycentrics = vec3(1.0 - attribs.x - attribs.y, attribs.x, attribs.y);
 
   // Computing the coordinates of the hit position
-  const vec3 pos = v0.pos * barycentrics.x + v1.pos * barycentrics.y + v2.pos * barycentrics.z;
-  const vec3 worldPos = vec3(gl_ObjectToWorldEXT * vec4(pos, 1.0));  // Transforming the position to world space
 
   // Computing the normal at hit position
-  const vec3 normal = v0.normal * barycentrics.x + v1.normal * barycentrics.y + v2.normal * barycentrics.z;
-  const vec3 worldNrm = normalize(vec3(normal * gl_WorldToObjectEXT));  // Transforming the normal to world space
+  const vec3 worldNrm = normalize(vec3(attribs.normal * gl_WorldToObjectEXT));  // Transforming the normal to world space
+  const vec3 worldPos = vec3(gl_ObjectToWorldEXT * vec4(attribs.pos, 1.0));  // Transforming the position to world space
 
 
   float attenuation = 1;

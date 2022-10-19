@@ -8,11 +8,16 @@
 #extension GL_EXT_buffer_reference2 : require
 
 #include "hostDevice.h"
+#include "raycommon.glsl"
 
 layout(location = 0) rayPayloadInEXT vec3 hitValue;
-hitAttributeEXT vec3 attribs;
+
+hitAttributeEXT block {
+  vec3  normal;
+  uint  step;
+}attribs;
 
 void main()
 {
-  hitValue = vec3(1.0);
+  hitValue = vec3(1.0) / (attribs.step / 10); 
 }

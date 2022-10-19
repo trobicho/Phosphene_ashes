@@ -32,6 +32,7 @@ SHADERS_NAME =	post.vert \
 				raytraceMesh.rchit \
 				raytraceMeshShadow.rchit \
 				raytraceShape.rchit \
+				raytraceShapeShadow.rchit \
 				sphere.rint \
 				mandelbulb.rint \
 

@@ -10,7 +10,13 @@
 #include "raycommon.glsl"
 #include "wavefront.glsl"
 
-#define ITERATION 500
+hitAttributeEXT block {
+  vec3  pos;
+  vec3  normal;
+  uint  step;
+}attribs;
+
+#define ITERATION 300
 
 float sdf(vec3 v)
 {
@@ -57,9 +63,25 @@ float sdf(vec3 v)
 
 void  main()
 {
-  Ray ray = {gl_ObjectRayOriginEXT, gl_ObjectRayDirectionEXT};
-  Hit hit = marching(ray);
+  float   minDist = 0.002;
+  uint    maxStep = 1000;
+  Ray     ray = {gl_ObjectRayOriginEXT, gl_ObjectRayDirectionEXT};
+
+  Sphere  sphere = {vec3(0.f, 0.f, 0.0f), 1.5f};
+  float   dist = hitSphere(sphere, ray);
+  float   distT = dist;
+  if (dist > 0) {
+    ray.origin = ray.origin + ray.direction * dist;
+  }
+
+  Hit hit = marching(ray, minDist, maxStep);
+  hit.dist += distT;
   if (hit.asHit) {
+    Ray   rayNormal = {hit.pos, ray.direction};
+    vec3  normal = getNormal(rayNormal, minDist);
+    attribs.pos = hit.pos;
+    attribs.normal = normal;
+    attribs.step = hit.step;
     reportIntersectionEXT(hit.dist, 1);
   }
 }
