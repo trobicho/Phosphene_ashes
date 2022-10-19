@@ -39,7 +39,7 @@ float hitSphere(const Sphere s, const Ray r)
 
 void  main()
 {
-  Ray     ray = {gl_WorldRayOriginEXT, gl_WorldRayDirectionEXT};
+  Ray     ray = {gl_ObjectRayOriginEXT, gl_ObjectRayDirectionEXT};
   Sphere  sphere = {vec3(0.f, 0.f, 0.0f), 1.0f};
   float   hit = hitSphere(sphere, ray);
   if (hit >= 0)

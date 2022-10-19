@@ -1,0 +1,65 @@
+#version 460
+#extension GL_EXT_ray_tracing : require
+#extension GL_EXT_nonuniform_qualifier : enable
+#extension GL_EXT_scalar_block_layout : enable
+#extension GL_GOOGLE_include_directive : enable
+
+#extension GL_EXT_shader_explicit_arithmetic_types_int64 : require
+#extension GL_EXT_buffer_reference2 : require
+
+#include "raycommon.glsl"
+#include "wavefront.glsl"
+
+#define ITERATION 500
+
+float sdf(vec3 v)
+{
+  float   dr, r;
+  vec3    w, z, z2, z4; 
+  vec3    vp = v;
+  if (v == vec3(0.0, 0.0, 0.0))
+    v.z = 0.02;
+
+  //v.x = (vp.x * cos(time * 2.0) - vp.z * sin(time * 2.0));
+  //v.z = (vp.x * sin(time * 2.0) + vp.z * cos(time * 2.0));
+  dr = 1.0;
+  w = v;
+  r = w.x * w.x + w.y * w.y + w.z * w.z;
+  for(int i = 0; i < ITERATION; i++)
+  {
+    dr = 8.0 * sqrt(r * r * r * r * r * r * r) * dr + 1.0;
+    z = w;
+    z2 = vec3(z.x * z.x, z.y * z.y, z.z * z.z);
+    z4 = vec3(z2.x * z2.x, z2.y * z2.y, z2.z * z2.z);
+
+    float k3 = z2.x + z2.z;
+    float k2 = inversesqrt(k3*k3*k3*k3*k3*k3*k3);
+    float k1 = z4.x + z4.y + z4.z - 6.0*z2.y*z2.z - 6.0*z2.x*z2.y + 2.0*z2.z*z2.x;
+    float k4 = z2.x - z2.y + z2.z;
+
+    w.x = v.x + 64.0 * z.x * z.y * z.z * (z2.x - z2.z) * k4 * (z4.x - 6.0 * z2.x * z2.z + z4.z) * k1 * k2;
+    w.y = v.y + -16 * z2.y * k3 * k4 * k4 + k1 * k1;
+    w.z = v.z + -8.0 * z.y * k4 * (z4.x * z4.x - 28.0 * z4.x * z2.x * z2.z + 70.0 * z4.x * z4.z - 28.0 * z2.x * z2.z * z4.z + z4.z * z4.z) * k1 * k2;
+
+    //w.x += cos(time) * ((1684552.0 / 4) - (1684552.0 / 4)) * 3;
+    //w.y += sin(time) * 1.7812 - cos(sqrt(time));
+    //w.z -= 1.2 * cos(time) + sin(time) * 0.7;
+    //w.x = (-sin(time) -cos(-time)) * w.x / 2.5;
+
+    r = w.x * w.x + w.y * w.y + w.z * w.z;
+    if (r > 256.0)
+      return (0.25 * log(r) * sqrt(r) / dr);
+  }   
+  return (0.25 * log(r) * sqrt(r) / dr);
+}
+
+#include "marching.glsl"
+
+void  main()
+{
+  Ray ray = {gl_ObjectRayOriginEXT, gl_ObjectRayDirectionEXT};
+  Hit hit = marching(ray);
+  if (hit.asHit) {
+    reportIntersectionEXT(hit.dist, 1);
+  }
+}
