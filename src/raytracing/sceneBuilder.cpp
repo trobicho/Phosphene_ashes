@@ -73,7 +73,7 @@ void  SceneBuilder::buildBlas(PhosScene& scene, VkBuildAccelerationStructureFlag
         .pInheritanceInfo = nullptr,
       };
       if (vkBeginCommandBuffer(cmdBuffer, &beginInfo))
-        throw PhosHelper::FatalVulkanInitError("Failed to begin recording Command Buffer For TLAS!");
+        throw PhosHelper::FatalVulkanInitError("Failed to begin recording Command Buffer For BLAS!");
       cmdCreateBlas(cmdBuffer, indices, buildAs, scratchAddress);
       vkEndCommandBuffer(cmdBuffer);
       m_cmdPool.submitAndWait(cmdBuffer);
@@ -81,8 +81,17 @@ void  SceneBuilder::buildBlas(PhosScene& scene, VkBuildAccelerationStructureFlag
       indices.clear();
     }
   }
+  uint32_t  meshIdx = 0;
+  uint32_t  shapeIdx = 0;
   for (uint32_t idx = 0; idx < nbBlas; idx++) {
-    scene.m_meshs[idx].m_blasDeviceAddress = m_alloc->getAccelerationStructureDeviceAddress(m_blas[idx]);
+    if (m_blasInput[idx].asGeometry.geometryType == VK_GEOMETRY_TYPE_TRIANGLES_KHR) {
+      scene.m_meshs[meshIdx].m_blasDeviceAddress = m_alloc->getAccelerationStructureDeviceAddress(m_blas[idx]);
+      meshIdx++;
+    }
+    else if (m_blasInput[idx].asGeometry.geometryType == VK_GEOMETRY_TYPE_AABBS_KHR) {
+      scene.m_proceduraShapes[shapeIdx].m_blasDeviceAddress = m_alloc->getAccelerationStructureDeviceAddress(m_blas[idx]);
+      shapeIdx++;
+    }
   }
   m_alloc->destroyBuffer(scratchBuffer);
 }
@@ -94,6 +103,7 @@ void  SceneBuilder::buildTlas(PhosScene& scene, VkBuildAccelerationStructureFlag
     VkDeviceAddress               blasAddr = 0;
     void*                         objectAddr = scene.getInstanceObject(instance);
     VkGeometryInstanceFlagBitsKHR flags{};
+    uint32_t                      hitShaderBinding = 0;
 
     if (instance.objectType == PHOS_OBJECT_TYPE_MESH) {
       auto meshAddr = static_cast<PhosObjectMesh*>(objectAddr);
@@ -105,13 +115,14 @@ void  SceneBuilder::buildTlas(PhosScene& scene, VkBuildAccelerationStructureFlag
       flags =  VK_GEOMETRY_INSTANCE_TRIANGLE_FACING_CULL_DISABLE_BIT_KHR;
     }
     else if (instance.objectType == PHOS_OBJECT_TYPE_PROCEDURAL) {
-      auto shapeAddr = static_cast<PhosObjectMesh*>(objectAddr);
+      auto shapeAddr = static_cast<PhosObjectProcedural*>(objectAddr);
       if (shapeAddr == nullptr) {
         std::string error = "unable to get shape address for: " + instance.objectName;
         throw PhosHelper::FatalError(error);
       }
       blasAddr = shapeAddr->m_blasDeviceAddress;
       flags =  VK_GEOMETRY_INSTANCE_FORCE_OPAQUE_BIT_KHR;
+      hitShaderBinding = shapeAddr->hitShaderBindingIndex;
     }
     if (blasAddr != 0) {
       instanceCount++;
@@ -119,7 +130,7 @@ void  SceneBuilder::buildTlas(PhosScene& scene, VkBuildAccelerationStructureFlag
         .transform = PhosHelper::matrixToVkTransformMatrix(instance.transform),
         .instanceCustomIndex = instance.customIndex,
         .mask = 0xFF,
-        .instanceShaderBindingTableRecordOffset = 0,
+        .instanceShaderBindingTableRecordOffset = hitShaderBinding,
         .flags = flags,
         .accelerationStructureReference = blasAddr,
       };

@@ -1,0 +1,58 @@
+{
+  "shaders" : [
+    {
+      "name" : "sphere",
+      "type" : "intersection",
+      "spv" : "sphere.rint.spv"
+    }
+  ],
+  "meshs": [
+    {
+      "name" : "cow",
+      "filepath": "obj/cow.obj",
+      "type": "wavefront",
+      "scale": 1.0
+    }
+  ],
+  "shapes": [
+    {
+      "name" : "sphere",
+      "aabb" : {
+        "min" : [-1.0, -1.0, -1.0],
+        "max" : [1.0, 1.0, 1.0]
+      },
+      "intersection" : "sphere"
+    }
+  ],
+  "lights": [
+    {
+      "position": [5.0, -10.0, 16.0],
+      "color": [1.0, 1.0, 1.0],
+      "intensity": 1.0
+    }
+  ],
+  "instances": [
+    {
+      "name": "sphere",
+      "shape": "sphere",
+      "position": [0.0, 0.0, 0.0],
+      "scale": 1.0,
+      "transform": [
+        [1.0, 0.0, 0.0],
+        [0.0, 1.0, 0.0],
+        [0.0, 0.0, 1.0]
+      ]
+    },
+    {
+      "name": "cow1",
+      "mesh": "cow",
+      "position": [0.0, 0.0, 13.0],
+      "scale": 0.5,
+      "transform": [
+        [1.0, 0.0, 0.0],
+        [0.0, -1.0, 0.0],
+        [0.0, 0.0, 1.0]
+      ]
+    }
+  ]
+}

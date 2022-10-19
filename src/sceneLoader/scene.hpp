@@ -9,7 +9,14 @@
 #define PHOS_OBJECT_TYPE_MESH         1
 #define PHOS_OBJECT_TYPE_PROCEDURAL   2
 
-class PhosObjectMesh {
+struct  PhosHitShader {
+  std::string           name;
+  std::string           pName = "main";
+  std::string           spv;
+  VkShaderStageFlagBits type;
+};
+
+class   PhosObjectMesh {
   public:
     PhosObjectMesh(){};
 
@@ -28,7 +35,7 @@ class PhosObjectMesh {
     VkDeviceAddress       m_blasDeviceAddress = 0;
 };
 
-class PhosObjectProcedural { //TODO: m_ or not m_ ?
+class   PhosObjectProcedural { //TODO: m_ or not m_ ?
   public:
     PhosObjectProcedural(){};
     void      destroy(MemoryAllocator &alloc) {
@@ -42,9 +49,10 @@ class PhosObjectProcedural { //TODO: m_ or not m_ ?
     VkAabbPositionsKHR  aabb;
     BufferWrapper       aabbBuffer;
     VkDeviceAddress     m_blasDeviceAddress = 0;
+    uint32_t            hitShaderBindingIndex = 0;
 };
 
-class PhosObjectInstance {
+class   PhosObjectInstance {
   public:
     PhosObjectInstance(){};
 
@@ -57,7 +65,7 @@ class PhosObjectInstance {
     //MATERIAL
 };
 
-class PhosScene {
+class   PhosScene {
   using Pipeline = RtBuilder::Pipeline;
   public:
     PhosScene(){};
@@ -71,8 +79,10 @@ class PhosScene {
         return (getInstanceObject(m_instances[idx]));
       return (nullptr);
     }
-    void*     getInstanceObject(PhosObjectInstance &instance);
-    uint32_t  getLightCount() {return (m_lights.size());}
+    void*           getInstanceObject(PhosObjectInstance &instance);
+    uint32_t        getLightCount() {return (m_lights.size());}
+    PhosHitShader*  getShader(const std::string name, uint32_t* index = nullptr);
+    void            setShapesHitBindingIndex(uint32_t offset = 0);
 
     void  allocateResources();
     void  update(Pipeline pipeline, bool forceUpdate = false);
@@ -83,6 +93,7 @@ class PhosScene {
     std::vector<PhosObjectProcedural> m_proceduraShapes;
     std::vector<PhosObjectInstance>   m_instances;
     std::vector<Light>                m_lights;
+    std::vector<PhosHitShader>        m_hitShaders;
 
   private:
     uint32_t  event = 0;

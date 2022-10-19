@@ -17,6 +17,7 @@ class SceneLoader
     bool  parseInstance(json &instanceData, PhosObjectInstance &instance);
     bool  parseMesh(json &meshData, PhosObjectMesh &mesh);
     bool  parseProceduralShape(json &shapeData, PhosObjectProcedural &shape);
+    bool  parseShader(json& shaderData, PhosHitShader& shape);
 
     PhosScene&  m_scene;
     std::string m_scenePath;

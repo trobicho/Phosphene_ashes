@@ -152,11 +152,9 @@ void  PipelineBuilder::createShaderBindingTable(VkPipeline pipeline, std::vector
   uint32_t  hitCount = 0;
 
   for (auto& shaderGroup : shaderGroups) {
-    if (shaderGroup.closestHitShader != VK_SHADER_UNUSED_KHR)
-      hitCount += 1;
-    if (shaderGroup.anyHitShader != VK_SHADER_UNUSED_KHR)
-      hitCount += 1;
-    if (shaderGroup.intersectionShader != VK_SHADER_UNUSED_KHR)
+    if (shaderGroup.closestHitShader != VK_SHADER_UNUSED_KHR
+        || shaderGroup.anyHitShader != VK_SHADER_UNUSED_KHR
+        || shaderGroup.intersectionShader != VK_SHADER_UNUSED_KHR)
       hitCount += 1;
   }
 

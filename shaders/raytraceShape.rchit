@@ -14,5 +14,5 @@ hitAttributeEXT vec3 attribs;
 
 void main()
 {
-  hitValue = attribs;
+  hitValue = vec3(1.0);
 }

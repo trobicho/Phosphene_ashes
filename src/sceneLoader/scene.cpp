@@ -45,6 +45,17 @@ void  PhosScene::destroy() {
 
 }
 
+PhosHitShader*  PhosScene::getShader(const std::string name, uint32_t* index) {
+  for (uint32_t idx = 0; idx < m_hitShaders.size(); idx++) {
+    if (name == m_hitShaders[idx].name) {
+      if (index != nullptr)
+        *index = idx;
+      return (&m_hitShaders[idx]);
+    }
+  }
+  return (nullptr);
+}
+
 void* PhosScene::getInstanceObject(PhosObjectInstance &instance) {
   if (instance.objectType == PHOS_OBJECT_TYPE_MESH) {
     for (auto& mesh : m_meshs) {
@@ -59,6 +70,19 @@ void* PhosScene::getInstanceObject(PhosObjectInstance &instance) {
     }
   }
   return (nullptr);
+}
+
+void  PhosScene::setShapesHitBindingIndex(uint32_t offset) {
+  for (auto& shape : m_proceduraShapes) {
+    uint32_t        index = 0;
+    PhosHitShader*  shader;
+    shader = getShader(shape.intersectionShaderName, &index);
+    if (shader == nullptr || shader->type != VK_SHADER_STAGE_INTERSECTION_BIT_KHR) {
+      std::string error = "Invalid intersection shader: " + shape.intersectionShaderName;
+      throw PhosHelper::FatalError(error);
+    }
+    shape.hitShaderBindingIndex = offset + index;
+  }
 }
 
 void  PhosScene::allocateResources() {

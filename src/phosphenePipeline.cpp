@@ -103,11 +103,21 @@ void  Phosphene::buildRtPipelineBasic() {
   builder.setRayGenStage("./spv/raytrace.rgen.spv");
   builder.addMissStage("./spv/raytrace.rmiss.spv");
   builder.addHitShader("cHit", "./spv/raytraceMesh.rchit.spv", VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR);
+  builder.addHitShader("shapeCHit", "./spv/raytraceShape.rchit.spv", VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR);
   RtBuilder::HitGroup hitGroup = {
     .type = VK_RAY_TRACING_SHADER_GROUP_TYPE_TRIANGLES_HIT_GROUP_KHR,
     .closestHitName = "cHit",
   };
   builder.addHitGroup(hitGroup);
+  for (auto& hitShader : m_scene.m_hitShaders) {
+    builder.addHitShader(hitShader.name, "./spv/" + hitShader.spv, hitShader.type);
+    RtBuilder::HitGroup hitGroup = {
+      .type = VK_RAY_TRACING_SHADER_GROUP_TYPE_PROCEDURAL_HIT_GROUP_KHR,
+      .closestHitName = "shapeCHit",
+      .intersectionName = hitShader.name,
+    };
+    builder.addHitGroup(hitGroup);
+  }
   builder.setMaxRecursion(1);
   m_rtPipeline.destroy();
   builder.build(m_rtPipeline);
@@ -147,11 +157,21 @@ void  Phosphene::buildRtPipelineBasicLights() {
   builder.addMissStage("./spv/raytrace.rmiss.spv");
   builder.addMissStage("./spv/raytraceShadow.rmiss.spv");
   builder.addHitShader("cHit", "./spv/raytraceMeshShadow.rchit.spv", VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR);
+  builder.addHitShader("shapeCHit", "./spv/raytraceShape.rchit.spv", VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR);
   RtBuilder::HitGroup hitGroup = {
     .type = VK_RAY_TRACING_SHADER_GROUP_TYPE_TRIANGLES_HIT_GROUP_KHR,
     .closestHitName = "cHit",
   };
   builder.addHitGroup(hitGroup);
+  for (auto& hitShader : m_scene.m_hitShaders) {
+    builder.addHitShader(hitShader.name, "./spv/" + hitShader.spv, hitShader.type);
+    RtBuilder::HitGroup hitGroup = {
+      .type = VK_RAY_TRACING_SHADER_GROUP_TYPE_PROCEDURAL_HIT_GROUP_KHR,
+      .closestHitName = "shapeCHit",
+      .intersectionName = hitShader.name,
+    };
+    builder.addHitGroup(hitGroup);
+  }
   builder.setMaxRecursion(2);
   m_rtPipeline.destroy();
   builder.build(m_rtPipeline);

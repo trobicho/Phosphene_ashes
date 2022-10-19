@@ -40,9 +40,9 @@ float hitSphere(const Sphere s, const Ray r)
 void  main()
 {
   Ray     ray = {gl_WorldRayOriginEXT, gl_WorldRayDirectionEXT};
-  Sphere  sphere = {vec3(0.f), 1.0f};
+  Sphere  sphere = {vec3(0.f, 0.f, 0.0f), 1.0f};
   float   hit = hitSphere(sphere, ray);
-  if (hit > 0)
+  if (hit >= 0)
     reportIntersectionEXT(hit, 1);
   
 }

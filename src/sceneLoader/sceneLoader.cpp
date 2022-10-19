@@ -40,6 +40,11 @@ void  SceneLoader::load(const std::string& filename) {
 
   m_scenePath = filename.substr(0, filename.find_last_of('/') + 1);
 
+  for (auto &shaderData : data["shaders"]) {
+    PhosHitShader   shader;
+    if (parseShader(shaderData, shader))
+      m_scene.m_hitShaders.push_back(shader);
+  }
   for (auto &meshData : data["meshs"]) {
     PhosObjectMesh  mesh;
     if (parseMesh(meshData, mesh))
@@ -128,7 +133,7 @@ bool  SceneLoader::parseProceduralShape(json& shapeData, PhosObjectProcedural& s
     shape.m_name = shapeData["name"];
   if (shapeData["aabb"].is_object()) {
     glm::vec3 min, max;
-    if (parseVec3(shapeData["aabb"]["min"], min) && parseVec3(shapeData["aabb"]["min"], max)) {
+    if (parseVec3(shapeData["aabb"]["min"], min) && parseVec3(shapeData["aabb"]["max"], max)) {
       shape.aabb = {
         .minX = min.x,
         .minY = min.y,
@@ -141,18 +146,34 @@ bool  SceneLoader::parseProceduralShape(json& shapeData, PhosObjectProcedural& s
     else
       return (false);
   }
-  if (shapeData["shaders"].is_array()) {
-    for (auto& shaderData : shapeData["shaders"]) {
-      if (shaderData["type"] == "intersection"
-          || shaderData["type"] == "rint") {
-        if (shaderData["spv"].is_string()) {
-          std::string spvName = shaderData["spv"];
-          shape.intersectionShaderName = "./spv/" + spvName;
-        }
-      }
-    }
-  }
+  if (shapeData["intersection"].is_string())
+    shape.intersectionShaderName = shapeData["intersection"];
   else
     return (false);
   return (shape.intersectionShaderName != "");
+}
+
+bool  SceneLoader::parseShader(json& shaderData, PhosHitShader& shader) {
+  if (shaderData["name"].is_string())
+    shader.name = shaderData["name"];
+  else
+    return (false);
+  if (shaderData["type"].is_string()) {
+    if (shaderData["type"] == "intersection"
+        || shaderData["type"] == "rint") {
+      shader.type = VK_SHADER_STAGE_INTERSECTION_BIT_KHR;
+    }
+    else
+      return (false);
+  }
+  else
+    return (false);
+
+  if (shaderData["spv"].is_string()) {
+    std::string spvName = shaderData["spv"];
+    shader.spv = spvName;
+  }
+  else
+    return (false);
+  return (true);
 }
