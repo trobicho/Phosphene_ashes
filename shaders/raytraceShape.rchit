@@ -13,11 +13,12 @@
 layout(location = 0) rayPayloadInEXT vec3 hitValue;
 
 hitAttributeEXT block {
+  vec3  pos;
   vec3  normal;
   uint  step;
 }attribs;
 
 void main()
 {
-  hitValue = vec3(1.0) / (attribs.step / 10); 
+  hitValue = vec3(attribs.normal); 
 }

@@ -35,6 +35,7 @@ SHADERS_NAME =	post.vert \
 				raytraceShapeShadow.rchit \
 				sphere.rint \
 				mandelbulb.rint \
+				menger.rint \
 
 SHADERS_RESULT_NAME =	$(addsuffix .spv, $(SHADERS_NAME))
 

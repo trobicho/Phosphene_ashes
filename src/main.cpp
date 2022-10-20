@@ -25,7 +25,7 @@ int main() {
   glfwInit();
   glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
   glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-  GLFWwindow *window = glfwCreateWindow(800, 800, "Phosphene", NULL, NULL);
+  GLFWwindow *window = glfwCreateWindow(1280, 720, "Phosphene", NULL, NULL);
 
   PhosHelper::infoInstance();
   Phosphene phosphene(window);

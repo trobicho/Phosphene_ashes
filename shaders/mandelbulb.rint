@@ -18,7 +18,7 @@ hitAttributeEXT block {
 
 #define ITERATION 300
 
-float sdf(vec3 v)
+float sdf(in vec3 v)
 {
   float   dr, r;
   vec3    w, z, z2, z4; 
@@ -59,6 +59,7 @@ float sdf(vec3 v)
   return (0.25 * log(r) * sqrt(r) / dr);
 }
 
+#define MAX_DIST    20.0 
 #include "marching.glsl"
 
 void  main()

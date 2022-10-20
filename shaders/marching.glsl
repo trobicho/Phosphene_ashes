@@ -1,7 +1,5 @@
 #extension GL_EXT_ray_tracing : require
 
-#define MAX_DIST    20.0 
-
 struct  Ray {
   vec3  origin;
   vec3  direction;
