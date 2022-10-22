@@ -58,6 +58,10 @@ tags
 phosphene
 Phosphene
 
+#CMAKE
+build/
+vcpkg_installed/
+
 scene/obj/
 obj/
 spv/

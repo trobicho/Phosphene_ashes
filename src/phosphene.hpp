@@ -6,6 +6,7 @@
 #include "sceneLoader/sceneLoader.hpp"
 #include "raytracing/pipelineBuilder.hpp"
 #include "raytracing/sceneBuilder.hpp"
+#include "gui/phosGui.hpp"
 #include <string>
 
 class Phosphene {
@@ -28,6 +29,9 @@ class Phosphene {
   private:
     void  draw();
 
+    PhosGui m_phosGui;
+
+
     //Raytracing pipeline building
     void  buildRtPipelineBasic();
     void  buildRtPipelineBasicLights();
@@ -44,6 +48,9 @@ class Phosphene {
     uint32_t    m_height;
     bool        m_quit = false;
     bool        m_update = true;
+
+    bool              m_showGui = true;
+    VkDescriptorPool  m_imguiDescPool;
 
     VkInstance        m_instance = VK_NULL_HANDLE;
     VkSurfaceKHR      m_surface;

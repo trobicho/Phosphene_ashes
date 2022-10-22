@@ -1,8 +1,8 @@
 #include "objLoader.hpp"
-#define TINYOBJLOADER_IMPLEMENTATION
 #include <iostream>
 
-#include <tinyobjloader/tiny_obj_loader.h>
+#define TINYOBJLOADER_IMPLEMENTATION
+#include <tiny_obj_loader.h>
 
 namespace ObjLoader {
 

@@ -39,6 +39,7 @@ int main() {
     glfwSetCursorPosCallback(window, callbackCursor);
     glfwSetMouseButtonCallback(window, callbackMouseButton);
   }
+  ImGui_ImplGlfw_InitForVulkan(window, true);
 
   phosphene.loadScene("./scene/test.json");
   phosphene.renderLoop();

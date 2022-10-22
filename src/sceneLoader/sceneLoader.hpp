@@ -1,7 +1,7 @@
 #pragma once
 #include <fstream>
 #include <string>
-#include <json/json.hpp>
+#include <nlohmann/json.hpp>
 #include "scene.hpp"
 
 using json = nlohmann::json;

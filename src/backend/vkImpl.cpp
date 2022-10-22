@@ -51,18 +51,6 @@ VkResult          VkImpl::acquireNextImage(uint32_t &imageIndex, VkFence &fence)
 
 void              VkImpl::recordCommandBuffer(VkCommandBuffer &commandBuffer) {
   VkClearValue clearValue = (VkClearValue){0.0f, 0.0f, 0.0f, 1.0f};
-  VkRenderPassBeginInfo     renderPassInfo = {
-    .sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
-    .renderPass = m_renderPass,
-    .framebuffer = m_swapchainWrap.framebuffer[m_currentImageIndex],
-    .renderArea = (VkRect2D) {
-      .offset = (VkOffset2D){0, 0},
-      .extent = m_swapchainWrap.extent,
-    },
-    .clearValueCount = 1,
-    .pClearValues = &clearValue,
-  };
-  vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
   vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_postPipeline);
 
   vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS
@@ -85,7 +73,6 @@ void              VkImpl::recordCommandBuffer(VkCommandBuffer &commandBuffer) {
   vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
   vkCmdDraw(commandBuffer, 4, 1, 0, 0);
-  vkCmdEndRenderPass(commandBuffer);
 }
 
 void              VkImpl::present() {
