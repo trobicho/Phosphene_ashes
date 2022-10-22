@@ -2,8 +2,8 @@
 
 void  CommandPool::init(VkDevice device
                         , uint32_t queueFamilyIndex
-                        , VkCommandPoolCreateFlagBits flags
-                        , VkQueue defaultQueue) {
+                        , VkQueue defaultQueue
+                        , VkCommandPoolCreateFlagBits flags) {
   m_device = device;
   m_queue = defaultQueue;
   if (defaultQueue == VK_NULL_HANDLE)

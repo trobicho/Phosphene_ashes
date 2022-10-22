@@ -18,6 +18,10 @@ void  Phosphene::callbackWindowResize(int width, int height) {
   createOffscreenRender();
   m_camera.eventChangeAspectRatio(m_width, m_height);
   m_vkImpl.updatePostDescSet(m_offscreenImageView);
+  ImGuiIO& io = ImGui::GetIO(); (void)io;
+  io.DisplaySize = ImVec2(static_cast<float>(m_width), static_cast<float>(m_height));
+  ImGui::SetNextWindowSize(ImVec2(static_cast<float>(m_width), static_cast<float>(m_height)));
+  ImGui::SetNextWindowPos(ImVec2(0, 0));
   updateRtImage();
 }
 

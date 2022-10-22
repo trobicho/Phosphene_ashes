@@ -94,13 +94,15 @@ Phosphene::Phosphene(GLFWwindow *window): m_window(window) {
     CommandPool cmdPool;
     cmdPool.init(m_device, m_graphicsQueueFamilyIndex);
     auto cmdBuffer = cmdPool.createCommandBuffer();
+    cmdPool.beginRecord(cmdBuffer);
     ImGui_ImplVulkan_CreateFontsTexture(cmdBuffer);
+    vkEndCommandBuffer(cmdBuffer);
     cmdPool.submitAndWait(cmdBuffer);
     cmdPool.destroy();
     ImGui_ImplVulkan_DestroyFontUploadObjects();
-    //ImGui::SetNextWindowSize(ImVec2(static_cast<float>(m_width), static_cast<float>(m_height)));
-    //ImGui::SetNextWindowPos(ImVec2(0, 0));
-    //ImGui_ImplVulkan_SetMinImageCount(m_vkImpl.m_swapchainWrap.imageCount);
+    ImGui::SetNextWindowSize(ImVec2(static_cast<float>(m_width), static_cast<float>(m_height)));
+    ImGui::SetNextWindowPos(ImVec2(0, 0));
+    ImGui_ImplVulkan_SetMinImageCount(m_vkImpl.m_swapchainWrap.imageCount);
   }
 
 }
@@ -142,11 +144,9 @@ void  Phosphene::draw() {
   VkFence     fence;
   uint32_t    imageIndex;
 
-  /*
   if (m_showGui) {
     m_phosGui.render();
   }
-  */
   VkResult result = m_vkImpl.acquireNextImage(imageIndex, fence);
   auto& commandBuffer = m_vkImpl.getCommandBuffer(semaphoreWait, semaphoreSignal);
   vkResetCommandBuffer(commandBuffer, 0);
@@ -155,19 +155,13 @@ void  Phosphene::draw() {
     .flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT,
     .pInheritanceInfo = nullptr,
   };
-  ImGui_ImplGlfw_NewFrame();
-  ImGui::NewFrame();
-  ImGui::ShowDemoWindow();
-
   vkBeginCommandBuffer(commandBuffer, &beginInfo);
 
-  /*
   {
     m_rtPipeline.updateUBO(commandBuffer, sizeof(m_globalUniform), m_globalUBO, &m_globalUniform);
     m_scene.update(m_rtPipeline, commandBuffer, false);
     m_rtPipeline.raytrace(commandBuffer, m_width, m_height);
   }
-  */
   {
     VkClearValue clearValue = (VkClearValue){1.0f, 1.0f, 1.0f, 1.0f};
     VkRenderPassBeginInfo     renderPassInfo = {
@@ -269,6 +263,37 @@ void  Phosphene::createOffscreenRender() {
   };
   vkAllocateMemory(m_device, &allocImageInfo, nullptr, &m_offscreenImageMemory);
   vkBindImageMemory(m_device, m_offscreenColor, m_offscreenImageMemory, 0);
+
+  {
+    VkImageSubresourceRange subresourceRange = {
+      .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
+      .baseMipLevel = 0,
+      .levelCount = 1,
+      .baseArrayLayer = 0,
+      .layerCount = 1,
+    };
+    VkImageMemoryBarrier imageMemoryBarrier = {
+      .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+      .srcAccessMask = VkAccessFlagBits(),
+      .dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+      .oldLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+      .newLayout = VK_IMAGE_LAYOUT_GENERAL,
+      .image = m_offscreenColor,
+      .subresourceRange = subresourceRange,
+    };
+
+    const VkPipelineStageFlags srcStageMask = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+    const VkPipelineStageFlags dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+
+    CommandPool cmdPool;
+    cmdPool.init(m_device, m_graphicsQueueFamilyIndex);
+    auto cmdBuffer = cmdPool.createCommandBuffer();
+    cmdPool.beginRecord(cmdBuffer);
+    vkCmdPipelineBarrier(cmdBuffer, srcStageMask, dstStageMask, VK_FALSE, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
+    vkEndCommandBuffer(cmdBuffer);
+    cmdPool.submitAndWait(cmdBuffer);
+    cmdPool.destroy();
+  }
 
   VkImageViewCreateInfo viewInfo = {
     .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
