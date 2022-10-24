@@ -103,7 +103,7 @@ void  Phosphene::buildRtPipelineBasic() {
   builder.setRayGenStage("./spv/raytrace.rgen.spv");
   builder.addMissStage("./spv/raytrace.rmiss.spv");
   builder.addHitShader("cHit", "./spv/raytraceMesh.rchit.spv", VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR);
-  builder.addHitShader("shapeCHit", "./spv/raytraceShape.rchit.spv", VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR);
+  builder.addHitShader("shapeCHit", "./spv/raytraceShapeColor.rchit.spv", VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR);
   RtBuilder::HitGroup hitGroup = {
     .type = VK_RAY_TRACING_SHADER_GROUP_TYPE_TRIANGLES_HIT_GROUP_KHR,
     .closestHitName = "cHit",

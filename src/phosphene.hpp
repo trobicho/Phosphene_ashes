@@ -6,6 +6,7 @@
 #include "sceneLoader/sceneLoader.hpp"
 #include "raytracing/pipelineBuilder.hpp"
 #include "raytracing/sceneBuilder.hpp"
+#include "raytracing/rayPicker.hpp"
 #include "gui/phosGui.hpp"
 #include <string>
 
@@ -61,10 +62,11 @@ class Phosphene {
 
     VkImpl  m_vkImpl;
 
-    Camera          m_camera;
-    GlobalUniforms  m_globalUniform;
-    BufferWrapper   m_globalUBO;
-    PushConstantRay m_pcRay;
+    Camera              m_camera;
+    GlobalUniforms      m_globalUniform;
+    BufferWrapper       m_globalUBO;
+    PushConstantRay     m_pcRay;
+    RayPicker           m_rayPicker;
 
     PhosScene       m_scene;
 

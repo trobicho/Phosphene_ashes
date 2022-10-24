@@ -55,7 +55,7 @@ Phosphene::Phosphene(GLFWwindow *window): m_window(window) {
   {
     m_sceneBuilder.init(m_device, &m_alloc, m_graphicsQueueFamilyIndex);
     m_scene.init(&m_alloc);
-    buildRtPipelineBasicLights();
+    buildRtPipelineBasic();
     updateRtImage();
   }
 
@@ -105,13 +105,17 @@ Phosphene::Phosphene(GLFWwindow *window): m_window(window) {
     ImGui_ImplVulkan_SetMinImageCount(m_vkImpl.m_swapchainWrap.imageCount);
   }
 
+  {
+    m_rayPicker.init(m_device, m_physicalDevice, m_graphicsQueueFamilyIndex);
+  }
+
 }
 
 void  Phosphene::loadScene(const std::string &filename) {
   SceneLoader sceneLoader(m_scene);
   sceneLoader.load(filename);
   m_scene.setShapesHitBindingIndex(1);
-  buildRtPipelineBasicLights();
+  buildRtPipelineBasic();
   updateRtImage();
   m_scene.allocateResources();
   m_sceneBuilder.buildBlas(m_scene, 0);

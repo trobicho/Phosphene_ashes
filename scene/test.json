@@ -9,6 +9,11 @@
       "name" : "menger",
       "type" : "intersection",
       "spv" : "menger.rint.spv"
+    },
+    {
+      "name" : "mandelbox",
+      "type" : "intersection",
+      "spv" : "mandelbox.rint.spv"
     }
   ],
   "meshs": [
@@ -34,6 +39,14 @@
       "intersection" : "mandelbulb"
     },
     {
+      "name" : "mandelbox",
+      "aabb" : {
+        "min" : [-1.5, -1.5, -1.5],
+        "max" : [1.5, 1.5, 1.5]
+      },
+      "intersection" : "mandelbox"
+    },
+    {
       "name" : "menger",
       "aabb" : {
         "min" : [-1.5, -1.5, -1.5],
@@ -55,6 +68,17 @@
       "shape": "mandelbulb",
       "position": [0.0, 0.0, 35.0],
       "scale": 2.0,
+      "transform": [
+        [1.0, 0.0, 0.0],
+        [0.0, 1.0, 0.0],
+        [0.0, 0.0, 1.0]
+      ]
+    },
+    {
+      "name": "mandelbox",
+      "shape": "mandelbox",
+      "position": [0.0, -20.0, 30.0],
+      "scale": 10.0,
       "transform": [
         [1.0, 0.0, 0.0],
         [0.0, 1.0, 0.0],

@@ -20,6 +20,7 @@ set(cpps src/main.cpp
     src/raytracing/sceneBuilder.cpp
     src/raytracing/pipelineBuilder.cpp
     src/raytracing/pipeline.cpp
+    src/raytracing/rayPicker.cpp
     src/sceneLoader/sceneLoader.cpp
     src/sceneLoader/objLoader.cpp
     src/sceneLoader/scene.cpp
@@ -36,6 +37,7 @@ set(hpps src/phosphene.hpp
     src/helper/extensions.hpp
     src/raytracing/sceneBuilder.hpp
     src/raytracing/pipelineBuilder.hpp
+    src/raytracing/rayPicker.hpp
     src/sceneLoader/sceneLoader.hpp
     src/sceneLoader/objLoader.hpp
     src/sceneLoader/scene.hpp
