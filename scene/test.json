@@ -41,8 +41,8 @@
     {
       "name" : "mandelbox",
       "aabb" : {
-        "min" : [-1.5, -1.5, -1.5],
-        "max" : [1.5, 1.5, 1.5]
+        "min" : [-2.5, -2.5, -2.5],
+        "max" : [2.5, 2.5, 2.5]
       },
       "intersection" : "mandelbox"
     },
@@ -78,7 +78,7 @@
       "name": "mandelbox",
       "shape": "mandelbox",
       "position": [0.0, -20.0, 30.0],
-      "scale": 10.0,
+      "scale": 3.0,
       "transform": [
         [1.0, 0.0, 0.0],
         [0.0, 1.0, 0.0],

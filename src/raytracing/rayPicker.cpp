@@ -12,6 +12,8 @@ void  RayPicker::destroy() {
   vkDestroyPipelineLayout(m_device, m_pipelineLayout, nullptr);
   vkDestroyDescriptorSetLayout(m_device, m_descSetLayout, nullptr);
   vkDestroyDescriptorPool(m_device, m_descPool, nullptr);
+  m_alloc.destroy();
+  m_cmdPool.destroy();
 }
 
 void  RayPicker::updateCamera(BufferWrapper& cameraUBO) {

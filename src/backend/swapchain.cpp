@@ -19,6 +19,7 @@ void  VkImpl::cleanupSwapchain() {
 void  VkImpl::recreateSwapchain(const VkSurfaceKHR &surface, uint32_t width, uint32_t height) {
   createSwapchain(surface, width, height);
   createFramebuffer();
+  createSynchronisationObjects();
 }
 
 static void   getSupportDetails(VkPhysicalDevice device, VkSurfaceKHR surface, SupportDetails &details) {

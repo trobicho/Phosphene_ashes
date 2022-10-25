@@ -23,8 +23,8 @@ class RayPicker {
     MemoryAllocator   m_alloc;
     CommandPool       m_cmdPool;
 
-    VkPipeline          m_pipeline;
-    VkPipelineLayout    m_pipelineLayout;
+    VkPipeline          m_pipeline = VK_NULL_HANDLE;
+    VkPipelineLayout    m_pipelineLayout = VK_NULL_HANDLE;
     VkDescriptorPool    m_descPool = VK_NULL_HANDLE;
     PushConstantPickRay m_pcPickRay;
 

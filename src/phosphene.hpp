@@ -8,6 +8,7 @@
 #include "raytracing/sceneBuilder.hpp"
 #include "raytracing/rayPicker.hpp"
 #include "gui/phosGui.hpp"
+#include <mutex>
 #include <string>
 
 class Phosphene {
@@ -18,7 +19,10 @@ class Phosphene {
     void  destroy();
 
     void  renderLoop();
-    void  deviceWait() {vkDeviceWaitIdle(m_device);}
+    void  deviceWait() {
+      if (vkDeviceWaitIdle(m_device) != VK_SUCCESS)
+        throw PhosHelper::FatalError("Error waiting for device !!!");
+    }
     void  loadScene(const std::string &filename);
 
     //Callback
@@ -43,6 +47,8 @@ class Phosphene {
     void  updateRtTlas(AccelKHR &tlas);
     void  updateRtGlobalUBO();
     void  updateRtLights();
+
+    std::mutex  m_mutexEvent;
 
     GLFWwindow  *m_window;
     uint32_t    m_width;

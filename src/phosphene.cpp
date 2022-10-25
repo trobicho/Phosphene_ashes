@@ -130,6 +130,7 @@ void  Phosphene::renderLoop() {
 
   while(!glfwWindowShouldClose(m_window) && !m_quit) {
     glfwPollEvents();
+    m_mutexEvent.lock();
     m_camera.step();
     if (m_camera.buildGlobalUniform(m_globalUniform)) {
       //std::cout << std::endl << "VIEW INVERSE:" << std::endl;
@@ -139,6 +140,7 @@ void  Phosphene::renderLoop() {
     draw();
     m_update = false;
     //m_quit = true;
+    m_mutexEvent.unlock();
   }
 }
 
@@ -148,10 +150,12 @@ void  Phosphene::draw() {
   VkFence     fence;
   uint32_t    imageIndex;
 
+  VkResult result = m_vkImpl.acquireNextImage(imageIndex, fence);
+  if (result != VK_SUCCESS)
+    return ;
   if (m_showGui) {
     m_phosGui.render();
   }
-  VkResult result = m_vkImpl.acquireNextImage(imageIndex, fence);
   auto& commandBuffer = m_vkImpl.getCommandBuffer(semaphoreWait, semaphoreSignal);
   vkResetCommandBuffer(commandBuffer, 0);
   VkCommandBufferBeginInfo  beginInfo = {
@@ -216,6 +220,7 @@ void  Phosphene::destroy() {
     m_sceneBuilder.destroy();
     m_scene.destroy();
     m_globalUBO.destroy(m_device);
+    m_rayPicker.destroy();
 
     {
       vkDestroyImage(m_device, m_offscreenColor, nullptr);

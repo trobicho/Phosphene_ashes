@@ -108,7 +108,10 @@ void  VkImpl::createCommandPool() {
   if (vkAllocateCommandBuffers(m_device, &allocateInfo
         , m_commandBuffers.data()) != VK_SUCCESS)
     throw PhosHelper::FatalVulkanInitError("Failed to allocate Command Buffers !");
+  createSynchronisationObjects();
+}
 
+void  VkImpl::createSynchronisationObjects() {
   m_currentFrame = 0;
   VkSemaphoreCreateInfo semaphoreInfo = {
     .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
@@ -118,6 +121,9 @@ void  VkImpl::createCommandPool() {
     .flags = VK_FENCE_CREATE_SIGNALED_BIT,
   };
   for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i) {
+    vkDestroyFence(m_device, m_fences[i], nullptr);
+    vkDestroySemaphore(m_device, m_semaphoreAvailable[i], nullptr);
+    vkDestroySemaphore(m_device, m_semaphoreFinish[i], nullptr);
     if (vkCreateSemaphore(m_device, &semaphoreInfo, nullptr
           , &m_semaphoreAvailable[i]) != VK_SUCCESS
         || vkCreateSemaphore(m_device, &semaphoreInfo, nullptr

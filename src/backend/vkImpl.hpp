@@ -66,6 +66,7 @@ class VkImpl {
   private:
     void  createPostDescriptorSet();
     void  createPostPipeline();
+    void  createSynchronisationObjects();
 
     VkSampler               m_sampler = VK_NULL_HANDLE;
 
@@ -78,9 +79,9 @@ class VkImpl {
 
     VkCommandPool                                       m_commandPool = VK_NULL_HANDLE;
     std::array<VkCommandBuffer, MAX_FRAMES_IN_FLIGHT>   m_commandBuffers;
-    std::array<VkFence, MAX_FRAMES_IN_FLIGHT>           m_fences;
-    std::array<VkSemaphore, MAX_FRAMES_IN_FLIGHT>       m_semaphoreAvailable;
-    std::array<VkSemaphore, MAX_FRAMES_IN_FLIGHT>       m_semaphoreFinish;
+    std::array<VkFence, MAX_FRAMES_IN_FLIGHT>           m_fences{VK_NULL_HANDLE};
+    std::array<VkSemaphore, MAX_FRAMES_IN_FLIGHT>       m_semaphoreAvailable{VK_NULL_HANDLE};
+    std::array<VkSemaphore, MAX_FRAMES_IN_FLIGHT>       m_semaphoreFinish{VK_NULL_HANDLE};
     uint32_t                                            m_currentFrame = 0;
     uint32_t                                            m_currentImageIndex = 0;
 };
