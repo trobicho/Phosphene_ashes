@@ -124,6 +124,8 @@ void  Phosphene::buildRtPipelineBasic() {
   builder.destroyModules();
 
   updateRtGlobalUBO();
+  updateRtImage();
+  updateRtTlas();
 }
 
 void  Phosphene::buildRtPipelineBasicLights() {
@@ -178,4 +180,6 @@ void  Phosphene::buildRtPipelineBasicLights() {
   builder.destroyModules();
 
   updateRtGlobalUBO();
+  updateRtImage();
+  updateRtTlas();
 }

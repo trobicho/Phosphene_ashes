@@ -1,10 +1,6 @@
 #include "phosphene.hpp"
 #include "helper/extensions.hpp"
 
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_vulkan.h"
-#include "imgui.h"
-
 #include <iostream>
 
 Phosphene::Phosphene(GLFWwindow *window): m_window(window) {
@@ -56,10 +52,10 @@ Phosphene::Phosphene(GLFWwindow *window): m_window(window) {
     m_sceneBuilder.init(m_device, &m_alloc, m_graphicsQueueFamilyIndex);
     m_scene.init(&m_alloc);
     buildRtPipelineBasic();
-    updateRtImage();
   }
 
   {
+    IMGUI_CHECKVERSION();
     std::vector<VkDescriptorPoolSize> poolSizes =
     {
       { VK_DESCRIPTOR_TYPE_SAMPLER, 1},
@@ -69,9 +65,8 @@ Phosphene::Phosphene(GLFWwindow *window): m_window(window) {
     poolInfo.maxSets       = poolSizes.size();
     poolInfo.poolSizeCount = poolSizes.size();
     poolInfo.pPoolSizes    = poolSizes.data();
-    vkCreateDescriptorPool(m_device, &poolInfo, nullptr, &m_imguiDescPool);
+    vkCreateDescriptorPool(m_device, &poolInfo, nullptr, &m_gui.imguiDescPool);
 
-    IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
     io.IniFilename = nullptr;
@@ -82,7 +77,7 @@ Phosphene::Phosphene(GLFWwindow *window): m_window(window) {
       .Device = m_device,
       .QueueFamily = m_graphicsQueueFamilyIndex,
       .Queue = m_graphicsQueue,
-      .DescriptorPool = m_imguiDescPool,
+      .DescriptorPool = m_gui.imguiDescPool,
       .Subpass = 0,
       .MinImageCount = m_vkImpl.m_swapchainWrap.imageCount,
       .ImageCount = m_vkImpl.m_swapchainWrap.imageCount,
@@ -114,9 +109,8 @@ Phosphene::Phosphene(GLFWwindow *window): m_window(window) {
 void  Phosphene::loadScene(const std::string &filename) {
   SceneLoader sceneLoader(m_scene);
   sceneLoader.load(filename);
-  m_scene.setShapesHitBindingIndex(1);
   buildRtPipelineBasic();
-  updateRtImage();
+  m_scene.setShapesHitBindingIndex(1);
   m_scene.allocateResources();
   m_sceneBuilder.buildBlas(m_scene, 0);
   m_sceneBuilder.buildTlas(m_scene, 0); 
@@ -154,7 +148,7 @@ void  Phosphene::draw() {
   if (result != VK_SUCCESS)
     return ;
   if (m_showGui) {
-    m_phosGui.render();
+    guiRender();
   }
   auto& commandBuffer = m_vkImpl.getCommandBuffer(semaphoreWait, semaphoreSignal);
   vkResetCommandBuffer(commandBuffer, 0);
@@ -213,8 +207,12 @@ void  Phosphene::destroy() {
     std::cout << std::endl << "DESTROY" << std::endl;
     deviceWait();
 
-    m_phosGui.destroy();
-    vkDestroyDescriptorPool(m_device, m_imguiDescPool, nullptr);
+    {
+      ImGui_ImplVulkan_Shutdown();
+      ImGui_ImplGlfw_Shutdown();
+      ImGui::DestroyContext();
+      vkDestroyDescriptorPool(m_device, m_gui.imguiDescPool, nullptr);
+    }
     m_vkImpl.destroy();
     m_rtPipeline.destroy();
     m_sceneBuilder.destroy();

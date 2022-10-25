@@ -1,0 +1,71 @@
+{
+  "shaders" : [
+    {
+      "name" : "test",
+      "type" : "intersection",
+      "spv" : "test.rint.spv"
+    }
+  ],
+  "meshs": [
+    {
+      "name" : "cow",
+      "filepath": "obj/cow.obj",
+      "type": "wavefront",
+      "scale": 1.0
+    },
+    {
+      "name" : "viking_room",
+      "filepath" : "obj/viking_room.obj",
+      "type": "wavefront"
+    }
+  ],
+  "meshs": [
+    {
+      "name" : "cow",
+      "filepath": "obj/cow.obj",
+      "type": "wavefront",
+      "scale": 1.0
+    }
+  ],
+  "shapes": [
+    {
+      "name" : "test",
+      "aabb" : {
+        "min" : [-4.5, -4.5, -4.5],
+        "max" : [4.5, 4.5, 4.5]
+      },
+      "intersection" : "test"
+    }
+  ],
+  "lights": [
+    {
+      "position": [0.0, -15.0, 30.0],
+      "color": [1.0, 1.0, 1.0],
+      "intensity": 1.5
+    }
+  ],
+  "instances": [
+    {
+      "name": "test",
+      "shape": "test",
+      "position": [0.0, 0.0, 30.0],
+      "scale": 10.0,
+      "transform": [
+        [1.0, 0.0, 0.0],
+        [0.0, 1.0, 0.0],
+        [0.0, 0.0, -1.0]
+      ]
+    },
+    {
+      "name": "cow1",
+      "mesh": "cow",
+      "position": [0.0, 100.0, 30.0],
+      "scale": 0.5,
+      "transform": [
+        [0.0, 0.0, 1.0],
+        [0.0, -1.0, 0.0],
+        [-1.0, 0.0, 0.0]
+      ]
+    }
+  ]
+}

@@ -24,6 +24,7 @@ SHADERS_NAME =	post.vert \
 				marching/mandelbulb.rint \
 				marching/menger.rint \
 				marching/mandelbox.rint \
+				marching/test.rint \
 
 SHADERS_RESULT_NAME =	$(addsuffix .spv, $(notdir $(SHADERS_NAME)))
 
@@ -43,9 +44,9 @@ $(SHADERS_RESULT): $(SHADERS) Makefile
 	@for f in $(SHADERS_NAME); do \
 		b=`echo -e "$$f" | sed -e 's/.*\///'`; \
 		echo -e "\033[38;2;0;255;0m[$(GLS)]\033[0m: $$f -> $$b.spv"; \
-		$(GLS) -V $(SHADERS_PATH)/$$f -o $(SHADERS_SPV_PATH)/$$b.spv; \
 		printf "\e[1A"; \
 		printf "\e[0K"; \
+		$(GLS) -V $(SHADERS_PATH)/$$f -o $(SHADERS_SPV_PATH)/$$b.spv; \
 	done
 
 clean:

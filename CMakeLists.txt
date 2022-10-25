@@ -24,7 +24,7 @@ set(cpps src/main.cpp
     src/sceneLoader/sceneLoader.cpp
     src/sceneLoader/objLoader.cpp
     src/sceneLoader/scene.cpp
-	src/gui/phosGui.cpp
+	src/phosGui.cpp
 )
 
 set(hpps src/phosphene.hpp
@@ -41,7 +41,6 @@ set(hpps src/phosphene.hpp
     src/sceneLoader/sceneLoader.hpp
     src/sceneLoader/objLoader.hpp
     src/sceneLoader/scene.hpp
-	src/gui/phosGui.hpp
     shaders/hostDevice.h
 )
 

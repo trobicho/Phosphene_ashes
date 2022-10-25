@@ -41,7 +41,8 @@ int main() {
   }
   ImGui_ImplGlfw_InitForVulkan(window, true);
 
-  phosphene.loadScene("./scene/test.json");
+  //phosphene.loadScene("./scene/test.json");
+  phosphene.loadScene("./scene/fractalTest.json");
   phosphene.renderLoop();
 
   phosphene.destroy();

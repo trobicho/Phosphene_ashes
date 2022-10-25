@@ -1,4 +1,7 @@
 #pragma once
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_vulkan.h"
+#include "imgui.h"
 #include "backend/phosStartVk.hpp"
 #include "backend/vkImpl.hpp"
 #include "helper/command.hpp"
@@ -7,7 +10,6 @@
 #include "raytracing/pipelineBuilder.hpp"
 #include "raytracing/sceneBuilder.hpp"
 #include "raytracing/rayPicker.hpp"
-#include "gui/phosGui.hpp"
 #include <mutex>
 #include <string>
 
@@ -34,9 +36,6 @@ class Phosphene {
   private:
     void  draw();
 
-    PhosGui m_phosGui;
-
-
     //Raytracing pipeline building
     void  buildRtPipelineBasic();
     void  buildRtPipelineBasicLights();
@@ -56,8 +55,6 @@ class Phosphene {
     bool        m_quit = false;
     bool        m_update = true;
 
-    bool              m_showGui = true;
-    VkDescriptorPool  m_imguiDescPool;
 
     VkInstance        m_instance = VK_NULL_HANDLE;
     VkSurfaceKHR      m_surface;
@@ -86,4 +83,21 @@ class Phosphene {
 
     RtBuilder::SceneBuilder m_sceneBuilder;
     RtBuilder::Pipeline     m_rtPipeline;
+
+    //GUI Definition
+
+    void  guiRender();
+
+    struct  PhosGui {
+      bool      winPipeline = true;
+      bool      overlayActive = true;
+
+      ImGuiID   pipelineList = 1;
+
+      VkDescriptorPool  imguiDescPool;
+    };
+    PhosGui m_gui;         
+    bool    m_showGui = true;
+
+    void  guiOverlay();
 };
