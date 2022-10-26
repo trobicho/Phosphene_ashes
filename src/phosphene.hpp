@@ -25,7 +25,7 @@ class Phosphene {
       if (vkDeviceWaitIdle(m_device) != VK_SUCCESS)
         throw PhosHelper::FatalError("Error waiting for device !!!");
     }
-    void  loadScene(const std::string &filename);
+    bool  loadScene(const std::string &filename);
 
     //Callback
     void  callbackWindowResize(int width, int height);
@@ -37,6 +37,7 @@ class Phosphene {
     void  draw();
 
     //Raytracing pipeline building
+    bool  buildPipeline(std::string name);
     void  buildRtPipelineBasic();
     void  buildRtPipelineBasicLights();
     void  updateRtImage();

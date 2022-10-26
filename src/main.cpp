@@ -21,14 +21,24 @@ static void callbackMouseButton(GLFWwindow* window, int button, int action, int 
   phosphenePtr->callbackMouseButton(button, action, mod);
 }
 
-int main() {
+int main(int ac, char **av) {
   glfwInit();
   glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
   glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-  GLFWwindow *window = glfwCreateWindow(1280, 720, "Phosphene", NULL, NULL);
+  GLFWwindow *window = glfwCreateWindow(1075, 720, "Phosphene", NULL, NULL);
 
   PhosHelper::infoInstance();
   Phosphene phosphene(window);
+
+  if (ac > 1) {
+    if (!phosphene.loadScene(av[1])
+        && !phosphene.loadScene("./scene/test.json"))
+      return (EXIT_FAILURE);
+  }
+  else {
+    if (!phosphene.loadScene("./scene/test.json"))
+      return (EXIT_FAILURE);
+  }
 
   { // GLFW Callback
     if (glfwRawMouseMotionSupported())
@@ -41,13 +51,12 @@ int main() {
   }
   ImGui_ImplGlfw_InitForVulkan(window, true);
 
-  //phosphene.loadScene("./scene/test.json");
-  phosphene.loadScene("./scene/fractalTest.json");
+  //phosphene.loadScene("./scene/fractalTest.json");
   phosphene.renderLoop();
 
   phosphene.destroy();
   glfwDestroyWindow(window);
   glfwTerminate();
 
-  return (0);
+  return (EXIT_SUCCESS);
 }

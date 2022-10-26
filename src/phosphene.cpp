@@ -51,7 +51,7 @@ Phosphene::Phosphene(GLFWwindow *window): m_window(window) {
   {
     m_sceneBuilder.init(m_device, &m_alloc, m_graphicsQueueFamilyIndex);
     m_scene.init(&m_alloc);
-    buildRtPipelineBasic();
+    buildPipeline("basic");
   }
 
   {
@@ -106,10 +106,15 @@ Phosphene::Phosphene(GLFWwindow *window): m_window(window) {
 
 }
 
-void  Phosphene::loadScene(const std::string &filename) {
+bool  Phosphene::loadScene(const std::string &filename) {
   SceneLoader sceneLoader(m_scene);
-  sceneLoader.load(filename);
-  buildRtPipelineBasic();
+  try {
+    sceneLoader.load(filename);
+  }
+  catch (const char* e) {
+    return (false);
+  }
+  buildPipeline("basic");
   m_scene.setShapesHitBindingIndex(1);
   m_scene.allocateResources();
   m_sceneBuilder.buildBlas(m_scene, 0);
@@ -117,6 +122,7 @@ void  Phosphene::loadScene(const std::string &filename) {
   m_scene.update(m_rtPipeline, true);
   m_pcRay.nbLights = m_scene.getLightCount();
   updateRtTlas();
+  return (true);
 }
 
 void  Phosphene::renderLoop() {

@@ -12,8 +12,12 @@ void  Phosphene::guiRender() {
   ImGui::Spacing();
   if (ImGui::BeginListBox("Pipelines:")) {
     ImGui::Spacing();
-    ImGui::Selectable("test");
-    ImGui::Selectable("test2");
+    if (ImGui::Selectable("Basic")) {
+      buildPipeline("basic");
+    }
+    if (ImGui::Selectable("BasicLight")) {
+      buildPipeline("basicLights");
+    }
     ImGui::EndListBox();
   }
   ImGui::End();

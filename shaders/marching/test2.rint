@@ -8,8 +8,8 @@
 #extension GL_EXT_buffer_reference2 : require
 
 #include "../raycommon.glsl"
-#include "marchingFold.glsl"
 #include "marchingBasicSD.glsl"
+#include "marchingBasicShape.glsl"
 
 hitAttributeEXT block {
   vec3  pos;
@@ -18,36 +18,33 @@ hitAttributeEXT block {
   vec3  color;
 }attribs;
 
-#define ITER    20
-vec4    orbitTrap = vec4(1.0);
+#define ITER   10
 
 int last = 0;
 
-float sdf(in vec3 v)
+float sdf(in vec3 p)
 {
-	vec3    offset = v;
-    float   dr = 1.4;
-    float   scale = 2.5;
+    float   bailout = 10.0;
+    float   scale = 2.0;
+    float   offset = 3.0;
 
-    v = v * 3.0;
-	vec3 axis = vec3(1.0, 0.0, 0.0);
+    float   r = dot(p, p);
+    mat4    M;
+    int     i;
+    vec3    c = vec3(0.0, 1.0, 0.0);
 
-    for (int i = 0; i < ITER; i++) {
-		if (i % 3 == 1)
-		  axis = vec3(1.0, 0.0, 0.0);
-		else if (i % 3 == 2)
-		  axis = vec3(0.0, 1.0, 0.0);
-		else
-		  axis = vec3(0.0, 0.0, 1.0);
-		v = (vec4(v, 1.0) * rotation_matrix(axis, radians(10.0 * i * sqrt(dr)))).xyz;
-
-        box_fold(v, 1.0);
-        sphere_fold(v, dr, 0.3, 1.5);
-        v = scale * v + offset;
-        orbitTrap = min(orbitTrap, abs(vec4(v,dot(v, v))));
-        dr = dr * abs(scale) + 1.0;
+    for(i = 0; i < ITER && r < bailout; i++)
+    {
+        last = i % 3;
+        M = rotation_matrix(c - p, radians(3 * i));
+        p = (vec4(p, 1.0) * M).xyz;
+        if (p.x + p.y < 0) p.xy = -p.yx;
+        if (p.x + p.z < 0) p.xz = -p.zx;
+        if (p.y + p.z < 0) p.zy = -p.yz;
+        p = p * scale - (scale - 1.0);
+        r = dot(p, p);
     }
-    return (length(v) / abs(dr));
+    return (torus_de(p, 2, 0.5) * pow(scale, -i));
 }
 
 #define MAX_DIST    100.0 
@@ -55,13 +52,23 @@ float sdf(in vec3 v)
 
 vec3  getColor(in Hit hit)
 {
-  vec3 color = vec3(1.0 / sqrt(hit.step * 1.0));
+  vec3 color = vec3(1.0);
+
+  color /= hit.step / 10;
+
+  if (last == 0)
+    color.x *= 3.0;
+  else if (last == 1)
+    color.y *= 3.0;
+  else
+    color.z *= 3.0;
+
   return (color);
 }
 
 void  main()
 {
-  float   minDist = 0.000001;
+  float   minDist = 0.001;
   uint    maxStep = 1000;
   Ray     ray = {gl_ObjectRayOriginEXT, gl_ObjectRayDirectionEXT};
 
@@ -82,6 +89,8 @@ void  main()
     attribs.normal = normal;
     attribs.step = hit.step;
     attribs.color = getColor(hit);
-    reportIntersectionEXT(abs(hit.dist), 1);
+    float result = abs(hit.dist);
+    result += minDist;
+    reportIntersectionEXT(result, 1);
   }
 }

@@ -2,6 +2,18 @@
 #include <iostream>
 #include "../shaders/hostDevice.h"
 
+bool  Phosphene::buildPipeline(std::string name) {
+  deviceWait();
+  if (name == "basic")
+    buildRtPipelineBasic();
+  else if (name == "basicLights")
+    buildRtPipelineBasicLights();
+  else
+    return (false);
+  m_scene.update(m_rtPipeline, true);
+  return (true);
+}
+
 void  Phosphene::updateRtImage() {
   VkDescriptorImageInfo imageInfo{{}, m_offscreenImageView, VK_IMAGE_LAYOUT_GENERAL};
   RtBuilder::DescriptorSetUpdateInfo  updateInfo = {
