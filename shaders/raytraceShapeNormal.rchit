@@ -20,5 +20,6 @@ hitAttributeEXT block {
 
 void main()
 {
-  hitValue = vec3(attribs.normal); 
+  const vec3 worldNrm = normalize(vec3(attribs.normal * gl_ObjectToWorldEXT));  // Transforming the normal to world space
+  hitValue = vec3(worldNrm); 
 }

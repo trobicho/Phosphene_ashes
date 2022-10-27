@@ -14,45 +14,42 @@ layout(location = 0) rayPayloadInEXT hitPayload prd;
 layout(location = 1) rayPayloadEXT bool isShadowed;
 
 layout(set = 0, binding = eTlas) uniform accelerationStructureEXT topLevelAS;
-//layout(set = 2, binding = eMeshDescs, scalar) buffer MeshDesc_ { MeshDesc i[]; } meshDesc;
-layout(set = 3, binding = eLights, scalar) buffer Light_ { Light i[]; } light;
+layout(set = 2, binding = eShapeDescs, scalar) buffer ShapeDesc_ { ShapeDesc i[]; } shapeDescs;
+layout(set = 2, binding = eMaterials, scalar) buffer Material_ { Material i[]; } materials;
+layout(set = 3, binding = eLights, scalar) buffer Light_ { Light i[]; } lights;
 
 hitAttributeEXT block {
   vec3  pos;
   vec3  normal;
   uint  step;
+  vec3  color;
+  float minDist;
 }attribs;
 
 void main()
 {
+  MeshDesc  objResource = shapeDescs.i[gl_InstanceCustomIndexEXT];
+  Material  material    = materials.i[objResource.materialId];
 
-  // Object data                                                                    
-
-  // Indices of the triangle                                                        
-
-  // Vertex of the triangle
-
-  // Computing the coordinates of the hit position
-
-  // Computing the normal at hit position
-  const vec3 worldNrm = normalize(vec3(attribs.normal * gl_WorldToObjectEXT));  // Transforming the normal to world space
-  const vec3 worldPos = vec3(gl_ObjectToWorldEXT * vec4(attribs.pos, 1.0));  // Transforming the position to world space
-
+  const vec3 worldNrm = normalize(vec3(attribs.normal * gl_ObjectToWorldEXT));  // Transforming the normal to world space
+  const vec3 worldPos = vec3(gl_ObjectToWorldEXT * vec4(attribs.pos, 1.0)); // Transforming the position to world space
 
   float attenuation = 1;
 
   // Tracing shadow ray only if the light is visible from the surface
-  vec3  lightDir = light.i[0].pos - worldPos;
+  vec3  lightDir = lights.i[0].pos - worldPos;
   float lightDistance = length(lightDir);
   lightDir = normalize(lightDir);
+
+  vec3  offsetWorldPos = vec3(vec3(attribs.pos + vec3(gl_WorldToObjectEXT * vec4(lightDir, 1.0)) * (attribs.minDist * 2.0)) * gl_ObjectToWorldEXT);
 
   float specular = 0.0;
   vec3  diffuse = vec3(0, 0, 0);
   if(dot(worldNrm, lightDir) > 0)
   {
     float tMin   = 0.001;
-    float tMax   = lightDistance;
-    vec3  origin = gl_WorldRayOriginEXT + gl_WorldRayDirectionEXT * gl_HitTEXT;
+    float tMax   = lightDistance - length(offsetWorldPos - worldPos);
+    vec3  origin = offsetWorldPos;
     vec3  rayDir = lightDir;
     uint  flags =
       gl_RayFlagsTerminateOnFirstHitEXT | gl_RayFlagsOpaqueEXT | gl_RayFlagsSkipClosestHitShaderEXT;
@@ -69,24 +66,12 @@ void main()
       tMax,        // ray max range
       1            // payload (location = 1)
     );
-    float dotNL = max(dot(worldNrm, lightDir), 0.0);
-    diffuse = vec3(0.3 * dotNL);
+    diffuse = computeDiffuse(material, lightDir, worldNrm);
 
     if(isShadowed)
-    {
       attenuation = 0.3;
-    }
     else
-    {
-      // Specular
-      const float kPi        = 3.14159265;
-      const float kShininess = 4.0;
-
-      const float kEnergyConservation = (2.0 + kShininess) / (2.0 * kPi);
-      vec3  V = normalize(-gl_WorldRayDirectionEXT);
-      vec3  R = reflect(-lightDir, worldNrm);
-      specular = kEnergyConservation * pow(max(dot(V, R), 0.0), kShininess);
-    }
+      specular = computeSpecular(material,  gl_WorldRayDirectionEXT, lightDir, worldNrm);
   }
-  prd.hitValue = vec3(light.i[0].intensity * attenuation * (diffuse + specular));
+  prd.hitValue = (diffuse + specular) * lights.i[0].intensity * attenuation;
 }

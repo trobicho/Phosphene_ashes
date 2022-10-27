@@ -30,7 +30,9 @@ END_BINDING();
 
 START_BINDING(BindingsScene) //Binding set 2
   eMeshDescs = 0,
-  eTextures = 1
+  eShapeDescs = 1,
+  eTextures = 2,
+  eMaterials = 3
 END_BINDING();
 
 START_BINDING(BindingsSceneOther) //Binding set 3
@@ -56,6 +58,18 @@ struct  Vertex {
   vec2  textCoord;
 };
 
+struct  Material {
+  vec3  ambient;
+  vec3  diffuse;
+  vec3  specular;
+  vec3  transmittance;
+  vec3  emission;
+
+  float refractionIndex;
+  float shininess;
+  float dissolve; // 0.0 == opaque; 1.0 == fully transparent
+};
+
 struct  WaveFrontMaterial  // See ObjLoader, copy of MaterialObj, could be compressed for device
 {
   vec3  ambient;
@@ -77,9 +91,15 @@ struct  Light {
 };
 
 struct  MeshDesc {
-  int       textOffset;
+  int       textureId;
+  uint      materialId;
   uint64_t  vertexAddress;
   uint64_t  indexAddress;
+};
+
+struct  ShapeDesc {
+  int       textureId;
+  uint      materialId;
 };
 
 #endif

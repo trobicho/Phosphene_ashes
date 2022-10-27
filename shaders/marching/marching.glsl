@@ -30,24 +30,24 @@ float hitSphere(const Sphere s, const Ray r)
   }
   else
   {
-    return (-b - sqrt(discriminant)) / (2.0 * a);
+    return ((-b - sqrt(discriminant)) / (2.0 * a));
   }
 }
 
-Hit   marching(Ray ray, float minDist, uint maxStep)
+Hit   marching(const Ray ray, const float minDist, const uint maxStep)
 {
-  float   d = 0.;
-  float   ds = 0.;
-  vec3    p = ray.origin;
+  float     d = 0.;
+  float     ds = 0.;
+  vec3      p = ray.origin;
 
   for(int step = 0; step < maxStep; step++)
   {
     ds = sdf(p);
     d += ds;
-    if (d > MAX_DIST) {
+    if (abs(d) > MAX_DIST) {
       return (Hit(false, vec3(0.f), d, step));
     }
-    if (ds <= minDist) {
+    if (abs(ds) <= minDist) {
       Hit hit = {
         true,
         p,
@@ -61,6 +61,40 @@ Hit   marching(Ray ray, float minDist, uint maxStep)
   return (Hit(true, p, d, maxStep));
 }
 
+Hit   marchingScale(const Ray ray, const float minDist, const uint maxStep)
+{
+  float     d = 0.;
+  float     ds = 0.;
+  vec3      p = ray.origin;
+  vec3      trueP = ray.origin;
+  float     scalarDist  = length(ray.direction);
+  float     ds_thresold = (minDist / scalarDist) * 10.0;
+  float     trueDist = 0.;
+
+  for(int step = 0; step < maxStep; step++)
+  {
+    ds = sdf(p);
+    d += ds / scalarDist;
+    if (d > MAX_DIST / scalarDist) {
+      return (Hit(false, vec3(0.f), d, step));
+    }
+    if (abs(ds) <= minDist) {
+      Hit hit = {
+        true,
+        p,
+        d,
+        step
+      };
+      return (hit);
+    }
+    if (ds > ds_thresold) {
+      ds /= scalarDist;
+    }
+    p += (ray.direction * ds);
+  }
+  return (Hit(true, p, d, maxStep));
+}
+
 vec3  getNormal(Ray ray, float minDist)
 {
     float   d;
@@ -69,7 +103,7 @@ vec3  getNormal(Ray ray, float minDist)
     vec3    p;
 
     p = ray.origin;
-    epsi = minDist / 2.0;
+    epsi = minDist / 3.0;
     d = sdf(p);
     n = vec3(d - sdf(vec3(p.x - epsi, p.yz))
         , d - sdf(vec3(p.x, p.y - epsi, p.z))

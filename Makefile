@@ -67,9 +67,15 @@ SHADERS_NAME =	post.vert \
 				marching/test.rint \
 				marching/test2.rint \
 
+SHADER_DEPS_NAME = marching/marching.glsl \
+					marching/marchingFold.glsl \
+					marching/marchingBasicShape.glsl \
+					marching/marchingBasicSD.glsl \
+
 SHADERS_RESULT_NAME =	$(addsuffix .spv, $(notdir $(SHADERS_NAME)))
 
 SHADERS = $(addprefix $(SHADERS_PATH)/, $(SHADERS_NAME))
+SHADER_DEPS = $(addprefix $(SHADERS_PATH)/, $(SHADER_DEPS_NAME))
 SHADERS_RESULT = $(addprefix $(SHADERS_SPV_PATH)/, $(SHADERS_RESULT_NAME))
 SRCS = $(addprefix $(SRCS_PATH)/, $(SRCS_NAME))
 HDRS = $(addprefix $(HDRS_PATH)/, $(HDRS_NAME))
@@ -79,9 +85,9 @@ all: $(NAME) $(SHADERS) $(SHADERS_RESULT) Makefile
 $(NAME): $(SRCS) $(HDRS) Makefile
 	$(CMAKE)
 
-shaders: $(SHADERS_RESULT) Makefile
+shaders: $(SHADERS_RESULT) $(SHADER_DEPS) Makefile
 
-$(SHADERS_RESULT): $(SHADERS) Makefile
+$(SHADERS_RESULT): $(SHADERS) $(SHADER_DEPS) Makefile
 	@test -d $(SHADERS_SPV_PATH) || mkdir -pm 775 $(SHADERS_SPV_PATH)
 	@for f in $(SHADERS_NAME); do \
 		b=`echo -e "$$f" | sed -e 's/.*\///'`; \

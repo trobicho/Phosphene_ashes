@@ -38,7 +38,7 @@ void  load(const std::string filename, PhosObjectMesh &mesh, const ObjLoaderConf
 
       for (size_t v = 0; v < fv; v++) {
         tinyobj::index_t idx = shapes[s].mesh.indices[index_offset + v];
-        mesh.m_indices.push_back(index_offset + v);
+        mesh.indices.push_back(index_offset + v);
 
         Vertex vertex;
         tinyobj::real_t vx = attrib.vertices[3*size_t(idx.vertex_index)+0];
@@ -80,17 +80,17 @@ void  load(const std::string filename, PhosObjectMesh &mesh, const ObjLoaderConf
             , static_cast<float>(blue)
           );
 
-        mesh.m_vertices.push_back(vertex);
+        mesh.vertices.push_back(vertex);
       }
 
       if (shapes[s].mesh.indices[index_offset].normal_index < 0) {
-        uint32_t lastVertexIdx = mesh.m_vertices.size() - 1;
-        glm::vec3 v1 = mesh.m_vertices[lastVertexIdx].pos - mesh.m_vertices[lastVertexIdx - 1].pos;
-        glm::vec3 v2 = mesh.m_vertices[lastVertexIdx].pos - mesh.m_vertices[lastVertexIdx - 2].pos;
+        uint32_t lastVertexIdx = mesh.vertices.size() - 1;
+        glm::vec3 v1 = mesh.vertices[lastVertexIdx].pos - mesh.vertices[lastVertexIdx - 1].pos;
+        glm::vec3 v2 = mesh.vertices[lastVertexIdx].pos - mesh.vertices[lastVertexIdx - 2].pos;
         glm::vec3 normal = glm::cross(v2, v1);
         normal = glm::normalize(normal);
         for (uint32_t n = 0; n < fv; n++) {
-          mesh.m_vertices[lastVertexIdx - n].normal = normal;
+          mesh.vertices[lastVertexIdx - n].normal = normal;
         }
       }
       index_offset += fv;

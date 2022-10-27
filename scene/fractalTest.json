@@ -4,6 +4,11 @@
       "name" : "test",
       "type" : "intersection",
       "spv" : "test.rint.spv"
+    },
+    {
+      "name" : "mandelbulb",
+      "type" : "intersection",
+      "spv" : "mandelbulb.rint.spv"
     }
   ],
   "meshs": [
@@ -31,15 +36,23 @@
     {
       "name" : "test",
       "aabb" : {
+        "min" : [-3.5, -3.5, -3.5],
+        "max" : [3.5, 3.5, 3.5]
+      },
+      "intersection" : "test"
+    },
+    {
+      "name" : "mandelbulb",
+      "aabb" : {
         "min" : [-2.5, -2.5, -2.5],
         "max" : [2.5, 2.5, 2.5]
       },
-      "intersection" : "test"
+      "intersection" : "mandelbulb"
     }
   ],
   "lights": [
     {
-      "position": [0.0, -15.0, 30.0],
+      "position": [0.0, 0.0, -70.0],
       "color": [1.0, 1.0, 1.0],
       "intensity": 1.5
     }
@@ -50,6 +63,17 @@
       "shape": "test",
       "position": [0.0, 0.0, 30.0],
       "scale": 20.0,
+      "transform": [
+        [1.0, 0.0, 0.0],
+        [0.0, 1.0, 0.0],
+        [0.0, 0.0, -1.0]
+      ]
+    },
+    {
+      "name": "test2",
+      "shape": "mandelbulb",
+      "position": [0.0, 0.0, -100.0],
+      "scale": 1.0,
       "transform": [
         [1.0, 0.0, 0.0],
         [0.0, 1.0, 0.0],

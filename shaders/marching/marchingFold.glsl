@@ -11,7 +11,7 @@ void sphere_fold(inout vec3 z, inout float dz, const float min_radius, const flo
   { 
     float tmp = (fixed_radius / min_radius);
     z *= tmp;
-    dz*= tmp;
+    dz *= tmp;
   }
   else if (r < fixed_radius)
   { 

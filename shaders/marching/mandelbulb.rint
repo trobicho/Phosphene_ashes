@@ -14,6 +14,7 @@ hitAttributeEXT block {
   vec3  normal;
   uint  step;
   vec3  color;
+  float minDist;
 }attribs;
 
 #define ITERATION 300
@@ -64,9 +65,9 @@ float sdf(in vec3 v)
 
 void  main()
 {
-  float   minDist = 0.002;
+  const float   minDist = 0.001;
   uint    maxStep = 1000;
-  Ray     ray = {gl_ObjectRayOriginEXT, gl_ObjectRayDirectionEXT};
+  Ray     ray = {gl_ObjectRayOriginEXT, normalize(gl_ObjectRayDirectionEXT)};
 
   Sphere  sphere = {vec3(0.f, 0.f, 0.0f), 1.5f};
   float   dist = hitSphere(sphere, ray);
@@ -84,6 +85,7 @@ void  main()
     attribs.normal = normal;
     attribs.step = hit.step;
     attribs.color = normal;
-    reportIntersectionEXT(hit.dist, 1);
+    attribs.minDist = minDist;
+    reportIntersectionEXT(abs(hit.dist), 1);
   }
 }
