@@ -104,6 +104,8 @@ bool  SceneLoader::parseInstance(json& instanceData, PhosObjectInstance& instanc
     instance.materialName = instanceData["material"];
   else
     instance.materialName = PHOS_DEFAULT_MAT_NAME;
+  if (instanceData["texture"].is_string())
+    instance.textureName = instanceData["texture"];
   glm::vec3 v;
   if (parseVec3(instanceData["position"], v)) {
     instance.transform[0][3] = v.x;

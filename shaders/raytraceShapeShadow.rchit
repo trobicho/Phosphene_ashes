@@ -9,6 +9,7 @@
 
 #include "hostDevice.h"
 #include "raycommon.glsl"
+#include "illumination.glsl"
 
 layout(location = 0) rayPayloadInEXT hitPayload prd;
 layout(location = 1) rayPayloadEXT bool isShadowed;
@@ -28,7 +29,7 @@ hitAttributeEXT block {
 
 void main()
 {
-  MeshDesc  objResource = shapeDescs.i[gl_InstanceCustomIndexEXT];
+  ShapeDesc objResource = shapeDescs.i[gl_InstanceCustomIndexEXT];
   Material  material    = materials.i[objResource.materialId];
 
   const vec3 worldNrm = normalize(vec3(attribs.normal * gl_ObjectToWorldEXT));  // Transforming the normal to world space
@@ -43,7 +44,7 @@ void main()
 
   vec3  offsetWorldPos = vec3(vec3(attribs.pos + vec3(gl_WorldToObjectEXT * vec4(lightDir, 1.0)) * (attribs.minDist * 2.0)) * gl_ObjectToWorldEXT);
 
-  float specular = 0.0;
+  vec3  specular = vec3(0.0);
   vec3  diffuse = vec3(0, 0, 0);
   if(dot(worldNrm, lightDir) > 0)
   {

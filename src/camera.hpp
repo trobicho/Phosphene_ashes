@@ -9,12 +9,13 @@
 #define CAMERA_KEY_STATE_ROLL_CLOCKWISE           0b010000 
 #define CAMERA_KEY_STATE_ROLL_COUNTER_CLOCKWISE   0b100000
 
+#define BASE_DELTA_TIME (1.0 / 60.0)
 
 class Camera {
   public:
     Camera();
 
-    void  step();
+    void  step(float deltaTime = BASE_DELTA_TIME);
     void  rotate(double x, double y);
     bool  buildGlobalUniform(GlobalUniforms &uniform);
     void  forceBuildGlobalUniform(GlobalUniforms &uniform);
@@ -71,7 +72,7 @@ class Camera {
 
     uint32_t  m_event = 0;
     uint32_t  m_keyState = 0;
-    float     m_speed = 0.05;
+    float     m_speed = 0.2;
 
     double    m_lastX = 0.0;
     double    m_lastY = 0.0;

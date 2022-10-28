@@ -129,9 +129,10 @@ void  Phosphene::renderLoop() {
   uint32_t  frame_n = 1;
 
   while(!glfwWindowShouldClose(m_window) && !m_quit) {
+    ImGuiIO& io = ImGui::GetIO();
     glfwPollEvents();
     m_mutexEvent.lock();
-    m_camera.step();
+    m_camera.step(io.DeltaTime);
     if (m_camera.buildGlobalUniform(m_globalUniform)) {
       //std::cout << std::endl << "VIEW INVERSE:" << std::endl;
       //PhosHelper::printMatrix(m_globalUniform.viewInverse);

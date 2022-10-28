@@ -6,7 +6,7 @@
 Camera::Camera() {
 }
 
-void  Camera::step() {
+void  Camera::step(float deltaTime) {
   if (m_allowMoving && (m_keyState & 0b111111) != 0) {
     glm::vec3 translate{0.f};
     float     rotateRad = 0.f;
@@ -23,7 +23,7 @@ void  Camera::step() {
     float norme = sqrt(translate.x * translate.x + translate.y * translate.y + translate.z * translate.z);
     if (norme >= 0.5f) {
       translate = glm::normalize(translate);
-      m_position += translate * m_speed;
+      m_position += translate * m_speed * (float)(deltaTime / BASE_DELTA_TIME);
     }
 
     if (m_keyState & CAMERA_KEY_STATE_ROLL_CLOCKWISE)

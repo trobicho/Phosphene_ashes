@@ -20,7 +20,7 @@ hitAttributeEXT block {
   float minDist;
 }attribs;
 
-#define ITER    10
+#define ITER    30
 vec4    orbitTrap = vec4(1.0);
 
 int last = 0;
@@ -39,7 +39,7 @@ float sdf(in vec3 v)
       axis = vec3(0.0, 1.0, 0.0);
     else
       axis = vec3(0.0, 0.0, 1.0);
-    //v = (vec4(v, 1.0) * rotation_matrix(axis, radians(20.0))).xyz;
+    v = (vec4(v, 1.0) * rotation_matrix(axis, radians(20.0))).xyz;
 
     box_fold(v, 1.0);
     sphere_fold(v, dr, 0.3, 1.5);
@@ -61,11 +61,11 @@ vec3  getColor(in Hit hit)
 
 void  main()
 {
-  float   minDist = 0.001;
+  float   minDist = 0.00001;
   uint    maxStep = 3000;
   Ray     ray = {gl_ObjectRayOriginEXT, normalize(gl_ObjectRayDirectionEXT)};
 
-  Sphere  sphere = {vec3(0.f, 0.f, 0.0f), 10.f};
+  Sphere  sphere = {vec3(0.f, 0.f, 0.0f), 12.f};
   float   dist = hitSphere(sphere, ray);
   float   distT = 0.0;
   if (dist > 0) {
@@ -83,6 +83,8 @@ void  main()
     attribs.step = hit.step;
     attribs.color = getColor(hit);
     attribs.minDist = minDist;
+    if (hit.dist < minDist / 2.0)
+      hit.dist = minDist;
     reportIntersectionEXT(abs(hit.dist), 1);
   }
 }
