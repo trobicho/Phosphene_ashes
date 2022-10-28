@@ -40,7 +40,6 @@ class Camera {
       m_lastX = lastX;
       m_lastY = lastY;
     }
-
     void  setFov(float degree) {
       m_fovY = glm::radians(degree);
       m_update = true;
@@ -57,6 +56,9 @@ class Camera {
       m_zNear = zNear;
       m_zFar = zFar;
       m_update = true;
+    }
+    void  setSpeed(float speed) {
+      m_speed = speed;
     }
 
     bool  m_allowRotation = false;

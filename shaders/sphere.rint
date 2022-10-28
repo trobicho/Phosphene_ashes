@@ -8,7 +8,6 @@
 #extension GL_EXT_buffer_reference2 : require
 
 #include "raycommon.glsl"
-#include "wavefront.glsl"
 
 struct  Ray {
   vec3  origin;

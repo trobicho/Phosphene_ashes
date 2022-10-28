@@ -10,7 +10,8 @@
 #define PHOS_OBJECT_TYPE_MESH         1
 #define PHOS_OBJECT_TYPE_PROCEDURAL   2
 
-#define PHOS_DEFAULT_MAT_NAME "phosDefaultMaterial"
+#define PHOS_DEFAULT_MAT_NAME           "phosDefaultMaterial"
+#define PHOS_DEFAULT_RINT_ENTRY_POINT   "main"//"phosDefaultEntryPoint"
 
 struct  PhosHitShader : public PhosNamedObject {
   std::string           pName = "main";
@@ -69,9 +70,14 @@ class   PhosObjectInstance : public PhosNamedObject {
     uint32_t    objectType = 0;
     glm::mat4   transform;
     uint32_t    customIndex = 0;
+
     //MATERIAL
     std::string textureName = "";
     std::string materialName = "";
+
+    //PROCEDURAL SPECIFIC
+    float       marchingMinDist = 0.001;
+    int         marchingMaxStep = 100;
 };
 
 class   PhosScene {
@@ -81,12 +87,12 @@ class   PhosScene {
       PhosMaterial  default_mat;
       default_mat.name = PHOS_DEFAULT_MAT_NAME;
       default_mat.ambient = glm::vec3(0.1);
-      default_mat.diffuse = glm::vec3(0.7);
-      default_mat.specular = glm::vec3(0.0);
+      default_mat.diffuse = glm::vec3(0.2);
+      default_mat.specular = glm::vec3(0.3);
       default_mat.transmittance = glm::vec3(0.0);
       default_mat.emission = glm::vec3(0.0);
       default_mat.refractionIndex = 0.0;
-      default_mat.shininess = 0.0;
+      default_mat.shininess = 2.0;
       default_mat.dissolve = 0.0;
       m_materials.push_back(default_mat);
     }
@@ -117,6 +123,9 @@ class   PhosScene {
     std::vector<PhosMaterial>         m_materials;
 
   private:
+    MeshDesc    buildMeshDesc(PhosObjectInstance& instance, PhosObjectMesh* mesh);
+    ShapeDesc   buildShapeDesc(PhosObjectInstance& instance, PhosObjectProcedural* shape);
+
     uint32_t  event = 0;
     BufferWrapper           m_lightsBuffer;
 

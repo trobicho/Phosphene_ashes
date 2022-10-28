@@ -24,13 +24,12 @@ hitAttributeEXT block {
   vec3  normal;
   uint  step;
   vec3  color;
-  float minDist;
 }attribs;
 
 void main()
 {
-  ShapeDesc objResource = shapeDescs.i[gl_InstanceCustomIndexEXT];
-  Material  material    = materials.i[objResource.materialId];
+  ShapeDesc shape = shapeDescs.i[gl_InstanceCustomIndexEXT];
+  Material  material    = materials.i[shape.materialId];
 
   const vec3 worldNrm = normalize(vec3(attribs.normal * gl_ObjectToWorldEXT));  // Transforming the normal to world space
   const vec3 worldPos = vec3(gl_ObjectToWorldEXT * vec4(attribs.pos, 1.0)); // Transforming the position to world space
@@ -42,7 +41,7 @@ void main()
   float lightDistance = length(lightDir);
   lightDir = normalize(lightDir);
 
-  vec3  offsetWorldPos = vec3(vec3(attribs.pos + vec3(gl_WorldToObjectEXT * vec4(lightDir, 1.0)) * (attribs.minDist * 2.0)) * gl_ObjectToWorldEXT);
+  vec3  offsetWorldPos = vec3(vec3(attribs.pos + vec3(gl_WorldToObjectEXT * vec4(lightDir, 1.0)) * (shape.marchingMinDist * 2.0)) * gl_ObjectToWorldEXT);
 
   vec3  specular = vec3(0.0);
   vec3  diffuse = vec3(0, 0, 0);

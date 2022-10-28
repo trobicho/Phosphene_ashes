@@ -70,20 +70,6 @@ struct  Material {
   float dissolve; // 0.0 == opaque; 1.0 == fully transparent
 };
 
-struct  WaveFrontMaterial  // See ObjLoader, copy of MaterialObj, could be compressed for device
-{
-  vec3  ambient;
-  vec3  diffuse;
-  vec3  specular;
-  vec3  transmittance;
-  vec3  emission;
-  float shininess;
-  float ior;       // index of refraction
-  float dissolve;  // 1 == opaque; 0 == fully transparent
-  int   illum;     // illumination model (see http://www.fileformat.info/format/material/)
-  int   textureId;
-};
-
 struct  Light {
   float intensity;
   vec3  pos;
@@ -97,9 +83,17 @@ struct  MeshDesc {
   uint64_t  indexAddress;
 };
 
+struct  Aabb {
+  vec3  min;
+  vec3  max;
+};
+
 struct  ShapeDesc {
-  int       textureId;
-  uint      materialId;
+  int   textureId;
+  uint  materialId;
+  float marchingMinDist;
+  int   marchingMaxStep;
+  Aabb  aabb;
 };
 
 #endif

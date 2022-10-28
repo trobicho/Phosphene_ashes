@@ -7,17 +7,7 @@
 #extension GL_EXT_shader_explicit_arithmetic_types_int64 : require
 #extension GL_EXT_buffer_reference2 : require
 
-#include "../raycommon.glsl"
 #include "marchingBasicSD.glsl"
-
-hitAttributeEXT block {
-  vec3  pos;
-  vec3  normal;
-  uint  step;
-  vec3  color;
-  float minDist;
-}attribs;
-
 
 float sdCross(in vec3 p)
 {
@@ -48,32 +38,17 @@ float sdf(in vec3 p)
    return (d);
 }
 
-#define MAX_DIST    30.0 
 #include "marching.glsl"
+
+vec3  getColor(in Hit hit)
+{
+  vec3 color = vec3(1.0 / sqrt(hit.step * 1.0));
+  return (color);
+}
+
+#include "marchingDefault.glsl"
 
 void  main()
 {
-  const float   minDist = 0.001;
-  uint    maxStep = 200;
-  Ray     ray = {gl_ObjectRayOriginEXT, normalize(gl_ObjectRayDirectionEXT)};
-
-  Sphere  sphere = {vec3(0.f, 0.f, 0.0f), 2.f};
-  float   dist = hitSphere(sphere, ray);
-  float   distT = dist;
-  if (dist > 0) {
-    ray.origin = ray.origin + ray.direction * dist;
-  }
-
-  Hit hit = marching(ray, minDist, maxStep);
-  hit.dist += distT;
-  if (hit.asHit) {
-    Ray   rayNormal = {hit.pos, ray.direction};
-    vec3  normal = getNormal(rayNormal, minDist);
-    attribs.pos = hit.pos;
-    attribs.normal = normal;
-    attribs.step = hit.step;
-    attribs.color = normal;
-    attribs.minDist = minDist;
-    reportIntersectionEXT(abs(hit.dist), 1);
-  }
+  phosDefaultEntryPoint();
 }

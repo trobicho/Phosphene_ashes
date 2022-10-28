@@ -1,4 +1,5 @@
 #extension GL_EXT_ray_tracing : require
+#include "../hostDevice.h"
 
 struct  Ray {
   vec3  origin;
@@ -17,6 +18,8 @@ struct  Sphere {
   float radius;
 };
 
+// Ray-Sphere intersection
+// http://viclw17.github.io/2018/07/16/raytracing-ray-sphere-intersection/
 float hitSphere(const Sphere s, const Ray r)
 {
   vec3  oc           = r.origin - s.center;
@@ -34,7 +37,20 @@ float hitSphere(const Sphere s, const Ray r)
   }
 }
 
-Hit   marching(const Ray ray, const float minDist, const uint maxStep)
+// Ray-AABB intersection
+float hitAabb(const Aabb aabb, const Ray r)
+{
+  vec3  invDir = 1.0 / r.direction;
+  vec3  tbot   = invDir * (aabb.min - r.origin);
+  vec3  ttop   = invDir * (aabb.max - r.origin);
+  vec3  tmin   = min(ttop, tbot);
+  vec3  tmax   = max(ttop, tbot);
+  float t0     = max(tmin.x, max(tmin.y, tmin.z));
+  float t1     = min(tmax.x, min(tmax.y, tmax.z));
+  return (t1 > max(t0, 0.0) ? t0 : -1.0);
+}
+
+Hit   marching(const Ray ray, const float minDist, const float maxDist, const uint maxStep)
 {
   float     d = 0.;
   float     ds = 0.;
@@ -44,7 +60,7 @@ Hit   marching(const Ray ray, const float minDist, const uint maxStep)
   {
     ds = sdf(p);
     d += ds;
-    if (abs(d) > MAX_DIST) {
+    if (abs(d) > maxDist) {
       return (Hit(false, vec3(0.f), d, step));
     }
     if (abs(ds) <= minDist) {
@@ -57,40 +73,6 @@ Hit   marching(const Ray ray, const float minDist, const uint maxStep)
       return (hit);
     }
     p = ray.origin + (ray.direction * d);
-  }
-  return (Hit(true, p, d, maxStep));
-}
-
-Hit   marchingScale(const Ray ray, const float minDist, const uint maxStep)
-{
-  float     d = 0.;
-  float     ds = 0.;
-  vec3      p = ray.origin;
-  vec3      trueP = ray.origin;
-  float     scalarDist  = length(ray.direction);
-  float     ds_thresold = (minDist / scalarDist) * 10.0;
-  float     trueDist = 0.;
-
-  for(int step = 0; step < maxStep; step++)
-  {
-    ds = sdf(p);
-    d += ds / scalarDist;
-    if (d > MAX_DIST / scalarDist) {
-      return (Hit(false, vec3(0.f), d, step));
-    }
-    if (abs(ds) <= minDist) {
-      Hit hit = {
-        true,
-        p,
-        d,
-        step
-      };
-      return (hit);
-    }
-    if (ds > ds_thresold) {
-      ds /= scalarDist;
-    }
-    p += (ray.direction * ds);
   }
   return (Hit(true, p, d, maxStep));
 }

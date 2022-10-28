@@ -3,25 +3,12 @@
     {
       "name" : "test",
       "type" : "intersection",
-      "spv" : "test.rint.spv"
+      "spv" : "test2.rint.spv"
     },
     {
       "name" : "mandelbulb",
       "type" : "intersection",
       "spv" : "mandelbulb.rint.spv"
-    }
-  ],
-  "meshs": [
-    {
-      "name" : "cow",
-      "filepath": "obj/cow.obj",
-      "type": "wavefront",
-      "scale": 1.0
-    },
-    {
-      "name" : "viking_room",
-      "filepath" : "obj/viking_room.obj",
-      "type": "wavefront"
     }
   ],
   "meshs": [
@@ -61,8 +48,10 @@
     {
       "name": "test",
       "shape": "test",
-      "position": [0.0, 0.0, 30.0],
+      "position": [0.0, 0.0, 50.0],
       "scale": 20.0,
+      "marchingMaxStep": 3000,
+      "marchingMinDist": 0.00001,
       "transform": [
         [1.0, 0.0, 0.0],
         [0.0, 1.0, 0.0],
@@ -70,10 +59,12 @@
       ]
     },
     {
-      "name": "test2",
+      "name": "mandelbulb",
       "shape": "mandelbulb",
-      "position": [0.0, 0.0, -100.0],
-      "scale": 1.0,
+      "position": [0.0, 0.0, -120.0],
+      "scale": 20.0,
+      "marchingMaxStep": 300,
+      "marchingMinDist": 0.001,
       "transform": [
         [1.0, 0.0, 0.0],
         [0.0, 1.0, 0.0],

@@ -12,14 +12,6 @@
 #include "marchingBasicSD.glsl"
 
 
-hitAttributeEXT block {
-  vec3  pos;
-  vec3  normal;
-  uint  step;
-  vec3  color;
-  float minDist;
-}attribs;
-
 #define ITER    30
 vec4    orbitTrap = vec4(1.0);
 
@@ -50,7 +42,6 @@ float sdf(in vec3 v)
   return (length(v) / abs(dr));
 }
 
-#define MAX_DIST    10.0 
 #include "marching.glsl"
 
 vec3  getColor(in Hit hit)
@@ -59,32 +50,9 @@ vec3  getColor(in Hit hit)
   return (color);
 }
 
+#include "marchingDefault.glsl"
+
 void  main()
 {
-  float   minDist = 0.00001;
-  uint    maxStep = 3000;
-  Ray     ray = {gl_ObjectRayOriginEXT, normalize(gl_ObjectRayDirectionEXT)};
-
-  Sphere  sphere = {vec3(0.f, 0.f, 0.0f), 12.f};
-  float   dist = hitSphere(sphere, ray);
-  float   distT = 0.0;
-  if (dist > 0) {
-    ray.origin = ray.origin + ray.direction * dist;
-    distT = dist;
-  }
-
-  Hit hit = marching(ray, minDist, maxStep);
-  hit.dist += distT;
-  if (hit.asHit) {
-    Ray   rayNormal = {hit.pos - ray.direction * (minDist * 2.0), ray.direction};
-    vec3  normal = getNormal(rayNormal, minDist);
-    attribs.pos = hit.pos;
-    attribs.normal = normal;
-    attribs.step = hit.step;
-    attribs.color = getColor(hit);
-    attribs.minDist = minDist;
-    if (hit.dist < minDist / 2.0)
-      hit.dist = minDist;
-    reportIntersectionEXT(abs(hit.dist), 1);
-  }
+  phosDefaultEntryPoint();
 }

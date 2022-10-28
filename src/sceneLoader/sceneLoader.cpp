@@ -117,6 +117,11 @@ bool  SceneLoader::parseInstance(json& instanceData, PhosObjectInstance& instanc
     instance.transform[1][1] = instanceData["scale"];
     instance.transform[2][2] = instanceData["scale"];
   }
+  if (instanceData["marchingMaxStep"].is_number_integer())
+    instance.marchingMaxStep = instanceData["marchingMaxStep"];
+  if (instanceData["marchingMinDist"].is_number())
+    instance.marchingMinDist = static_cast<float>(instanceData["marchingMinDist"]);
+
   if (instanceData["transform"].is_array()) {
     glm::mat4 matrix(1.0f);
     for (uint32_t r = 0; r < 3; r++) {
@@ -185,6 +190,10 @@ bool  SceneLoader::parseShader(json& shaderData, PhosHitShader& shader) {
     }
     else
       return (false);
+    if (shaderData["pName"].is_string())
+      shader.pName = shaderData["pName"];
+    else
+      shader.pName = PHOS_DEFAULT_RINT_ENTRY_POINT;
   }
   else
     return (false);

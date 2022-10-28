@@ -88,27 +88,15 @@ void  PhosScene::allocateResources() {
       throw PhosHelper::FatalError(
           std::string("Invalid object: " + instance.objectName));
     }
-    if (instance.materialName == "")
-      instance.materialName = PHOS_DEFAULT_MAT_NAME;
-    uint32_t matId = PhosNamedObject::getIdFromName(m_materials, instance.materialName);
-
     if (instance.objectType == PHOS_OBJECT_TYPE_MESH) {
       PhosObjectMesh* mesh = static_cast<PhosObjectMesh*>(obj);
-      MeshDesc  meshDesc = {
-        .textureId = -1,
-        .materialId = matId,
-        .vertexAddress = m_alloc->getBufferDeviceAddress(mesh->vertexBuffer),
-        .indexAddress = m_alloc->getBufferDeviceAddress(mesh->indexBuffer),
-      };
+      auto meshDesc = buildMeshDesc(instance, mesh);
       m_meshDescs.push_back(meshDesc);
       instance.customIndex = meshCustomIndex++;
     }
-    else if (instance.objectType == PHOS_OBJECT_TYPE_MESH) {
-      PhosObjectMesh* shape = static_cast<PhosObjectMesh*>(obj);
-      ShapeDesc shapeDesc = {
-        .textureId = -1,
-        .materialId = matId,
-      };
+    else if (instance.objectType == PHOS_OBJECT_TYPE_PROCEDURAL) {
+      PhosObjectProcedural* shape = static_cast<PhosObjectProcedural*>(obj);
+      auto shapeDesc = buildShapeDesc(instance, shape);
       m_shapeDescs.push_back(shapeDesc);
       instance.customIndex = shapeCustomIndex++;
     }
@@ -225,4 +213,34 @@ void  PhosScene::update(Pipeline pipeline, const VkCommandBuffer &cmdBuffer, boo
       pipeline.updateUBO(cmdBuffer, sizeMeshDescs, m_meshDescsBuffer, m_meshDescs.data());
   }
   need_update = false;
+}
+
+MeshDesc  PhosScene::buildMeshDesc(PhosObjectInstance& instance, PhosObjectMesh* mesh) {
+  if (instance.materialName == "")
+    instance.materialName = PHOS_DEFAULT_MAT_NAME;
+  uint32_t matId = PhosNamedObject::getIdFromName(m_materials, instance.materialName);
+  MeshDesc  meshDesc = {
+    .textureId = -1,
+    .materialId = matId,
+    .vertexAddress = m_alloc->getBufferDeviceAddress(mesh->vertexBuffer),
+    .indexAddress = m_alloc->getBufferDeviceAddress(mesh->indexBuffer),
+  };
+  return (meshDesc);
+}
+
+ShapeDesc PhosScene::buildShapeDesc(PhosObjectInstance& instance, PhosObjectProcedural* shape) {
+  if (instance.materialName == "")
+    instance.materialName = PHOS_DEFAULT_MAT_NAME;
+  uint32_t matId = PhosNamedObject::getIdFromName(m_materials, instance.materialName);
+  ShapeDesc shapeDesc = {
+    .textureId = -1,
+    .materialId = matId,
+    .marchingMinDist = instance.marchingMinDist,
+    .marchingMaxStep = instance.marchingMaxStep,
+    .aabb = {
+      .min = glm::vec3(shape->aabb.minX, shape->aabb.minY, shape->aabb.minZ),
+      .max = glm::vec3(shape->aabb.maxX, shape->aabb.maxY, shape->aabb.maxZ),
+    },
+  };
+  return (shapeDesc);
 }

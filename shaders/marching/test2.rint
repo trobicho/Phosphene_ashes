@@ -11,22 +11,14 @@
 #include "marchingBasicSD.glsl"
 #include "marchingBasicShape.glsl"
 
-hitAttributeEXT block {
-  vec3  pos;
-  vec3  normal;
-  uint  step;
-  vec3  color;
-  float minDist;
-}attribs;
-
 #define ITER   10
 
 int last = 0;
 
 float sdf(in vec3 p)
 {
-  float   bailout = 10.0;
-  float   scale = 2.0;
+  float   bailout = 10000.0;
+  float   scale = 1.4;
   float   offset = 3.0;
 
   float   r = dot(p, p);
@@ -37,7 +29,7 @@ float sdf(in vec3 p)
   for(i = 0; i < ITER && r < bailout; i++)
   {
     last = i % 3;
-    M = rotation_matrix(c - p, radians(3 * i));
+    M = rotation_matrix(c, radians(45));
     p = (vec4(p, 1.0) * M).xyz;
     if (p.x + p.y < 0) p.xy = -p.yx;
     if (p.x + p.z < 0) p.xz = -p.zx;
@@ -45,57 +37,22 @@ float sdf(in vec3 p)
     p = p * scale - (scale - 1.0);
     r = dot(p, p);
   }
-  return (torus_de(p, 2, 0.5) * pow(scale, -i));
+  return (tetrahedron(p) * pow(scale, -i));
+  //return (torus_de(p, 0.5, 0.02) * pow(scale, -i));
 }
 
-#define MAX_DIST    10.0 
 #include "marching.glsl"
 
 vec3  getColor(in Hit hit)
 {
-  vec3 color = vec3(1.0);
-
-  color /= hit.step / 10;
-
-  if (last == 0)
-    color.x *= 3.0;
-  else if (last == 1)
-    color.y *= 3.0;
-  else
-    color.z *= 3.0;
-
+  vec3 color = vec3(1.0 / sqrt(hit.step * 1.0));
   return (color);
 }
 
+
+#include "marchingDefault.glsl"
+
 void  main()
 {
-  float   minDist = 0.001;
-  uint    maxStep = 1000;
-  Ray     ray = {gl_ObjectRayOriginEXT, gl_ObjectRayDirectionEXT};
-
-  Sphere  sphere = {vec3(0.f, 0.f, 0.0f), 1.f};
-  float   dist = hitSphere(sphere, ray);
-  float   distT = 0;
-  if (dist > 0) {
-    ray.origin = ray.origin + ray.direction * dist;
-    distT = dist;
-  }
-
-  Hit hit = marching(ray, minDist, maxStep);
-  hit.dist += distT;
-  if (hit.asHit) {
-    Ray   rayNormal = {hit.pos, ray.direction};
-    vec3  normal = getNormal(rayNormal, minDist);
-    attribs.pos = hit.pos;
-    attribs.normal = normal;
-    attribs.step = hit.step;
-    attribs.color = getColor(hit);
-    float result = abs(hit.dist);
-    result += minDist;
-    attribs.minDist = minDist;
-    reportIntersectionEXT(result, 1);
-  }
-  else {
-    reportIntersectionEXT(0.1, 1);
-  }
+  phosDefaultEntryPoint();
 }
