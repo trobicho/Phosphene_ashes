@@ -1,0 +1,79 @@
+#version 460
+#extension GL_EXT_ray_tracing : require
+#extension GL_EXT_nonuniform_qualifier : enable
+#extension GL_EXT_scalar_block_layout : enable
+#extension GL_GOOGLE_include_directive : enable
+
+#extension GL_EXT_shader_explicit_arithmetic_types_int64 : require
+#extension GL_EXT_buffer_reference2 : require
+
+#include "../raycommon.glsl"
+#include "marchingFold.glsl"
+
+hitAttributeEXT block {
+  vec3  pos;
+  vec3  normal;
+  uint  step;
+  vec3  color;
+  float minDist;
+}attribs;
+
+vec4    orbitTrap = vec4(1.0);
+
+#define ITERATION 20
+
+float sdf(in vec3 v)
+{
+    vec3    offset = v;
+    float   dr = 1.2;
+    float   scale = -1.3;
+
+    for (int i = 0; i < ITERATION; i++) {
+        box_fold(v, 1.0);
+        sphere_fold(v, dr, 0.3, 1.5);
+        v = scale * v + offset;
+        orbitTrap = min(orbitTrap, abs(vec4(v,dot(v, v))));
+        dr = dr * abs(scale) + 1.0;
+    }
+    return (length(v) / abs(dr));
+}
+
+#define MAX_DIST    20.0 
+#include "marching.glsl"
+
+vec3  getColor(in Hit hit)
+{
+  vec3  color = vec3(1.0, 0.54, 0.1);
+  color = vec3(0.0);
+  color = vec3(1 - (1. / exp(hit.step)), 1.0 / (hit.step / 10.), 0.01);
+  color += vec3(length(orbitTrap) / 4.0);
+  return (color);
+}
+
+void  main()
+{
+  const float   minDist = 0.001;
+  uint    maxStep = 1000;
+  Ray     ray = {gl_ObjectRayOriginEXT, normalize(gl_ObjectRayDirectionEXT)};
+
+  Sphere  sphere = {vec3(0.f, 0.f, 0.0f), 5.0f};
+  float   dist = hitSphere(sphere, ray);
+  float   distT = 0;
+  if (dist > 0) {
+    ray.origin = ray.origin + ray.direction * dist;
+    distT = dist;
+  }
+
+  Hit hit = marching(ray, minDist, maxStep);
+  hit.dist += distT;
+  if (hit.asHit) {
+    Ray   rayNormal = {hit.pos, ray.direction};
+    vec3  normal = getNormal(rayNormal, minDist);
+    attribs.pos = hit.pos;
+    attribs.normal = normal;
+    attribs.step = hit.step;
+    attribs.color = getColor(hit);
+    attribs.minDist = minDist;
+    reportIntersectionEXT(abs(hit.dist), 1);
+  }
+}

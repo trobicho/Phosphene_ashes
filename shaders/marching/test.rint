@@ -1,0 +1,88 @@
+#version 460
+#extension GL_EXT_ray_tracing : require
+#extension GL_EXT_nonuniform_qualifier : enable
+#extension GL_EXT_scalar_block_layout : enable
+#extension GL_GOOGLE_include_directive : enable
+
+#extension GL_EXT_shader_explicit_arithmetic_types_int64 : require
+#extension GL_EXT_buffer_reference2 : require
+
+#include "../raycommon.glsl"
+#include "marchingFold.glsl"
+#include "marchingBasicSD.glsl"
+
+
+hitAttributeEXT block {
+  vec3  pos;
+  vec3  normal;
+  uint  step;
+  vec3  color;
+  float minDist;
+}attribs;
+
+#define ITER    10
+vec4    orbitTrap = vec4(1.0);
+
+int last = 0;
+
+float sdf(in vec3 v)
+{
+  vec3    offset = v;
+  float   dr = 1.0;
+  float   scale = -1.75;
+
+  vec3 axis = vec3(1.0, 0.0, 0.0);
+  for (int i = 0; i < ITER; i++) {
+    if (i % 3 == 1)
+      axis = vec3(1.0, 0.0, 0.0);
+    else if (i % 3 == 2)
+      axis = vec3(0.0, 1.0, 0.0);
+    else
+      axis = vec3(0.0, 0.0, 1.0);
+    //v = (vec4(v, 1.0) * rotation_matrix(axis, radians(20.0))).xyz;
+
+    box_fold(v, 1.0);
+    sphere_fold(v, dr, 0.3, 1.5);
+    v = scale * v + offset;
+    //orbitTrap = min(orbitTrap, abs(vec4(v,dot(v, v))));
+    dr = dr * abs(scale) + 1.0;
+  }
+  return (length(v) / abs(dr));
+}
+
+#define MAX_DIST    10.0 
+#include "marching.glsl"
+
+vec3  getColor(in Hit hit)
+{
+  vec3 color = vec3(1.0 / sqrt(hit.step * 1.0));
+  return (color);
+}
+
+void  main()
+{
+  float   minDist = 0.001;
+  uint    maxStep = 3000;
+  Ray     ray = {gl_ObjectRayOriginEXT, normalize(gl_ObjectRayDirectionEXT)};
+
+  Sphere  sphere = {vec3(0.f, 0.f, 0.0f), 10.f};
+  float   dist = hitSphere(sphere, ray);
+  float   distT = 0.0;
+  if (dist > 0) {
+    ray.origin = ray.origin + ray.direction * dist;
+    distT = dist;
+  }
+
+  Hit hit = marching(ray, minDist, maxStep);
+  hit.dist += distT;
+  if (hit.asHit) {
+    Ray   rayNormal = {hit.pos - ray.direction * (minDist * 2.0), ray.direction};
+    vec3  normal = getNormal(rayNormal, minDist);
+    attribs.pos = hit.pos;
+    attribs.normal = normal;
+    attribs.step = hit.step;
+    attribs.color = getColor(hit);
+    attribs.minDist = minDist;
+    reportIntersectionEXT(abs(hit.dist), 1);
+  }
+}

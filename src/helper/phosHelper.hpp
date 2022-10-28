@@ -21,7 +21,6 @@ namespace PhosHelper {
   }
 }
 
-
 namespace PhosHelper {
   class	FatalError: public std::exception
   {
@@ -54,6 +53,19 @@ namespace PhosHelper {
   {
     public:
       BasicError(std::string msg): message(msg) {};
+
+      const char * what () const throw ()
+      {
+        return message.c_str();
+      }
+    private:
+      std::string message;
+  };
+
+  class	FileError: public std::exception
+  {
+    public:
+      FileError(std::string msg): message(msg) {};
 
       const char * what () const throw ()
       {

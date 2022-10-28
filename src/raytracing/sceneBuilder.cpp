@@ -85,11 +85,11 @@ void  SceneBuilder::buildBlas(PhosScene& scene, VkBuildAccelerationStructureFlag
   uint32_t  shapeIdx = 0;
   for (uint32_t idx = 0; idx < nbBlas; idx++) {
     if (m_blasInput[idx].asGeometry.geometryType == VK_GEOMETRY_TYPE_TRIANGLES_KHR) {
-      scene.m_meshs[meshIdx].m_blasDeviceAddress = m_alloc->getAccelerationStructureDeviceAddress(m_blas[idx]);
+      scene.m_meshs[meshIdx].blasDeviceAddress = m_alloc->getAccelerationStructureDeviceAddress(m_blas[idx]);
       meshIdx++;
     }
     else if (m_blasInput[idx].asGeometry.geometryType == VK_GEOMETRY_TYPE_AABBS_KHR) {
-      scene.m_proceduraShapes[shapeIdx].m_blasDeviceAddress = m_alloc->getAccelerationStructureDeviceAddress(m_blas[idx]);
+      scene.m_proceduraShapes[shapeIdx].blasDeviceAddress = m_alloc->getAccelerationStructureDeviceAddress(m_blas[idx]);
       shapeIdx++;
     }
   }
@@ -111,7 +111,7 @@ void  SceneBuilder::buildTlas(PhosScene& scene, VkBuildAccelerationStructureFlag
         std::string error = "unable to get mesh address for: " + instance.objectName;
         throw PhosHelper::FatalError(error);
       }
-      blasAddr = meshAddr->m_blasDeviceAddress;
+      blasAddr = meshAddr->blasDeviceAddress;
       flags =  VK_GEOMETRY_INSTANCE_TRIANGLE_FACING_CULL_DISABLE_BIT_KHR;
     }
     else if (instance.objectType == PHOS_OBJECT_TYPE_PROCEDURAL) {
@@ -120,7 +120,7 @@ void  SceneBuilder::buildTlas(PhosScene& scene, VkBuildAccelerationStructureFlag
         std::string error = "unable to get shape address for: " + instance.objectName;
         throw PhosHelper::FatalError(error);
       }
-      blasAddr = shapeAddr->m_blasDeviceAddress;
+      blasAddr = shapeAddr->blasDeviceAddress;
       flags =  VK_GEOMETRY_INSTANCE_FORCE_OPAQUE_BIT_KHR;
       hitShaderBinding = shapeAddr->hitShaderBindingIndex;
     }
@@ -270,10 +270,10 @@ void  SceneBuilder::modelToVkGeometry(PhosObjectProcedural& shape) {
 }
 
 void  SceneBuilder::modelToVkGeometry(PhosObjectMesh& model) {
-  uint32_t  maxPrimitiveCount = model.m_indices.size() / 3;
+  uint32_t  maxPrimitiveCount = model.indices.size() / 3;
 
-  VkDeviceAddress vertexAddress = m_alloc->getBufferDeviceAddress(model.m_vertexBuffer);
-  VkDeviceAddress indexAddress = m_alloc->getBufferDeviceAddress(model.m_indexBuffer);
+  VkDeviceAddress vertexAddress = m_alloc->getBufferDeviceAddress(model.vertexBuffer);
+  VkDeviceAddress indexAddress = m_alloc->getBufferDeviceAddress(model.indexBuffer);
 
   VkAccelerationStructureGeometryTrianglesDataKHR triangles = {
     .sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_TRIANGLES_DATA_KHR,
@@ -282,7 +282,7 @@ void  SceneBuilder::modelToVkGeometry(PhosObjectMesh& model) {
       .deviceAddress = vertexAddress,
     },
     .vertexStride = model.strideVertex(),
-    .maxVertex = static_cast<uint32_t>(model.m_vertices.size()),
+    .maxVertex = static_cast<uint32_t>(model.vertices.size()),
     .indexType = VK_INDEX_TYPE_UINT32,
     .indexData = {
       .deviceAddress = indexAddress,

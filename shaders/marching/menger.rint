@@ -7,14 +7,15 @@
 #extension GL_EXT_shader_explicit_arithmetic_types_int64 : require
 #extension GL_EXT_buffer_reference2 : require
 
-#include "raycommon.glsl"
-#include "wavefront.glsl"
+#include "../raycommon.glsl"
 #include "marchingBasicSD.glsl"
 
 hitAttributeEXT block {
   vec3  pos;
   vec3  normal;
   uint  step;
+  vec3  color;
+  float minDist;
 }attribs;
 
 
@@ -52,9 +53,9 @@ float sdf(in vec3 p)
 
 void  main()
 {
-  float   minDist = 0.01;
+  const float   minDist = 0.001;
   uint    maxStep = 200;
-  Ray     ray = {gl_ObjectRayOriginEXT, gl_ObjectRayDirectionEXT};
+  Ray     ray = {gl_ObjectRayOriginEXT, normalize(gl_ObjectRayDirectionEXT)};
 
   Sphere  sphere = {vec3(0.f, 0.f, 0.0f), 2.f};
   float   dist = hitSphere(sphere, ray);
@@ -71,6 +72,8 @@ void  main()
     attribs.pos = hit.pos;
     attribs.normal = normal;
     attribs.step = hit.step;
-    reportIntersectionEXT(hit.dist, 1);
+    attribs.color = normal;
+    attribs.minDist = minDist;
+    reportIntersectionEXT(abs(hit.dist), 1);
   }
 }

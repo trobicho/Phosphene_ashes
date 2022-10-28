@@ -1,0 +1,52 @@
+{
+  "materials": [
+    {
+      "name": "test",
+      "ambiant": {"r": 0.0, "g": 0.0, "b": 0.0},
+      "diffuse": {"r": 0.0, "g": 0.1, "b": 0.0},
+      "specular": {"r": 1.0, "g": 0.0, "b": 0.0},
+      "transmittance": {"r": 0.0, "g": 0.0, "b": 0.0},
+      "emission": {"r": 0.5, "g": 1.0, "b": 1.0},
+
+      "refractionIndex": 0.0,
+      "shininess": 17.0,
+      "dissolve": 0.0
+    }
+  ],
+  "textures": [
+    {
+      "name": "viking",
+      "filepath": "obj/viking_room.png"
+    }
+  ],
+  "meshs": [
+    {
+      "name": "viking_room",
+      "filepath": "obj/viking_room.obj",
+      "type": "wavefront",
+      "scale": 1.0
+    }
+  ],
+  "lights": [
+    {
+      "position": [0.0, -15.0, 30.0],
+      "color": [1.0, 1.0, 1.0],
+      "intensity": 1.5
+    }
+  ],
+  "instances": [
+    {
+      "name": "room",
+      "mesh": "viking_room",
+      "texture": "viking",
+      "material": "test",
+      "position": [0.0, 10.0, 34.0],
+      "scale": 24.0,
+      "transform": [
+        [0.0, 1.0, 0.0],
+        [0.0, 0.0, -1.0],
+        [-1.0, 0.0, 0.0]
+      ]
+    }
+  ]
+}

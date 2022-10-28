@@ -5,7 +5,7 @@
 #include <numeric>
 #include <limits>
 
-static bool  parseVec3(const json& vecData, glm::vec3& vec) {
+static bool  parseVec3(json& vecData, glm::vec3& vec) {
   if (vecData.is_array() && vecData.size() == 3) {
     vec.x = vecData[0];
     vec.y = vecData[1];
@@ -19,6 +19,14 @@ static bool  parseVec3(const json& vecData, glm::vec3& vec) {
       vec.x = static_cast<float>(vecData["x"]);
       vec.y = static_cast<float>(vecData["y"]);
       vec.z = static_cast<float>(vecData["z"]);
+      return (true);
+    }
+    if (vecData["r"].is_number()
+        && vecData["g"].is_number()
+        && vecData["b"].is_number()) {
+      vec.x = static_cast<float>(vecData["r"]);
+      vec.y = static_cast<float>(vecData["g"]);
+      vec.z = static_cast<float>(vecData["b"]);
       return (true);
     }
   }
@@ -40,6 +48,12 @@ void  SceneLoader::load(const std::string& filename) {
 
   m_scenePath = filename.substr(0, filename.find_last_of('/') + 1);
 
+  for (auto &materialData : data["materials"]) {
+    PhosMaterial  material;
+    if (parseMaterial(materialData, material)) {
+      m_scene.m_materials.push_back(material);
+    }
+  }
   for (auto &shaderData : data["shaders"]) {
     PhosHitShader   shader;
     if (parseShader(shaderData, shader))
@@ -86,6 +100,10 @@ bool  SceneLoader::parseInstance(json& instanceData, PhosObjectInstance& instanc
   }
   if (instanceData["name"].is_string())
     instance.name = instanceData["name"];
+  if (instanceData["material"].is_string())
+    instance.materialName = instanceData["material"];
+  else
+    instance.materialName = PHOS_DEFAULT_MAT_NAME;
   glm::vec3 v;
   if (parseVec3(instanceData["position"], v)) {
     instance.transform[0][3] = v.x;
@@ -118,7 +136,7 @@ bool  SceneLoader::parseMesh(json& meshData, PhosObjectMesh& mesh) {
     if (meshData["scale"].is_number_float())
       config.scale = meshData["scale"];
     if (meshData["name"].is_string())
-      mesh.m_name = meshData["name"];
+      mesh.name = meshData["name"];
     if (meshData["filepath"].is_string()) {
       std::string filepath = meshData["filepath"];
       ObjLoader::load(filepath, mesh, config);
@@ -130,7 +148,7 @@ bool  SceneLoader::parseMesh(json& meshData, PhosObjectMesh& mesh) {
 
 bool  SceneLoader::parseProceduralShape(json& shapeData, PhosObjectProcedural& shape) {
   if (shapeData["name"].is_string())
-    shape.m_name = shapeData["name"];
+    shape.name = shapeData["name"];
   if (shapeData["aabb"].is_object()) {
     glm::vec3 min, max;
     if (parseVec3(shapeData["aabb"]["min"], min) && parseVec3(shapeData["aabb"]["max"], max)) {
@@ -175,5 +193,43 @@ bool  SceneLoader::parseShader(json& shaderData, PhosHitShader& shader) {
   }
   else
     return (false);
+  return (true);
+}
+
+bool  SceneLoader::parseMaterial(json& materialData, PhosMaterial& material) {
+  glm::vec3 v;
+
+  material.diffuse = glm::vec3(1.0);
+  material.specular = glm::vec3(0.0);
+  material.transmittance = glm::vec3(1.0);
+  material.emission = glm::vec3(0.0);
+  material.refractionIndex = 0.0;
+  material.shininess = 0.0;
+  material.dissolve = 0.0;
+
+  if (materialData["name"].is_string())
+    material.name = materialData["name"];
+  else
+    return (false);
+  if (parseVec3(materialData["diffuse"], v))
+    material.diffuse = v;
+  if (parseVec3(materialData["specular"], v))
+    material.specular = v;
+  if (parseVec3(materialData["transmittance"], v))
+    material.transmittance = v;
+  if (parseVec3(materialData["emission"], v))
+    material.emission = v;
+
+  if (materialData["refractionIndex"].is_number())
+    material.refractionIndex = static_cast<float>(materialData["refractionIndex"]);
+  if (materialData["shininess"].is_number())
+    material.shininess = static_cast<float>(materialData["shininess"]);
+  if (materialData["dissolve"].is_number())
+    material.dissolve = static_cast<float>(materialData["dissolve"]);
+
+  return (true);
+}
+
+bool  SceneLoader::parseTexture(json& textureData, PhosTexture& texture) {
   return (true);
 }

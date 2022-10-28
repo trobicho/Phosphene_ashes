@@ -45,6 +45,9 @@ class VkImpl {
     void  updatePostDescSet(VkImageView &offscreenImageView);
 
     VkCommandBuffer&  getCommandBuffer(VkSemaphore &semaphoreWait, VkSemaphore &semaphoreSignal);
+    VkFramebuffer&  getFramebuffer(){
+      return (m_swapchainWrap.framebuffer[m_currentImageIndex]);
+    }
     VkResult          acquireNextImage(uint32_t &imageIndex, VkFence &fence);
     void              recordCommandBuffer(VkCommandBuffer &commandBuffer);
     void              present();
@@ -58,10 +61,12 @@ class VkImpl {
     SwapchainWrap       m_swapchainWrap;
 
     VkRenderPass        m_renderPass;
+    VkPipeline          m_postPipeline = VK_NULL_HANDLE;
 
   private:
     void  createPostDescriptorSet();
     void  createPostPipeline();
+    void  createSynchronisationObjects();
 
     VkSampler               m_sampler = VK_NULL_HANDLE;
 
@@ -70,14 +75,13 @@ class VkImpl {
     VkDescriptorSetLayout   m_postDescSetLayout = VK_NULL_HANDLE;
     std::array<VkDescriptorSetLayoutBinding, 1>
                             m_postDescSetLayoutBinds;
-    VkPipeline              m_postPipeline = VK_NULL_HANDLE;
     VkPipelineLayout        m_postPipelineLayout = VK_NULL_HANDLE;
 
     VkCommandPool                                       m_commandPool = VK_NULL_HANDLE;
     std::array<VkCommandBuffer, MAX_FRAMES_IN_FLIGHT>   m_commandBuffers;
-    std::array<VkFence, MAX_FRAMES_IN_FLIGHT>           m_fences;
-    std::array<VkSemaphore, MAX_FRAMES_IN_FLIGHT>       m_semaphoreAvailable;
-    std::array<VkSemaphore, MAX_FRAMES_IN_FLIGHT>       m_semaphoreFinish;
+    std::array<VkFence, MAX_FRAMES_IN_FLIGHT>           m_fences{VK_NULL_HANDLE};
+    std::array<VkSemaphore, MAX_FRAMES_IN_FLIGHT>       m_semaphoreAvailable{VK_NULL_HANDLE};
+    std::array<VkSemaphore, MAX_FRAMES_IN_FLIGHT>       m_semaphoreFinish{VK_NULL_HANDLE};
     uint32_t                                            m_currentFrame = 0;
     uint32_t                                            m_currentImageIndex = 0;
 };

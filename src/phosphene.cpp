@@ -1,5 +1,6 @@
 #include "phosphene.hpp"
 #include "helper/extensions.hpp"
+
 #include <iostream>
 
 Phosphene::Phosphene(GLFWwindow *window): m_window(window) {
@@ -10,7 +11,7 @@ Phosphene::Phosphene(GLFWwindow *window): m_window(window) {
   PhosStartVk::createLogicalDeviceAndQueue(m_device, m_physicalDevice, m_surface, m_graphicsQueue, m_graphicsQueueFamilyIndex);
   PhosHelper::loadRtExtension(m_device);
   m_pcRay = (PushConstantRay){
-    .clearColor = glm::vec4(0.1, 0.1, 0.1, 1.0),
+    .clearColor = glm::vec4(0.1, 0.1, 0.6, 1.0),
     .nbLights = 0,
   };
 
@@ -50,23 +51,78 @@ Phosphene::Phosphene(GLFWwindow *window): m_window(window) {
   {
     m_sceneBuilder.init(m_device, &m_alloc, m_graphicsQueueFamilyIndex);
     m_scene.init(&m_alloc);
-    buildRtPipelineBasicLights();
-    updateRtImage();
+    buildPipeline("basic");
   }
+
+  {
+    IMGUI_CHECKVERSION();
+    std::vector<VkDescriptorPoolSize> poolSizes =
+    {
+      { VK_DESCRIPTOR_TYPE_SAMPLER, 1},
+      { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1},
+    };
+    VkDescriptorPoolCreateInfo        poolInfo{VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO};
+    poolInfo.maxSets       = poolSizes.size();
+    poolInfo.poolSizeCount = poolSizes.size();
+    poolInfo.pPoolSizes    = poolSizes.data();
+    vkCreateDescriptorPool(m_device, &poolInfo, nullptr, &m_gui.imguiDescPool);
+
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    io.IniFilename = nullptr;
+    io.DisplaySize = ImVec2(static_cast<float>(m_width), static_cast<float>(m_height));
+    ImGui_ImplVulkan_InitInfo init_info = {
+      .Instance = m_instance,
+      .PhysicalDevice = m_physicalDevice,
+      .Device = m_device,
+      .QueueFamily = m_graphicsQueueFamilyIndex,
+      .Queue = m_graphicsQueue,
+      .DescriptorPool = m_gui.imguiDescPool,
+      .Subpass = 0,
+      .MinImageCount = m_vkImpl.m_swapchainWrap.imageCount,
+      .ImageCount = m_vkImpl.m_swapchainWrap.imageCount,
+      .MSAASamples = VK_SAMPLE_COUNT_1_BIT,
+      .Allocator = nullptr,
+      .CheckVkResultFn = nullptr,
+    };
+    ImGui_ImplVulkan_Init(&init_info, m_vkImpl.m_renderPass);
+    CommandPool cmdPool;
+    cmdPool.init(m_device, m_graphicsQueueFamilyIndex);
+    auto cmdBuffer = cmdPool.createCommandBuffer();
+    cmdPool.beginRecord(cmdBuffer);
+    ImGui_ImplVulkan_CreateFontsTexture(cmdBuffer);
+    vkEndCommandBuffer(cmdBuffer);
+    cmdPool.submitAndWait(cmdBuffer);
+    cmdPool.destroy();
+    ImGui_ImplVulkan_DestroyFontUploadObjects();
+    ImGui::SetNextWindowSize(ImVec2(static_cast<float>(m_width), static_cast<float>(m_height)));
+    ImGui::SetNextWindowPos(ImVec2(0, 0));
+    ImGui_ImplVulkan_SetMinImageCount(m_vkImpl.m_swapchainWrap.imageCount);
+  }
+
+  {
+    m_rayPicker.init(m_device, m_physicalDevice, m_graphicsQueueFamilyIndex);
+  }
+
 }
 
-void  Phosphene::loadScene(const std::string &filename) {
+bool  Phosphene::loadScene(const std::string &filename) {
   SceneLoader sceneLoader(m_scene);
-  sceneLoader.load(filename);
+  try {
+    sceneLoader.load(filename);
+  }
+  catch (const char* e) {
+    return (false);
+  }
+  buildPipeline("basic");
   m_scene.setShapesHitBindingIndex(1);
-  buildRtPipelineBasicLights();
-  updateRtImage();
   m_scene.allocateResources();
   m_sceneBuilder.buildBlas(m_scene, 0);
   m_sceneBuilder.buildTlas(m_scene, 0); 
   m_scene.update(m_rtPipeline, true);
   m_pcRay.nbLights = m_scene.getLightCount();
   updateRtTlas();
+  return (true);
 }
 
 void  Phosphene::renderLoop() {
@@ -74,6 +130,7 @@ void  Phosphene::renderLoop() {
 
   while(!glfwWindowShouldClose(m_window) && !m_quit) {
     glfwPollEvents();
+    m_mutexEvent.lock();
     m_camera.step();
     if (m_camera.buildGlobalUniform(m_globalUniform)) {
       //std::cout << std::endl << "VIEW INVERSE:" << std::endl;
@@ -83,6 +140,7 @@ void  Phosphene::renderLoop() {
     draw();
     m_update = false;
     //m_quit = true;
+    m_mutexEvent.unlock();
   }
 }
 
@@ -93,6 +151,11 @@ void  Phosphene::draw() {
   uint32_t    imageIndex;
 
   VkResult result = m_vkImpl.acquireNextImage(imageIndex, fence);
+  if (result != VK_SUCCESS)
+    return ;
+  if (m_showGui) {
+    guiRender();
+  }
   auto& commandBuffer = m_vkImpl.getCommandBuffer(semaphoreWait, semaphoreSignal);
   vkResetCommandBuffer(commandBuffer, 0);
   VkCommandBufferBeginInfo  beginInfo = {
@@ -108,14 +171,29 @@ void  Phosphene::draw() {
     m_rtPipeline.raytrace(commandBuffer, m_width, m_height);
   }
   {
+    VkClearValue clearValue = (VkClearValue){1.0f, 1.0f, 1.0f, 1.0f};
+    VkRenderPassBeginInfo     renderPassInfo = {
+      .sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
+      .renderPass = m_vkImpl.m_renderPass,
+      .framebuffer = m_vkImpl.getFramebuffer(),
+      .renderArea = (VkRect2D) {
+        .offset = (VkOffset2D){0, 0},
+        .extent = m_vkImpl.m_swapchainWrap.extent,
+      },
+      .clearValueCount = 1,
+      .pClearValues = &clearValue,
+    };
+    vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
     m_vkImpl.recordCommandBuffer(commandBuffer);
+    ImGui::Render();
+    ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), commandBuffer);
+    vkCmdEndRenderPass(commandBuffer);
   }
   vkEndCommandBuffer(commandBuffer);
   VkPipelineStageFlags  waitStage[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
   VkSubmitInfo  submitInfo = {
     .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
     .waitSemaphoreCount = 1,
-    //.pWaitSemaphores = &m_semaphore,
     .pWaitSemaphores = &semaphoreWait,
     .pWaitDstStageMask = waitStage,
     .commandBufferCount = 1,
@@ -135,11 +213,18 @@ void  Phosphene::destroy() {
     std::cout << std::endl << "DESTROY" << std::endl;
     deviceWait();
 
+    {
+      ImGui_ImplVulkan_Shutdown();
+      ImGui_ImplGlfw_Shutdown();
+      ImGui::DestroyContext();
+      vkDestroyDescriptorPool(m_device, m_gui.imguiDescPool, nullptr);
+    }
     m_vkImpl.destroy();
     m_rtPipeline.destroy();
     m_sceneBuilder.destroy();
     m_scene.destroy();
     m_globalUBO.destroy(m_device);
+    m_rayPicker.destroy();
 
     {
       vkDestroyImage(m_device, m_offscreenColor, nullptr);
@@ -191,6 +276,37 @@ void  Phosphene::createOffscreenRender() {
   };
   vkAllocateMemory(m_device, &allocImageInfo, nullptr, &m_offscreenImageMemory);
   vkBindImageMemory(m_device, m_offscreenColor, m_offscreenImageMemory, 0);
+
+  {
+    VkImageSubresourceRange subresourceRange = {
+      .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
+      .baseMipLevel = 0,
+      .levelCount = 1,
+      .baseArrayLayer = 0,
+      .layerCount = 1,
+    };
+    VkImageMemoryBarrier imageMemoryBarrier = {
+      .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+      .srcAccessMask = VkAccessFlagBits(),
+      .dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+      .oldLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+      .newLayout = VK_IMAGE_LAYOUT_GENERAL,
+      .image = m_offscreenColor,
+      .subresourceRange = subresourceRange,
+    };
+
+    const VkPipelineStageFlags srcStageMask = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+    const VkPipelineStageFlags dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+
+    CommandPool cmdPool;
+    cmdPool.init(m_device, m_graphicsQueueFamilyIndex);
+    auto cmdBuffer = cmdPool.createCommandBuffer();
+    cmdPool.beginRecord(cmdBuffer);
+    vkCmdPipelineBarrier(cmdBuffer, srcStageMask, dstStageMask, VK_FALSE, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
+    vkEndCommandBuffer(cmdBuffer);
+    cmdPool.submitAndWait(cmdBuffer);
+    cmdPool.destroy();
+  }
 
   VkImageViewCreateInfo viewInfo = {
     .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,

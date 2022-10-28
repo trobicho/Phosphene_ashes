@@ -16,9 +16,10 @@ hitAttributeEXT block {
   vec3  pos;
   vec3  normal;
   uint  step;
+  vec3  color;
 }attribs;
 
 void main()
 {
-  hitValue = vec3(attribs.normal); 
+  hitValue = vec3(attribs.color); 
 }

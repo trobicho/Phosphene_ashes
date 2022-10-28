@@ -1,0 +1,95 @@
+{
+  "shaders" : [
+    {
+      "name" : "test",
+      "type" : "intersection",
+      "spv" : "test.rint.spv"
+    },
+    {
+      "name" : "mandelbulb",
+      "type" : "intersection",
+      "spv" : "mandelbulb.rint.spv"
+    }
+  ],
+  "meshs": [
+    {
+      "name" : "cow",
+      "filepath": "obj/cow.obj",
+      "type": "wavefront",
+      "scale": 1.0
+    },
+    {
+      "name" : "viking_room",
+      "filepath" : "obj/viking_room.obj",
+      "type": "wavefront"
+    }
+  ],
+  "meshs": [
+    {
+      "name" : "cow",
+      "filepath": "obj/cow.obj",
+      "type": "wavefront",
+      "scale": 1.0
+    }
+  ],
+  "shapes": [
+    {
+      "name" : "test",
+      "aabb" : {
+        "min" : [-3.5, -3.5, -3.5],
+        "max" : [3.5, 3.5, 3.5]
+      },
+      "intersection" : "test"
+    },
+    {
+      "name" : "mandelbulb",
+      "aabb" : {
+        "min" : [-2.5, -2.5, -2.5],
+        "max" : [2.5, 2.5, 2.5]
+      },
+      "intersection" : "mandelbulb"
+    }
+  ],
+  "lights": [
+    {
+      "position": [0.0, 0.0, -70.0],
+      "color": [1.0, 1.0, 1.0],
+      "intensity": 1.5
+    }
+  ],
+  "instances": [
+    {
+      "name": "test",
+      "shape": "test",
+      "position": [0.0, 0.0, 30.0],
+      "scale": 20.0,
+      "transform": [
+        [1.0, 0.0, 0.0],
+        [0.0, 1.0, 0.0],
+        [0.0, 0.0, -1.0]
+      ]
+    },
+    {
+      "name": "test2",
+      "shape": "mandelbulb",
+      "position": [0.0, 0.0, -100.0],
+      "scale": 1.0,
+      "transform": [
+        [1.0, 0.0, 0.0],
+        [0.0, 1.0, 0.0],
+        [0.0, 0.0, -1.0]
+      ]
+    },
+    {
+      "name": "cow1",
+      "mesh": "cow",
+      "position": [0.0, 100.0, 30.0],
+      "scale": 0.5,
+      "transform": [
+        [0.0, 0.0, 1.0],
+        [0.0, -1.0, 0.0],
+        [-1.0, 0.0, 0.0]
+      ]
+    }
+  ]
+}

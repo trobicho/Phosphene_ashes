@@ -1,7 +1,9 @@
 #include "phosphene.hpp"
+#include <iostream>
 
 
 void  Phosphene::callbackWindowResize(int width, int height) {
+  m_mutexEvent.lock();
   deviceWait();
   m_width = width;
   m_height = height;
@@ -16,12 +18,20 @@ void  Phosphene::callbackWindowResize(int width, int height) {
   vkFreeMemory(m_device, m_offscreenImageMemory, nullptr);
   vkDestroyImageView(m_device, m_offscreenImageView, nullptr);
   createOffscreenRender();
+
   m_camera.eventChangeAspectRatio(m_width, m_height);
   m_vkImpl.updatePostDescSet(m_offscreenImageView);
+  ImGuiIO& io = ImGui::GetIO(); (void)io;
+  io.DisplaySize = ImVec2(static_cast<float>(m_width), static_cast<float>(m_height));
+  ImGui::SetNextWindowSize(ImVec2(static_cast<float>(m_width), static_cast<float>(m_height)));
+  ImGui::SetNextWindowPos(ImVec2(0, 0));
   updateRtImage();
+  deviceWait();
+  m_mutexEvent.unlock();
 }
 
 void  Phosphene::callbackKey(int key, int scancode, int action, int mods) {
+  m_mutexEvent.lock();
   if (key == GLFW_KEY_ESCAPE)
     m_quit = true;
   if (key == GLFW_KEY_W) {
@@ -60,13 +70,17 @@ void  Phosphene::callbackKey(int key, int scancode, int action, int mods) {
     else if (action == GLFW_RELEASE)
       m_camera.unsetKeyState(CAMERA_KEY_STATE_ROLL_CLOCKWISE);
   }
+  m_mutexEvent.unlock();
 }
 
 void  Phosphene::callbackCursor(double x_pos, double y_pos) {
+  m_mutexEvent.lock();
   m_camera.rotate(x_pos, y_pos);
+  m_mutexEvent.unlock();
 }
 
 void  Phosphene::callbackMouseButton(int button, int action, int mod) {
+  m_mutexEvent.lock();
   if (button == GLFW_MOUSE_BUTTON_LEFT) {
     if (action == GLFW_PRESS) {
       double  x, y;
@@ -79,4 +93,5 @@ void  Phosphene::callbackMouseButton(int button, int action, int mod) {
       m_camera.setAllowRotation(false);
     }
   }
+  m_mutexEvent.unlock();
 }

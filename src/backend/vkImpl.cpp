@@ -51,18 +51,6 @@ VkResult          VkImpl::acquireNextImage(uint32_t &imageIndex, VkFence &fence)
 
 void              VkImpl::recordCommandBuffer(VkCommandBuffer &commandBuffer) {
   VkClearValue clearValue = (VkClearValue){0.0f, 0.0f, 0.0f, 1.0f};
-  VkRenderPassBeginInfo     renderPassInfo = {
-    .sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
-    .renderPass = m_renderPass,
-    .framebuffer = m_swapchainWrap.framebuffer[m_currentImageIndex],
-    .renderArea = (VkRect2D) {
-      .offset = (VkOffset2D){0, 0},
-      .extent = m_swapchainWrap.extent,
-    },
-    .clearValueCount = 1,
-    .pClearValues = &clearValue,
-  };
-  vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
   vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_postPipeline);
 
   vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS
@@ -85,7 +73,6 @@ void              VkImpl::recordCommandBuffer(VkCommandBuffer &commandBuffer) {
   vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
   vkCmdDraw(commandBuffer, 4, 1, 0, 0);
-  vkCmdEndRenderPass(commandBuffer);
 }
 
 void              VkImpl::present() {
@@ -121,7 +108,10 @@ void  VkImpl::createCommandPool() {
   if (vkAllocateCommandBuffers(m_device, &allocateInfo
         , m_commandBuffers.data()) != VK_SUCCESS)
     throw PhosHelper::FatalVulkanInitError("Failed to allocate Command Buffers !");
+  createSynchronisationObjects();
+}
 
+void  VkImpl::createSynchronisationObjects() {
   m_currentFrame = 0;
   VkSemaphoreCreateInfo semaphoreInfo = {
     .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
@@ -131,6 +121,9 @@ void  VkImpl::createCommandPool() {
     .flags = VK_FENCE_CREATE_SIGNALED_BIT,
   };
   for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i) {
+    vkDestroyFence(m_device, m_fences[i], nullptr);
+    vkDestroySemaphore(m_device, m_semaphoreAvailable[i], nullptr);
+    vkDestroySemaphore(m_device, m_semaphoreFinish[i], nullptr);
     if (vkCreateSemaphore(m_device, &semaphoreInfo, nullptr
           , &m_semaphoreAvailable[i]) != VK_SUCCESS
         || vkCreateSemaphore(m_device, &semaphoreInfo, nullptr
