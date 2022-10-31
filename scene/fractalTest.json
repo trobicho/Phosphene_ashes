@@ -3,7 +3,7 @@
     {
       "name" : "test",
       "type" : "intersection",
-      "spv" : "test2.rint.spv"
+      "spv" : "test.rint.spv"
     },
     {
       "name" : "mandelbulb",
@@ -51,7 +51,7 @@
       "position": [0.0, 0.0, 50.0],
       "scale": 20.0,
       "marchingMaxStep": 3000,
-      "marchingMinDist": 0.00001,
+      "marchingMinDist": 0.0001,
       "transform": [
         [1.0, 0.0, 0.0],
         [0.0, 1.0, 0.0],
