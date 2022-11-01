@@ -60,6 +60,10 @@ SHADERS_NAME =	post.vert \
 				raytraceShapeNormal.rchit \
 				raytraceShapeColor.rchit \
 				raytraceShapeShadow.rchit \
+				pathtrace.rgen \
+				pathtrace.rmiss \
+				pathtraceMesh.rchit \
+				pathtraceShape.rchit \
 				sphere.rint \
 				marching/mandelbulb.rint \
 				marching/menger.rint \

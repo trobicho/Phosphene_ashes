@@ -13,6 +13,8 @@ Phosphene::Phosphene(GLFWwindow *window): m_window(window) {
   m_pcRay = (PushConstantRay){
     .clearColor = glm::vec4(0.1, 0.1, 0.6, 1.0),
     .nbLights = 0,
+    .nbConsecutiveRay = 0,
+    .pathMaxRecursion = 5,
   };
 
   int width = 0;
@@ -120,6 +122,7 @@ bool  Phosphene::loadScene(const std::string &filename) {
   m_sceneBuilder.buildBlas(m_scene, 0);
   m_sceneBuilder.buildTlas(m_scene, 0); 
   m_scene.update(m_rtPipeline, true);
+  m_pcRay.nbConsecutiveRay = 0;
   m_pcRay.nbLights = m_scene.getLightCount();
   updateRtTlas();
   return (true);
@@ -128,19 +131,23 @@ bool  Phosphene::loadScene(const std::string &filename) {
 void  Phosphene::renderLoop() {
   uint32_t  frame_n = 1;
 
+  m_globalUniform.time = 0.0f;
   while(!glfwWindowShouldClose(m_window) && !m_quit) {
     ImGuiIO& io = ImGui::GetIO();
     glfwPollEvents();
     m_mutexEvent.lock();
     m_camera.step(io.DeltaTime);
     if (m_camera.buildGlobalUniform(m_globalUniform)) {
+      m_pcRay.nbConsecutiveRay = 0;
       //std::cout << std::endl << "VIEW INVERSE:" << std::endl;
       //PhosHelper::printMatrix(m_globalUniform.viewInverse);
       m_update = true;
     }
     draw();
+    m_pcRay.nbConsecutiveRay += 1;
     m_update = false;
     //m_quit = true;
+    m_globalUniform.time += io.DeltaTime;
     m_mutexEvent.unlock();
   }
 }

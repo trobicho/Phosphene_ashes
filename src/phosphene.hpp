@@ -40,6 +40,7 @@ class Phosphene {
     bool  buildPipeline(std::string name);
     void  buildRtPipelineBasic();
     void  buildRtPipelineBasicLights();
+    void  buildRtPipelinePathTracing();
     void  updateRtImage();
     void  updateRtTlas() {
       updateRtTlas(m_sceneBuilder.getTlas());

@@ -43,12 +43,15 @@ struct  GlobalUniforms {
   mat4  viewProj;
   mat4  viewInverse;
   mat4  projInverse;
+  float time;
 };
 
 // Push constant structure for the ray tracer
 struct  PushConstantRay {
   vec4  clearColor;
   uint  nbLights;
+  uint  nbConsecutiveRay;
+  uint  pathMaxRecursion;
 };
 
 struct  Vertex {

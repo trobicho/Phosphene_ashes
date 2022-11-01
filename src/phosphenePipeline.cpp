@@ -8,9 +8,12 @@ bool  Phosphene::buildPipeline(std::string name) {
     buildRtPipelineBasic();
   else if (name == "basicLights")
     buildRtPipelineBasicLights();
+  else if (name == "pathTracing")
+    buildRtPipelinePathTracing();
   else
     return (false);
   m_scene.update(m_rtPipeline, true);
+  m_pcRay.nbConsecutiveRay = 0;
   return (true);
 }
 
@@ -199,6 +202,50 @@ void  Phosphene::buildRtPipelineBasicLights() {
     builder.addHitGroup(hitGroup);
   }
   builder.setMaxRecursion(2);
+  m_rtPipeline.destroy();
+  builder.build(m_rtPipeline);
+  builder.destroyModules();
+
+  updateRtGlobalUBO();
+  updateRtImage();
+  updateRtTlas();
+}
+
+void  Phosphene::buildRtPipelinePathTracing() {
+  std::vector<RtBuilder::DescriptorSetWrapper>  descSets = commonBindings();
+  RtBuilder::PushConstant pushConsant = {
+    .range = (VkPushConstantRange) {
+      .stageFlags = VK_SHADER_STAGE_RAYGEN_BIT_KHR
+        | VK_SHADER_STAGE_RAYGEN_BIT_KHR
+        | VK_SHADER_STAGE_MISS_BIT_KHR,
+      .offset = 0,
+      .size = sizeof(m_pcRay),
+    },
+    .pValues = &m_pcRay,
+  };
+  RtBuilder::PipelineBuilder  builder;
+  builder.init(m_device, m_physicalDevice, &m_alloc, m_graphicsQueueFamilyIndex);
+  builder.addDescSet(descSets);
+  builder.addPushConstant(pushConsant);
+  builder.setRayGenStage("./spv/pathtrace.rgen.spv");
+  builder.addMissStage("./spv/pathtrace.rmiss.spv");
+  builder.addHitShader("cHit", "./spv/pathtraceMesh.rchit.spv", VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR);
+  builder.addHitShader("shapeCHit", "./spv/pathtraceShape.rchit.spv", VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR);
+  RtBuilder::HitGroup hitGroup = {
+    .type = VK_RAY_TRACING_SHADER_GROUP_TYPE_TRIANGLES_HIT_GROUP_KHR,
+    .closestHitName = "cHit",
+  };
+  builder.addHitGroup(hitGroup);
+  for (auto& hitShader : m_scene.m_hitShaders) {
+    builder.addHitShader(hitShader.name, "./spv/" + hitShader.spv, hitShader.type);
+    RtBuilder::HitGroup hitGroup = {
+      .type = VK_RAY_TRACING_SHADER_GROUP_TYPE_PROCEDURAL_HIT_GROUP_KHR,
+      .closestHitName = "shapeCHit",
+      .intersectionName = hitShader.name,
+    };
+    builder.addHitGroup(hitGroup);
+  }
+  builder.setMaxRecursion(1);
   m_rtPipeline.destroy();
   builder.build(m_rtPipeline);
   builder.destroyModules();

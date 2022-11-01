@@ -69,7 +69,7 @@ void main()
     if(isShadowed)
       attenuation = 0.1;
     else
-      specular = computeSpecular(material,  gl_WorldRayDirectionEXT, lightDir, worldNrm);
+      specular = computePhong(material,  gl_WorldRayDirectionEXT, lightDir, worldNrm);
   }
   prd.hitValue = (diffuse + specular) * lights.i[0].intensity * attenuation;
 }

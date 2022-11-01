@@ -8,11 +8,10 @@
 #extension GL_EXT_buffer_reference2 : require
 
 #include "hostDevice.h"
-#include "raycommon.glsl"
+#include "pathcommon.glsl"
 #include "illumination.glsl"
 
 layout(location = 0) rayPayloadInEXT hitPayload prd;
-layout(location = 1) rayPayloadEXT bool isShadowed;
 
 layout(buffer_reference, scalar) buffer Vertices {Vertex v[]; }; // Positions of an object
 layout(buffer_reference, scalar) buffer Indices {ivec3 i[]; }; // Triangle indices
@@ -20,7 +19,6 @@ layout(buffer_reference, scalar) buffer Indices {ivec3 i[]; }; // Triangle indic
 layout(set = 0, binding = eTlas) uniform accelerationStructureEXT topLevelAS;
 layout(set = 2, binding = eMeshDescs, scalar) buffer MeshDesc_ { MeshDesc i[]; } meshDescs;
 layout(set = 2, binding = eMaterials, scalar) buffer Material_ { Material i[]; } materials;
-layout(set = 3, binding = eLights, scalar) buffer Light_ { Light i[]; } lights;
 hitAttributeEXT vec2 attribs;
 
 void main()
@@ -50,42 +48,9 @@ void main()
   const vec3 worldNrm = normalize(vec3(normal * gl_WorldToObjectEXT));  // Transforming the normal to world space
 
 
-  float attenuation = 1;
-
-  // Tracing shadow ray only if the light is visible from the surface
-  vec3  lightDir = lights.i[0].pos - worldPos;
-  float lightDistance = length(lightDir);
-  lightDir = normalize(lightDir);
-
-  vec3  specular = vec3(0.0);
-  vec3  diffuse = vec3(0, 0, 0);
-  if(dot(worldNrm, lightDir) > 0)
-  {
-    float tMin   = 0.001;
-    float tMax   = lightDistance;
-    vec3  origin = gl_WorldRayOriginEXT + gl_WorldRayDirectionEXT * gl_HitTEXT;
-    vec3  rayDir = lightDir;
-    uint  flags =
-      gl_RayFlagsTerminateOnFirstHitEXT | gl_RayFlagsOpaqueEXT | gl_RayFlagsSkipClosestHitShaderEXT;
-    isShadowed = true;
-    traceRayEXT(topLevelAS,  // acceleration structure
-      flags,       // rayFlags
-      0xFF,        // cullMask
-      0,           // sbtRecordOffset
-      0,           // sbtRecordStride
-      1,           // missIndex
-      origin,      // ray origin
-      tMin,        // ray min range
-      rayDir,      // ray direction
-      tMax,        // ray max range
-      1            // payload (location = 1)
-    );
-    diffuse = computeDiffuse(material, lightDir, worldNrm);
-
-    if(isShadowed)
-      attenuation = 0.3;
-    else
-      specular = computePhong(material,  gl_WorldRayDirectionEXT, lightDir, worldNrm);
-  }
-  prd.hitValue = (diffuse + specular) * lights.i[0].intensity * attenuation;
+  prd.asHit = true;
+  prd.matId = objResource.materialId;
+  prd.normal = worldNrm;
+  prd.hitPos = worldPos;
+  prd.color = vec3(1.0f);
 }

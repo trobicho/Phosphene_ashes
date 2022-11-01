@@ -18,6 +18,9 @@ void  Phosphene::guiRender() {
     if (ImGui::Selectable("BasicLight")) {
       buildPipeline("basicLights");
     }
+    if (ImGui::Selectable("PathTracing")) {
+      buildPipeline("pathTracing");
+    }
     ImGui::EndListBox();
   }
   ImGui::End();
