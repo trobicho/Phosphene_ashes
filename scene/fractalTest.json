@@ -1,4 +1,18 @@
 {
+  "materials": [
+    {
+      "name": "light",
+      "diffuse": {"r": 1.0, "g": 1.0, "b": 1.0},
+      "specular": {"r": 1.0, "g": 0.0, "b": 0.0},
+      "transmittance": {"r": 0.0, "g": 0.0, "b": 0.0},
+      "emission": {"r": 1.0, "g": 1.0, "b": 1.0},
+
+      "refractionIndex": 0.0,
+      "shininess": 17.0,
+      "dissolve": 0.0,
+      "intensity": 50
+    }
+  ],
   "shaders" : [
     {
       "name" : "test",
@@ -39,9 +53,9 @@
   ],
   "lights": [
     {
-      "position": [0.0, 0.0, -70.0],
+      "position": [0.0, 0.0, -100.0],
       "color": [1.0, 1.0, 1.0],
-      "intensity": 1.5
+      "intensity": 10000
     }
   ],
   "instances": [
@@ -61,10 +75,11 @@
     {
       "name": "mandelbulb",
       "shape": "mandelbulb",
+      "materials": "light",
       "position": [0.0, 0.0, -120.0],
       "scale": 20.0,
-      "marchingMaxStep": 300,
-      "marchingMinDist": 0.001,
+      "marchingMaxStep": 3000,
+      "marchingMinDist": 0.0001,
       "transform": [
         [1.0, 0.0, 0.0],
         [0.0, 1.0, 0.0],

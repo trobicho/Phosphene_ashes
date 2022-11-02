@@ -5,7 +5,6 @@ vec3 computeDiffuse(const Material mat, const vec3 lightDir, const vec3 normal)
   // Lambertian
   float dotNL = max(dot(normal, lightDir), 0.0);
   vec3  c     = mat.diffuse * dotNL;
-  c += mat.ambient;
   return c;
 }
 

@@ -73,10 +73,9 @@ bool  Camera::buildGlobalUniform(GlobalUniforms &uniform) {
 void  Camera::forceBuildGlobalUniform(GlobalUniforms &uniform) {
   m_view = glm::lookAt(m_position, m_position + m_forward, m_up);
   m_projection = glm::perspective(m_fovY, m_aspectRatio, m_zNear, m_zFar);
-  uniform = {
-    .viewProj = m_view ,
-    .viewInverse = glm::inverse(m_view),
-    .projInverse = glm::inverse(m_projection),
-  };
+  
+  uniform.viewProj = m_view ,
+  uniform.viewInverse = glm::inverse(m_view),
+  uniform.projInverse = glm::inverse(m_projection),
   m_update = false;
 }

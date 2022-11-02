@@ -71,6 +71,7 @@ struct  Material {
   float refractionIndex;
   float shininess;
   float dissolve; // 0.0 == opaque; 1.0 == fully transparent
+  float intensity;
 };
 
 struct  Light {

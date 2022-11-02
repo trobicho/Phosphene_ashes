@@ -43,6 +43,7 @@ void main()
 
   vec3  specular = vec3(0.0);
   vec3  diffuse = vec3(0, 0, 0);
+  float dl2 = lightDistance * lightDistance;
   if(dot(worldNrm, lightDir) > 0)
   {
     float tMin   = 0.001;
@@ -67,9 +68,9 @@ void main()
     diffuse = computeDiffuse(material, lightDir, worldNrm);
 
     if(isShadowed)
-      attenuation = 0.1;
+      attenuation = 0.0;
     else
       specular = computePhong(material,  gl_WorldRayDirectionEXT, lightDir, worldNrm);
   }
-  prd.hitValue = (diffuse + specular) * lights.i[0].intensity * attenuation;
+  prd.hitValue = (diffuse + specular) * (lights.i[0].intensity / dl2) * attenuation;
 }

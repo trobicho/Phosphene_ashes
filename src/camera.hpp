@@ -65,7 +65,7 @@ class Camera {
     bool  m_allowMoving = false;
 
   private:
-    glm::vec3 m_position{0.f, 0.f, 0.f};
+    glm::vec3 m_position{0.f, -15.f, -20.f};
     glm::vec3 m_forward{0.f, 0.f, 1.f};
     glm::vec3 m_up{0.f, 1.f, 0.f};
     glm::vec3 m_right{-1.f, 0.f, 0.f};
@@ -74,7 +74,7 @@ class Camera {
 
     uint32_t  m_event = 0;
     uint32_t  m_keyState = 0;
-    float     m_speed = 0.2;
+    float     m_speed = 0.5;
 
     double    m_lastX = 0.0;
     double    m_lastY = 0.0;

@@ -146,6 +146,8 @@ bool  SceneLoader::parseMesh(json& meshData, PhosObjectMesh& mesh) {
       mesh.name = meshData["name"];
     if (meshData["filepath"].is_string()) {
       std::string filepath = meshData["filepath"];
+      if (filepath[0] == '/' || filepath[0] == '~')
+        config.useRelativePath = false;
       ObjLoader::load(filepath, mesh, config);
     }
     return (true);
@@ -217,6 +219,7 @@ bool  SceneLoader::parseMaterial(json& materialData, PhosMaterial& material) {
   material.refractionIndex = 0.0;
   material.shininess = 0.0;
   material.dissolve = 0.0;
+  material.intensity = 0.0;
 
   if (materialData["name"].is_string())
     material.name = materialData["name"];
@@ -237,6 +240,8 @@ bool  SceneLoader::parseMaterial(json& materialData, PhosMaterial& material) {
     material.shininess = static_cast<float>(materialData["shininess"]);
   if (materialData["dissolve"].is_number())
     material.dissolve = static_cast<float>(materialData["dissolve"]);
+  if (materialData["intensity"].is_number())
+    material.intensity = static_cast<float>(materialData["intensity"]);
 
   return (true);
 }

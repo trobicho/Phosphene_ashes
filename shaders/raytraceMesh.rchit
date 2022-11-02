@@ -30,6 +30,6 @@ void main()
   Vertex v0 = vertices.v[ind.x];
   Vertex v1 = vertices.v[ind.y];
   Vertex v2 = vertices.v[ind.z];
-  const vec3 worldNrm = normalize(vec3(v0.normal * gl_WorldToObjectEXT));  // Transforming the normal to world space
+  const vec3 worldNrm = abs(normalize(vec3(v0.normal * gl_WorldToObjectEXT)));  // Transforming the normal to world space
   hitValue = worldNrm;
 }

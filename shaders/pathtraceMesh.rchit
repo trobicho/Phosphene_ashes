@@ -51,6 +51,6 @@ void main()
   prd.asHit = true;
   prd.matId = objResource.materialId;
   prd.normal = worldNrm;
-  prd.hitPos = worldPos;
+  prd.hitPos = worldPos + worldNrm * 0.0001;
   prd.color = vec3(1.0f);
 }

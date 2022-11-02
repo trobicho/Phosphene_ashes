@@ -9,6 +9,13 @@
 
 #include "raycommon.glsl"
 
+hitAttributeEXT block {
+  vec3  pos;
+  vec3  normal;
+  uint  step;
+  vec3  color;
+}attribs;
+
 struct  Ray {
   vec3  origin;
   vec3  direction;
@@ -42,6 +49,11 @@ void  main()
   Sphere  sphere = {vec3(0.f, 0.f, 0.0f), 1.0f};
   float   hit = hitSphere(sphere, ray);
   if (hit >= 0)
+  {
+    attribs.pos = ray.origin + ray.direction * hit;
+    attribs.normal = normalize(attribs.pos);
+    attribs.color = attribs.normal;
     reportIntersectionEXT(hit, 1);
+  }
   
 }
