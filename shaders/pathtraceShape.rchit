@@ -30,11 +30,11 @@ void main()
   Material  material    = materials.i[shape.materialId];
 
   const vec3 worldNrm = normalize(vec3(attribs.normal * gl_ObjectToWorldEXT));  // Transforming the normal to world space
-  const vec3 worldPos = vec3(gl_ObjectToWorldEXT * vec4(attribs.pos + attribs.normal * shape.marchingMinDist * 1.5, 1.0));
+  const vec3 worldPos = vec3(gl_ObjectToWorldEXT * vec4(attribs.pos + attribs.normal * shape.marchingMinDist * 2.5, 1.0));
 
   prd.asHit = true;
   prd.matId = shape.materialId;
   prd.normal = worldNrm;
   prd.hitPos = worldPos;
-  prd.color = vec3(1.0f);
+  prd.color = attribs.color;
 }

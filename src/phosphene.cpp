@@ -145,6 +145,8 @@ void  Phosphene::renderLoop() {
     }
     draw();
     m_pcRay.nbConsecutiveRay += 1;
+    if (m_pcRay.nbConsecutiveRay % 100 == 0)
+      std::cout << "ray launch count = " << m_pcRay.nbConsecutiveRay << std::endl;
     m_update = false;
     //m_quit = true;
     m_globalUniform.time += io.DeltaTime;

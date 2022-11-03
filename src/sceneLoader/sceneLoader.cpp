@@ -214,7 +214,7 @@ bool  SceneLoader::parseMaterial(json& materialData, PhosMaterial& material) {
 
   material.diffuse = glm::vec3(1.0);
   material.specular = glm::vec3(0.0);
-  material.transmittance = glm::vec3(1.0);
+  material.transmittance = glm::vec3(0.5);
   material.emission = glm::vec3(0.0);
   material.refractionIndex = 0.0;
   material.shininess = 0.0;

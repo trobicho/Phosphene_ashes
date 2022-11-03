@@ -57,22 +57,26 @@ void  rayLaunch(const Ray ray)
 bool  brdfSample(inout Ray ray)
 {
   if (prd.asHit == false)
-    return false;
+    return (false);
   ray.color *= prd.color;
   if (length(ray.color) < 0.001)
-    return false;
+    return (false);
 
   float dist = length(ray.origin - prd.hitPos);
   ray.travelDist += dist;
 
   Material  mat = materials.i[prd.matId];
+  ray.color *= mat.transmittance;
+  ray.intensity += mat.intensity;
 
   ray.origin = prd.hitPos;
-  ray.direction = rand_dir(prd.normal);
+  ray.direction = normalize(rand_dir(prd.normal));
+  return (true);
 }
 
 void  main() 
 {
+  randN += pcRay.nbConsecutiveRay * 0.586;
   const vec2 pixelCenter = vec2(gl_LaunchIDEXT.xy) + vec2(0.5) + box_muller() / 2.5;
   const vec2 inUV = pixelCenter/vec2(gl_LaunchSizeEXT.xy);
   vec2 d = inUV * 2.0 - 1.0;
@@ -86,7 +90,7 @@ void  main()
   vec4 direction = uni.viewInverse * vec4(normalize(target.xyz), 0);
 
   Ray ray;
-  ray.color = vec3(1);
+  ray.color = vec3(1.0);
   ray.intensity = 0.0;
   ray.origin = origin.xyz;
   ray.direction = direction.xyz;
@@ -97,10 +101,9 @@ void  main()
 
   if (prd.asHit) 
   {
-    for (int i = 0; i < pcRay.pathMaxRecursion; i++)
+    for (int i = 1; brdfSample(ray) && i < pcRay.pathMaxRecursion; i++)
     {
-      if (brdfSample(ray) != true)
-        break;
+      rayLaunch(ray);
     }
     endColor = ray.color * ray.intensity;
   }

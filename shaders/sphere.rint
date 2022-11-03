@@ -52,7 +52,7 @@ void  main()
   {
     attribs.pos = ray.origin + ray.direction * hit;
     attribs.normal = normalize(attribs.pos);
-    attribs.color = attribs.normal;
+    attribs.color = vec3(1.0);
     reportIntersectionEXT(hit, 1);
   }
   

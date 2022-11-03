@@ -52,6 +52,5 @@ void main()
   prd.matId = objResource.materialId;
   prd.normal = worldNrm;
   prd.hitPos = worldPos + worldNrm * 0.0001;
-  prd.color = vec3(0.4f, 0.8f, 1.0f);
-  prd.color = vec3(1.0f);
+  prd.color = vec3(0.7f, 0.4f, 1.0f);
 }
