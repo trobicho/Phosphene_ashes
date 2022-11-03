@@ -14,7 +14,7 @@ Phosphene::Phosphene(GLFWwindow *window): m_window(window) {
     .clearColor = glm::vec4(0.1, 0.1, 0.6, 1.0),
     .nbLights = 0,
     .nbConsecutiveRay = 0,
-    .pathMaxRecursion = 5,
+    .pathMaxRecursion = 4,
   };
 
   int width = 0;
@@ -130,13 +130,18 @@ bool  Phosphene::loadScene(const std::string &filename) {
 
 void  Phosphene::renderLoop() {
   uint32_t  frame_n = 1;
+  float     camDeltaTime = 0.0;
 
   m_globalUniform.time = 0.0f;
   while(!glfwWindowShouldClose(m_window) && !m_quit) {
     ImGuiIO& io = ImGui::GetIO();
     glfwPollEvents();
     m_mutexEvent.lock();
-    m_camera.step(io.DeltaTime);
+    camDeltaTime += io.DeltaTime;
+    if (camDeltaTime >= BASE_DELTA_TIME) {
+      m_camera.step(camDeltaTime);
+      camDeltaTime = 0.0f;
+    }
     if (m_camera.buildGlobalUniform(m_globalUniform)) {
       m_pcRay.nbConsecutiveRay = 0;
       //std::cout << std::endl << "VIEW INVERSE:" << std::endl;

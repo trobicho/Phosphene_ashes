@@ -12,7 +12,7 @@
 #include "marchingBasicSD.glsl"
 
 
-#define ITER    30
+#define ITER    10
 vec4    orbitTrap = vec4(1.0);
 
 int last = 0;
@@ -31,7 +31,7 @@ float sdf(in vec3 v)
       axis = vec3(0.0, 1.0, 0.0);
     else
       axis = vec3(0.0, 0.0, 1.0);
-    v = (vec4(v, 1.0) * rotation_matrix(axis, radians(20.0))).xyz;
+    //v = (vec4(v, 1.0) * rotation_matrix(axis, radians(20.0))).xyz;
 
     box_fold(v, 1.0);
     sphere_fold(v, dr, 0.3, 1.5);

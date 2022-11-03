@@ -43,7 +43,7 @@ float sdf(in vec3 p)
 vec3  getColor(in Hit hit)
 {
   vec3 color = vec3(1.0 / sqrt(hit.step * 1.0));
-  return (vec3(0.0, 1.0, 0.3));
+  return (color);
 }
 
 #include "marchingDefault.glsl"

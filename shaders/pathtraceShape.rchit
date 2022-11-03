@@ -36,5 +36,5 @@ void main()
   prd.matId = shape.materialId;
   prd.normal = worldNrm;
   prd.hitPos = worldPos;
-  prd.color = attribs.color;
+  prd.color = vec3(1.0);
 }

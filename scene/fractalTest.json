@@ -3,14 +3,26 @@
     {
       "name": "light",
       "diffuse": {"r": 1.0, "g": 1.0, "b": 1.0},
-      "specular": {"r": 1.0, "g": 0.0, "b": 0.0},
-      "transmittance": {"r": 0.0, "g": 0.0, "b": 0.0},
+      "specular": {"r": 1.0, "g": 1.0, "b": 1.0},
+      "transmittance": {"r": 1.0, "g": 1.0, "b": 1.0},
       "emission": {"r": 1.0, "g": 1.0, "b": 1.0},
 
       "refractionIndex": 0.0,
       "shininess": 17.0,
       "dissolve": 0.0,
-      "intensity": 50
+      "intensity": 50.0
+    },
+    {
+      "name": "light2",
+      "diffuse": {"r": 1.0, "g": 1.0, "b": 1.0},
+      "specular": {"r": 1.0, "g": 1.0, "b": 1.0},
+      "transmittance": {"r": 1.0, "g": 1.0, "b": 1.0},
+      "emission": {"r": 1.0, "g": 1.0, "b": 1.0},
+
+      "refractionIndex": 0.0,
+      "shininess": 17.0,
+      "dissolve": 0.0,
+      "intensity": 500.0
     }
   ],
   "shaders" : [
@@ -23,6 +35,11 @@
       "name" : "mandelbulb",
       "type" : "intersection",
       "spv" : "mandelbulb.rint.spv"
+    },
+    {
+      "name" : "sphere",
+      "type" : "intersection",
+      "spv" : "sphere.rint.spv"
     }
   ],
   "meshs": [
@@ -49,6 +66,14 @@
         "max" : [2.5, 2.5, 2.5]
       },
       "intersection" : "mandelbulb"
+    },
+    {
+      "name" : "sphere",
+      "aabb" : {
+        "min" : [-1.0, -1.0, -1.0],
+        "max" : [1.0, 1.0, 1.0]
+      },
+      "intersection" : "sphere"
     }
   ],
   "lights": [
@@ -62,10 +87,10 @@
     {
       "name": "test",
       "shape": "test",
-      "position": [0.0, 0.0, 50.0],
-      "scale": 20.0,
+      "position": [0.0, 0.0, 200.0],
+      "scale": 100.0,
       "marchingMaxStep": 3000,
-      "marchingMinDist": 0.0001,
+      "marchingMinDist": 0.001,
       "transform": [
         [1.0, 0.0, 0.0],
         [0.0, 1.0, 0.0],
@@ -73,18 +98,11 @@
       ]
     },
     {
-      "name": "mandelbulb",
-      "shape": "mandelbulb",
-      "materials": "light",
-      "position": [0.0, 0.0, -120.0],
-      "scale": 20.0,
-      "marchingMaxStep": 3000,
-      "marchingMinDist": 0.0001,
-      "transform": [
-        [1.0, 0.0, 0.0],
-        [0.0, 1.0, 0.0],
-        [0.0, 0.0, -1.0]
-      ]
+      "name": "light",
+      "shape": "sphere",
+      "position": [0.0, 0.0, 30.0],
+      "scale": 6.0,
+      "material": "light2"
     },
     {
       "name": "cow1",
