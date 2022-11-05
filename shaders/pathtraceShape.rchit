@@ -9,11 +9,9 @@
 
 #include "hostDevice.h"
 #include "pathcommon.glsl"
-#include "illumination.glsl"
 
 layout(location = 0) rayPayloadInEXT hitPayload prd;
 
-layout(set = 0, binding = eTlas) uniform accelerationStructureEXT topLevelAS;
 layout(set = 2, binding = eShapeDescs, scalar) buffer ShapeDesc_ { ShapeDesc i[]; } shapeDescs;
 layout(set = 2, binding = eMaterials, scalar) buffer Material_ { Material i[]; } materials;
 

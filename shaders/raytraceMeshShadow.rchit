@@ -9,7 +9,7 @@
 
 #include "hostDevice.h"
 #include "raycommon.glsl"
-#include "illumination.glsl"
+#include "helper/illumination.glsl"
 
 layout(location = 0) rayPayloadInEXT hitPayload prd;
 layout(location = 1) rayPayloadEXT bool isShadowed;

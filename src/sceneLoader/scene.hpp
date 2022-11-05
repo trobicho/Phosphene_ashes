@@ -88,11 +88,11 @@ class   PhosScene {
       default_mat.name = PHOS_DEFAULT_MAT_NAME;
       default_mat.ambient = glm::vec3(0.0);
       default_mat.diffuse = glm::vec3(0.2);
-      default_mat.specular = glm::vec3(0.3);
       default_mat.transmittance = glm::vec3(0.5);
       default_mat.emission = glm::vec3(0.0);
       default_mat.refractionIndex = 0.0;
       default_mat.shininess = 2.0;
+      default_mat.specular = 0.3;
       default_mat.dissolve = 0.0;
       default_mat.intensity = 0.0;
       m_materials.push_back(default_mat);

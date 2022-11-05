@@ -1,3 +1,4 @@
+#extension GL_GOOGLE_include_directive : enable
 #include "hostDevice.h"
 
 vec3 computeDiffuse(const Material mat, const vec3 lightDir, const vec3 normal)
@@ -20,7 +21,7 @@ vec3 computePhong(const Material mat, const vec3 viewDir, const vec3 lightDir, c
   vec3        R                   = reflect(-lightDir, normal);
   float       specular            = kEnergyConservation * pow(max(dot(V, R), 0.0), kShininess);
 
-  return mat.specular * specular;
+  return (mat.specular * specular) * mat.transmittance;
 }
 
 vec3  computeCookTorr(const Material mat, const vec3 viewDir, const vec3 lightDir, const vec3 normal)

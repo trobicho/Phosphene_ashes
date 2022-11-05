@@ -9,14 +9,12 @@
 
 #include "hostDevice.h"
 #include "pathcommon.glsl"
-#include "illumination.glsl"
 
 layout(location = 0) rayPayloadInEXT hitPayload prd;
 
 layout(buffer_reference, scalar) buffer Vertices {Vertex v[]; }; // Positions of an object
 layout(buffer_reference, scalar) buffer Indices {ivec3 i[]; }; // Triangle indices
 
-layout(set = 0, binding = eTlas) uniform accelerationStructureEXT topLevelAS;
 layout(set = 2, binding = eMeshDescs, scalar) buffer MeshDesc_ { MeshDesc i[]; } meshDescs;
 layout(set = 2, binding = eMaterials, scalar) buffer Material_ { Material i[]; } materials;
 hitAttributeEXT vec2 attribs;

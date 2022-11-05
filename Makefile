@@ -76,7 +76,9 @@ SHADER_DEPS_NAME = marching/marching.glsl \
 					marching/marchingBasicShape.glsl \
 					marching/marchingBasicSD.glsl \
 					marching/marchingDefault.glsl \
-					rand.glsl \
+					helper/illumination.glsl \
+					helper/pathIllumination.glsl \
+					helper/rand.glsl \
 
 SHADERS_RESULT_NAME =	$(addsuffix .spv, $(notdir $(SHADERS_NAME)))
 

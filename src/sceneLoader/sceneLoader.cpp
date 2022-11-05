@@ -77,8 +77,8 @@ void  SceneLoader::load(const std::string& filename) {
   for (auto &lightData : data["lights"]) {
     Light light;
     parseVec3(lightData["position"], light.pos);
-    if (lightData["intensity"].is_number_float()) {
-      light.intensity = lightData["intensity"];
+    if (lightData["intensity"].is_number()) {
+      light.intensity = static_cast<float>(lightData["intensity"]);
     }
     m_scene.m_lights.push_back(light);
   }
@@ -112,10 +112,10 @@ bool  SceneLoader::parseInstance(json& instanceData, PhosObjectInstance& instanc
     instance.transform[1][3] = v.y;
     instance.transform[2][3] = v.z;
   }
-  if (instanceData["scale"].is_number_float()) {
-    instance.transform[0][0] = instanceData["scale"];
-    instance.transform[1][1] = instanceData["scale"];
-    instance.transform[2][2] = instanceData["scale"];
+  if (instanceData["scale"].is_number()) {
+    instance.transform[0][0] = static_cast<float>(instanceData["scale"]);
+    instance.transform[1][1] = static_cast<float>(instanceData["scale"]);
+    instance.transform[2][2] = static_cast<float>(instanceData["scale"]);
   }
   if (instanceData["marchingMaxStep"].is_number_integer())
     instance.marchingMaxStep = instanceData["marchingMaxStep"];
@@ -140,8 +140,8 @@ bool  SceneLoader::parseMesh(json& meshData, PhosObjectMesh& mesh) {
       .scenePath = m_scenePath,
       .useRelativePath = true,
     };
-    if (meshData["scale"].is_number_float())
-      config.scale = meshData["scale"];
+    if (meshData["scale"].is_number())
+      config.scale = static_cast<float>(meshData["scale"]);
     if (meshData["name"].is_string())
       mesh.name = meshData["name"];
     if (meshData["filepath"].is_string()) {
@@ -213,7 +213,7 @@ bool  SceneLoader::parseMaterial(json& materialData, PhosMaterial& material) {
   glm::vec3 v;
 
   material.diffuse = glm::vec3(1.0);
-  material.specular = glm::vec3(0.0);
+  material.specular = 0.0;
   material.transmittance = glm::vec3(0.5);
   material.emission = glm::vec3(0.0);
   material.refractionIndex = 0.0;
@@ -227,8 +227,6 @@ bool  SceneLoader::parseMaterial(json& materialData, PhosMaterial& material) {
     return (false);
   if (parseVec3(materialData["diffuse"], v))
     material.diffuse = v;
-  if (parseVec3(materialData["specular"], v))
-    material.specular = v;
   if (parseVec3(materialData["transmittance"], v))
     material.transmittance = v;
   if (parseVec3(materialData["emission"], v))
@@ -242,6 +240,8 @@ bool  SceneLoader::parseMaterial(json& materialData, PhosMaterial& material) {
     material.dissolve = static_cast<float>(materialData["dissolve"]);
   if (materialData["intensity"].is_number())
     material.intensity = static_cast<float>(materialData["intensity"]);
+  if (materialData["specular"].is_number())
+    material.specular = static_cast<float>(materialData["specular"]);
 
   return (true);
 }

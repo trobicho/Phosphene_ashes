@@ -23,7 +23,8 @@ layout(push_constant) uniform _PushConstantRay
 };
 
 float seed = uni.time;
-#include "rand.glsl"
+#include "./helper/rand.glsl"
+#include "./helper/pathIllumination.glsl"
 
 struct  Ray
 {
@@ -54,6 +55,23 @@ void  rayLaunch(const Ray ray)
   );
 }
 
+vec3  brdfDir(const Ray ray, const Material mat)
+{
+  float dice = rand();
+  float diff = 1. - mat.specular;
+  vec3  r = reflect(ray.direction, prd.normal);
+
+  if (dice < diff)
+  {
+    return (normalize(rand_dir(prd.normal)));
+  }
+  else
+  {
+    vec3 dir = randPhong(r, mat.shininess);
+    return (dir);
+  }
+}
+
 bool  brdfSample(inout Ray ray)
 {
   if (prd.asHit == false)
@@ -70,7 +88,7 @@ bool  brdfSample(inout Ray ray)
   ray.intensity += mat.intensity;
 
   ray.origin = prd.hitPos;
-  ray.direction = normalize(rand_dir(prd.normal));
+  ray.direction = brdfDir(ray, mat);
   return (true);
 }
 
