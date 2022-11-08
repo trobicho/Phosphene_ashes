@@ -13,6 +13,13 @@
 #include <mutex>
 #include <string>
 
+struct  GBuffer {
+  ImageWrapper  color = ImageWrapper(VK_FORMAT_R32G32B32_SFLOAT);
+  ImageWrapper  normal = ImageWrapper(VK_FORMAT_R32G32B32_SFLOAT);
+  ImageWrapper  depth = ImageWrapper(VK_FORMAT_R32_SFLOAT);
+  ImageWrapper  material = ImageWrapper(VK_FORMAT_R32_SINT);
+};
+
 class Phosphene {
   public:
     Phosphene(GLFWwindow *window);
@@ -75,13 +82,13 @@ class Phosphene {
 
     PhosScene       m_scene;
 
+    void  createGBuffer();
     void  createOffscreenRender();
-    VkImage           m_offscreenColor{VK_NULL_HANDLE};
-    VkFormat          m_offscreenColorFormat{VK_FORMAT_R32G32B32A32_SFLOAT};
-    VkImageView       m_offscreenImageView{VK_NULL_HANDLE};
-    VkDeviceMemory    m_offscreenImageMemory{VK_NULL_HANDLE};
 
-    MemoryAllocator   m_alloc;
+    ImageWrapper    m_offscreenImage;
+    GBuffer         m_gbuffer;
+
+    MemoryAllocator m_alloc;
 
     RtBuilder::SceneBuilder m_sceneBuilder;
     RtBuilder::Pipeline     m_rtPipeline;

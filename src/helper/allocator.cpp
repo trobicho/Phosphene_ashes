@@ -54,6 +54,95 @@ void  MemoryAllocator::createBuffer(size_t size, VkBufferUsageFlagBits usage
   vkBindBufferMemory(m_device, buffer, bufferMemory, 0);
 }
 
+void  MemoryAllocator::destroyBuffer(BufferWrapper &buffer) {
+  vkDestroyBuffer(m_device, buffer.buffer, nullptr);
+  vkFreeMemory(m_device, buffer.memory, nullptr);
+}
+
+void  MemoryAllocator::createImage(const VkExtent3D& extent
+                                  , VkImageUsageFlagBits usage
+                                  , VkImageLayout layout
+                                  , VkImageAspectFlagBits aspect
+                                  , VkComponentMapping components
+                                  , ImageWrapper &image) {
+  VkImageCreateInfo imageInfo  = {
+    .sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
+    .flags = 0,
+    .imageType = VK_IMAGE_TYPE_2D,
+    .format = image.format,
+    .extent = extent,
+    .mipLevels = 1,
+    .arrayLayers = 1,
+    .samples = VK_SAMPLE_COUNT_1_BIT,
+    .tiling = VK_IMAGE_TILING_OPTIMAL,
+    .usage = usage,
+    .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
+    .queueFamilyIndexCount = 1,
+    .pQueueFamilyIndices = &m_queueFamilyIndex,
+    .initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+  };
+  if (vkCreateImage(m_device, &imageInfo, nullptr, &image.image) != VK_SUCCESS)
+    throw PhosHelper::FatalVulkanInitError("Failed to begin Create image !");
+
+  VkMemoryRequirements  memoryReqs;
+  vkGetImageMemoryRequirements(m_device, image.image, &memoryReqs);
+  VkMemoryAllocateInfo  allocImageInfo = {
+    .sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
+    .allocationSize = memoryReqs.size,
+    .memoryTypeIndex = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+  };
+  vkAllocateMemory(m_device, &allocImageInfo, nullptr, &image.memory);
+  vkBindImageMemory(m_device, image.image, image.memory, 0);
+
+  VkImageSubresourceRange subresourceRange = {
+    .aspectMask = aspect,
+    .baseMipLevel = 0,
+    .levelCount = 1,
+    .baseArrayLayer = 0,
+    .layerCount = 1,
+  };
+  {
+    VkImageMemoryBarrier imageMemoryBarrier = {
+      .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+      .srcAccessMask = VkAccessFlagBits(),
+      .dstAccessMask = VK_ACCESS_MEMORY_WRITE_BIT,
+      .oldLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+      .newLayout = layout,
+      .image = image.image,
+      .subresourceRange = subresourceRange,
+    };
+
+    const VkPipelineStageFlags srcStageMask = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+    const VkPipelineStageFlags dstStageMask = VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT;
+
+    CommandPool cmdPool;
+    cmdPool.init(m_device, m_queueFamilyIndex);
+    auto cmdBuffer = cmdPool.createCommandBuffer();
+    cmdPool.beginRecord(cmdBuffer);
+    vkCmdPipelineBarrier(cmdBuffer, srcStageMask, dstStageMask, VK_FALSE, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
+    vkEndCommandBuffer(cmdBuffer);
+    cmdPool.submitAndWait(cmdBuffer);
+    cmdPool.destroy();
+  }
+
+  VkImageViewCreateInfo viewInfo = {
+    .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
+    .image = image.image,
+    .viewType = VK_IMAGE_VIEW_TYPE_2D,
+    .format = image.format,
+    .components = components,
+    .subresourceRange = subresourceRange,
+  };
+  if (vkCreateImageView(m_device, &viewInfo, nullptr, &image.imageView) != VK_SUCCESS)
+    throw PhosHelper::FatalVulkanInitError("Failed to create Offscreen ImageView !");
+}
+
+void  MemoryAllocator::destroyImage(ImageWrapper &image) {
+  vkDestroyImage(m_device, image.image, nullptr);
+  vkFreeMemory(m_device, image.memory, nullptr);
+  vkDestroyImageView(m_device, image.imageView, nullptr);
+}
+
 uint32_t  MemoryAllocator::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags propertyFlags) {
 
   VkPhysicalDeviceMemoryProperties  memProps;
@@ -65,11 +154,6 @@ uint32_t  MemoryAllocator::findMemoryType(uint32_t typeFilter, VkMemoryPropertyF
       return (i);
   }
   throw PhosHelper::FatalVulkanInitError("Unable to find memory type !");
-}
-
-void  MemoryAllocator::destroyBuffer(BufferWrapper &buffer) {
-  vkDestroyBuffer(m_device, buffer.buffer, nullptr);
-  vkFreeMemory(m_device, buffer.memory, nullptr);
 }
 
 VkDeviceAddress MemoryAllocator::getBufferDeviceAddress(BufferWrapper &buffer) {

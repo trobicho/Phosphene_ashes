@@ -18,7 +18,7 @@ bool  Phosphene::buildPipeline(std::string name) {
 }
 
 void  Phosphene::updateRtImage() {
-  VkDescriptorImageInfo imageInfo{{}, m_offscreenImageView, VK_IMAGE_LAYOUT_GENERAL};
+  VkDescriptorImageInfo imageInfo{{}, m_offscreenImage.imageView, VK_IMAGE_LAYOUT_GENERAL};
   RtBuilder::DescriptorSetUpdateInfo  updateInfo = {
     .type = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,
     .binding = BindingsRtx::eImageOut,

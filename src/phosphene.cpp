@@ -14,7 +14,7 @@ Phosphene::Phosphene(GLFWwindow *window): m_window(window) {
     .clearColor = glm::vec4(0.1, 0.1, 0.6, 1.0),
     .nbLights = 0,
     .nbConsecutiveRay = 0,
-    .pathMaxRecursion = 7,
+    .pathMaxRecursion = 6,
   };
 
   int width = 0;
@@ -47,7 +47,7 @@ Phosphene::Phosphene(GLFWwindow *window): m_window(window) {
 
   {
     createOffscreenRender();
-    m_vkImpl.updatePostDescSet(m_offscreenImageView);
+    m_vkImpl.updatePostDescSet(m_offscreenImage.imageView);
   }
 
   {
@@ -241,11 +241,11 @@ void  Phosphene::destroy() {
     m_globalUBO.destroy(m_device);
     m_rayPicker.destroy();
 
-    {
-      vkDestroyImage(m_device, m_offscreenColor, nullptr);
-      vkFreeMemory(m_device, m_offscreenImageMemory, nullptr);
-      vkDestroyImageView(m_device, m_offscreenImageView, nullptr);
-    }
+    m_alloc.destroyImage(m_offscreenImage);
+    m_alloc.destroyImage(m_gbuffer.color);
+    m_alloc.destroyImage(m_gbuffer.normal);
+    m_alloc.destroyImage(m_gbuffer.depth);
+    m_alloc.destroyImage(m_gbuffer.material);
     
     m_alloc.destroy();
 
@@ -257,91 +257,56 @@ void  Phosphene::destroy() {
 }
 
 void  Phosphene::createOffscreenRender() {
-  m_offscreenColorFormat = m_vkImpl.m_swapchainWrap.imageFormat;
-  VkImageCreateInfo colorInfo  = {
-    .sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
-    .flags = 0,
-    .imageType = VK_IMAGE_TYPE_2D,
-    .format = m_offscreenColorFormat,
-    .extent = VkExtent3D{
-      .width = m_width,
-      .height = m_height, 
-      .depth = 1,
-    },
-    .mipLevels = 1,
-    .arrayLayers = 1,
-    .samples = VK_SAMPLE_COUNT_1_BIT,
-    .tiling = VK_IMAGE_TILING_OPTIMAL,
-    .usage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT
+  m_alloc.destroyImage(m_offscreenImage);
+
+  m_offscreenImage.format = m_vkImpl.m_swapchainWrap.imageFormat;
+  VkExtent3D extent = {
+    .width = m_width,
+    .height = m_height, 
+    .depth = 1,
+  };
+  VkImageUsageFlagBits  usage = static_cast<VkImageUsageFlagBits>(VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT
       | VK_IMAGE_USAGE_SAMPLED_BIT
-      | VK_IMAGE_USAGE_STORAGE_BIT,
-    .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
-    .queueFamilyIndexCount = 1,
-    .pQueueFamilyIndices = &m_graphicsQueueFamilyIndex,
-    .initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+      | VK_IMAGE_USAGE_STORAGE_BIT);
+
+  VkComponentMapping  components = {
+    .r = VK_COMPONENT_SWIZZLE_IDENTITY,
+    .g = VK_COMPONENT_SWIZZLE_IDENTITY,
+    .b = VK_COMPONENT_SWIZZLE_IDENTITY,
+    .a = VK_COMPONENT_SWIZZLE_IDENTITY,
   };
-  if (vkCreateImage(m_device, &colorInfo, nullptr, &m_offscreenColor) != VK_SUCCESS)
-    throw PhosHelper::FatalVulkanInitError("Failed to begin Create offscreen Color Image !");
-  VkMemoryRequirements  memoryReqs;
-  vkGetImageMemoryRequirements(m_device, m_offscreenColor, &memoryReqs);
-  VkMemoryAllocateInfo  allocImageInfo = {
-    .sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
-    .allocationSize = memoryReqs.size,
-    .memoryTypeIndex = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+
+  m_alloc.createImage(extent, usage, VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_ASPECT_COLOR_BIT, components, m_offscreenImage);
+}
+
+void  Phosphene::createGBuffer() {
+  m_alloc.destroyImage(m_gbuffer.color);
+  m_alloc.destroyImage(m_gbuffer.normal);
+  m_alloc.destroyImage(m_gbuffer.depth);
+  m_alloc.destroyImage(m_gbuffer.material);
+
+  VkExtent3D extent = {
+    .width = m_width,
+    .height = m_height, 
+    .depth = 1,
   };
-  vkAllocateMemory(m_device, &allocImageInfo, nullptr, &m_offscreenImageMemory);
-  vkBindImageMemory(m_device, m_offscreenColor, m_offscreenImageMemory, 0);
-
-  {
-    VkImageSubresourceRange subresourceRange = {
-      .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
-      .baseMipLevel = 0,
-      .levelCount = 1,
-      .baseArrayLayer = 0,
-      .layerCount = 1,
-    };
-    VkImageMemoryBarrier imageMemoryBarrier = {
-      .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
-      .srcAccessMask = VkAccessFlagBits(),
-      .dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
-      .oldLayout = VK_IMAGE_LAYOUT_UNDEFINED,
-      .newLayout = VK_IMAGE_LAYOUT_GENERAL,
-      .image = m_offscreenColor,
-      .subresourceRange = subresourceRange,
-    };
-
-    const VkPipelineStageFlags srcStageMask = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
-    const VkPipelineStageFlags dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-
-    CommandPool cmdPool;
-    cmdPool.init(m_device, m_graphicsQueueFamilyIndex);
-    auto cmdBuffer = cmdPool.createCommandBuffer();
-    cmdPool.beginRecord(cmdBuffer);
-    vkCmdPipelineBarrier(cmdBuffer, srcStageMask, dstStageMask, VK_FALSE, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
-    vkEndCommandBuffer(cmdBuffer);
-    cmdPool.submitAndWait(cmdBuffer);
-    cmdPool.destroy();
-  }
-
-  VkImageViewCreateInfo viewInfo = {
-    .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
-    .image = m_offscreenColor,
-    .viewType = VK_IMAGE_VIEW_TYPE_2D,
-    .format = m_offscreenColorFormat,
-    .components = VkComponentMapping {
-      .r = VK_COMPONENT_SWIZZLE_IDENTITY,
-      .g = VK_COMPONENT_SWIZZLE_IDENTITY,
-      .b = VK_COMPONENT_SWIZZLE_IDENTITY,
-      .a = VK_COMPONENT_SWIZZLE_IDENTITY,
-    },
-    .subresourceRange = VkImageSubresourceRange {
-      .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
-      .baseMipLevel = 0,
-      .levelCount = 1,
-      .baseArrayLayer = 0,
-      .layerCount = 1,
-    },
+  VkImageUsageFlagBits  usage = static_cast<VkImageUsageFlagBits>(VK_IMAGE_USAGE_SAMPLED_BIT
+      | VK_IMAGE_USAGE_STORAGE_BIT);
+  VkComponentMapping  components = {
+    .r = VK_COMPONENT_SWIZZLE_IDENTITY,
+    .g = VK_COMPONENT_SWIZZLE_IDENTITY,
+    .b = VK_COMPONENT_SWIZZLE_IDENTITY,
+    .a = VK_COMPONENT_SWIZZLE_IDENTITY,
   };
-  if (vkCreateImageView(m_device, &viewInfo, nullptr, &m_offscreenImageView) != VK_SUCCESS)
-    throw PhosHelper::FatalVulkanInitError("Failed to create Offscreen ImageView !");
+
+  m_alloc.createImage(extent, usage, VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_ASPECT_COLOR_BIT, components, m_gbuffer.color);
+  m_alloc.createImage(extent, usage, VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_ASPECT_COLOR_BIT, components, m_gbuffer.normal);
+  components = {
+    .r = VK_COMPONENT_SWIZZLE_IDENTITY,
+    .g = VK_COMPONENT_SWIZZLE_ZERO,
+    .b = VK_COMPONENT_SWIZZLE_ZERO,
+    .a = VK_COMPONENT_SWIZZLE_ZERO,
+  };
+  m_alloc.createImage(extent, usage, VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_ASPECT_COLOR_BIT, components, m_gbuffer.depth);
+  m_alloc.createImage(extent, usage, VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_ASPECT_COLOR_BIT, components, m_gbuffer.depth);
 }

@@ -119,7 +119,7 @@ void  main()
 
   if (prd.asHit) 
   {
-    for (int i = 1; brdfSample(ray) && i < pcRay.pathMaxRecursion; i++)
+    for (int i = 0; brdfSample(ray) && i < pcRay.pathMaxRecursion; i++)
     {
       rayLaunch(ray);
     }

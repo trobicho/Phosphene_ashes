@@ -28,14 +28,21 @@ START_BINDING(BindingsCommon) //Binding set 1
   eGlobals = 0
 END_BINDING();
 
-START_BINDING(BindingsScene) //Binding set 2
+START_BINDING(BindingsGBuffer) //Binding set 2
+  eGBufferColor = 0,
+  eGBufferNormal = 1,
+  eGBufferDepth = 2,
+  eGBufferMaterial = 3
+END_BINDING();
+
+START_BINDING(BindingsScene) //Binding set 3
   eMeshDescs = 0,
   eShapeDescs = 1,
   eTextures = 2,
   eMaterials = 3
 END_BINDING();
 
-START_BINDING(BindingsSceneOther) //Binding set 3
+START_BINDING(BindingsSceneOther) //Binding set 4
   eLights = 0
 END_BINDING();
 
