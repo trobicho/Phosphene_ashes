@@ -33,6 +33,6 @@ void main()
   prd.color = material.transmittance;
   prd.normal = worldNrm;
   prd.depth = length(worldPos - gl_WorldRayOriginEXT);
-  prd.matId = shape.materialId;
+  prd.matId = int(shape.materialId);
   prd.asHit = true;
 }

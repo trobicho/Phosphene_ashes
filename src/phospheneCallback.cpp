@@ -15,6 +15,7 @@ void  Phosphene::callbackWindowResize(int width, int height) {
   m_vkImpl.recreateSwapchain(m_surface, width, height);
 
   createOffscreenRender();
+  createGBuffer();
 
   m_camera.eventChangeAspectRatio(m_width, m_height);
   m_vkImpl.updatePostDescSet(m_offscreenImage.imageView);

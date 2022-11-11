@@ -47,13 +47,15 @@ Phosphene::Phosphene(GLFWwindow *window): m_window(window) {
 
   {
     createOffscreenRender();
+    createGBuffer();
     m_vkImpl.updatePostDescSet(m_offscreenImage.imageView);
   }
 
   {
     m_sceneBuilder.init(m_device, &m_alloc, m_graphicsQueueFamilyIndex);
     m_scene.init(&m_alloc);
-    buildPipeline("basic");
+    buildGBufferPipeline();
+    buildPipeline("basicLights");
   }
 
   {
@@ -116,12 +118,14 @@ bool  Phosphene::loadScene(const std::string &filename) {
   catch (const char* e) {
     return (false);
   }
-  buildPipeline("basic");
+  buildPipeline("basicLights");
+  buildGBufferPipeline();
   m_scene.setShapesHitBindingIndex(1);
   m_scene.allocateResources();
   m_sceneBuilder.buildBlas(m_scene, 0);
   m_sceneBuilder.buildTlas(m_scene, 0); 
   m_scene.update(m_rtPipeline, true);
+  m_scene.update(m_gbufferPipeline, true);
   m_pcRay.nbConsecutiveRay = 0;
   m_pcRay.nbLights = m_scene.getLightCount();
   updateRtTlas();
@@ -180,6 +184,12 @@ void  Phosphene::draw() {
   };
   vkBeginCommandBuffer(commandBuffer, &beginInfo);
 
+  if (m_update) {
+    m_gbufferPipeline.updateUBO(commandBuffer, sizeof(m_globalUniform), m_globalUBO, &m_globalUniform);
+    m_scene.update(m_gbufferPipeline, commandBuffer, false);
+    //m_gbufferPipeline.raytrace(commandBuffer, m_width, m_height);
+  }
+
   {
     m_rtPipeline.updateUBO(commandBuffer, sizeof(m_globalUniform), m_globalUBO, &m_globalUniform);
     m_scene.update(m_rtPipeline, commandBuffer, false);
@@ -234,18 +244,21 @@ void  Phosphene::destroy() {
       ImGui::DestroyContext();
       vkDestroyDescriptorPool(m_device, m_gui.imguiDescPool, nullptr);
     }
+    {
+      m_alloc.destroyImage(m_gbuffer.color);
+      m_alloc.destroyImage(m_gbuffer.normal);
+      m_alloc.destroyImage(m_gbuffer.depth);
+      m_alloc.destroyImage(m_gbuffer.material);
+    }
     m_vkImpl.destroy();
     m_rtPipeline.destroy();
+    m_gbufferPipeline.destroy();
     m_sceneBuilder.destroy();
     m_scene.destroy();
     m_globalUBO.destroy(m_device);
     m_rayPicker.destroy();
 
     m_alloc.destroyImage(m_offscreenImage);
-    m_alloc.destroyImage(m_gbuffer.color);
-    m_alloc.destroyImage(m_gbuffer.normal);
-    m_alloc.destroyImage(m_gbuffer.depth);
-    m_alloc.destroyImage(m_gbuffer.material);
     
     m_alloc.destroy();
 
@@ -308,5 +321,5 @@ void  Phosphene::createGBuffer() {
     .a = VK_COMPONENT_SWIZZLE_ZERO,
   };
   m_alloc.createImage(extent, usage, VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_ASPECT_COLOR_BIT, components, m_gbuffer.depth);
-  m_alloc.createImage(extent, usage, VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_ASPECT_COLOR_BIT, components, m_gbuffer.depth);
+  m_alloc.createImage(extent, usage, VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_ASPECT_COLOR_BIT, components, m_gbuffer.material);
 }

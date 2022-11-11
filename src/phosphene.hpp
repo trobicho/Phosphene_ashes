@@ -13,9 +13,14 @@
 #include <mutex>
 #include <string>
 
+#define VIEW_RT_PIPELINE
+#define VIEW_GBUFFER_COLOR
+#define VIEW_GBUFFER_NORMAL
+#define VIEW_GBUFFER_DEPTH
+
 struct  GBuffer {
-  ImageWrapper  color = ImageWrapper(VK_FORMAT_R32G32B32_SFLOAT);
-  ImageWrapper  normal = ImageWrapper(VK_FORMAT_R32G32B32_SFLOAT);
+  ImageWrapper  color = ImageWrapper(VK_FORMAT_R32G32B32A32_SFLOAT);
+  ImageWrapper  normal = ImageWrapper(VK_FORMAT_R32G32B32A32_SFLOAT);
   ImageWrapper  depth = ImageWrapper(VK_FORMAT_R32_SFLOAT);
   ImageWrapper  material = ImageWrapper(VK_FORMAT_R32_SINT);
 };
@@ -44,8 +49,8 @@ class Phosphene {
     void  draw();
 
     //Raytracing pipeline building
+    void  buildGBufferPipeline();
     bool  buildPipeline(std::string name);
-    void  buildRtPipelineBasic();
     void  buildRtPipelineBasicLights();
     void  buildRtPipelinePathTracing();
     void  updateRtImage();
@@ -92,6 +97,7 @@ class Phosphene {
 
     RtBuilder::SceneBuilder m_sceneBuilder;
     RtBuilder::Pipeline     m_rtPipeline;
+    RtBuilder::Pipeline     m_gbufferPipeline;
 
     //GUI Definition
 

@@ -52,13 +52,14 @@ HDRS_NAME = phosphene.hpp \
 
 SHADERS_NAME =	post.vert \
                 post.frag \
+				gBuffer.rgen \
+				gBuffer.rmiss \
+				gBufferMesh.rchit \
+				gBufferShape.rchit \
 				raytrace.rgen \
 				raytrace.rmiss \
 				raytraceShadow.rmiss \
-				raytraceMesh.rchit \
 				raytraceMeshShadow.rchit \
-				raytraceShapeNormal.rchit \
-				raytraceShapeColor.rchit \
 				raytraceShapeShadow.rchit \
 				pathtrace.rgen \
 				pathtrace.rmiss \

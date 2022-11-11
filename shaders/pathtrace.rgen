@@ -119,9 +119,14 @@ void  main()
 
   if (prd.asHit) 
   {
-    for (int i = 0; brdfSample(ray) && i < pcRay.pathMaxRecursion; i++)
+    bool hitSky = false;
+    for (int i = 0; i < pcRay.pathMaxRecursion; i++)
     {
-      rayLaunch(ray);
+      hitSky = !brdfSample(ray);
+      if (!hitSky)
+        rayLaunch(ray);
+      else
+        break;
     }
     endColor = ray.color * ray.intensity;
   }

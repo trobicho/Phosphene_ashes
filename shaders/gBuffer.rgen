@@ -4,15 +4,15 @@
 #extension GL_EXT_shader_explicit_arithmetic_types_int64 : require
 
 #include "hostDevice.h"
-#include "raycommon.glsl"
+#include "gBufferCommon.glsl"
 
 layout(set = 0, binding = eTlas) uniform accelerationStructureEXT topLevelAS;
 layout(set = 1, binding = eGlobals) uniform _GlobalUniforms { GlobalUniforms uni; };
 
-layout(set = 2, binding = eGBufferColor, rgb32f) uniform image2D gBufferColor;
-layout(set = 2, binding = eGBufferNormal, rgb32f) uniform image2D gBufferNormal;
+layout(set = 2, binding = eGBufferColor, rgba32f) uniform image2D gBufferColor;
+layout(set = 2, binding = eGBufferNormal, rgba32f) uniform image2D gBufferNormal;
 layout(set = 2, binding = eGBufferDepth, r32f) uniform image2D gBufferDepth;
-layout(set = 2, binding = eGBufferMaterial, r32i) uniform image2D gBufferMaterial;
+layout(set = 2, binding = eGBufferMaterial, r32i) uniform iimage2D gBufferMaterial;
 
 layout(location = 0) rayPayloadEXT hitPayload hit;
 
@@ -45,8 +45,8 @@ void main()
 
   ivec2 pixel = ivec2(gl_LaunchIDEXT.xy);
 
-  imageStore(gBufferColor, pixel, hit.color);
-  imageStore(gBufferNormal, pixel, hit.normal);
-  imageStore(gBufferDepth, pixel, hit.depth);
-  imageStore(gBufferMaterial, pixel, hit.matId);
+  imageStore(gBufferColor, pixel, vec4(hit.color, 1.0));
+  imageStore(gBufferNormal, pixel, vec4(hit.normal, 1.0));
+  imageStore(gBufferDepth, pixel, vec4(hit.depth));
+  imageStore(gBufferMaterial, pixel, ivec4(hit.matId));
 }
