@@ -88,13 +88,15 @@ void main()
   vec3  normal = imageLoad(gBufferNormal, pixel).xyz;
   float depth = imageLoad(gBufferDepth, pixel).x;
   int   matId = imageLoad(gBufferMaterial, pixel).x;
+  vec4 finalColor = vec4(color, 1.0);
 
-  Material  material = materials.i[matId];
-
-  Ray ray = Ray(origin.xyz, direction.xyz, (origin + direction * depth).xyz);
-
-  vec3 lightColor = lightCalcul(ray, normal, material);
+  if (matId >= 0 )
+  {
+    Ray ray = Ray(origin.xyz, direction.xyz, (origin + direction * depth).xyz);
+    Material  material = materials.i[matId];
+    vec3 lightColor = lightCalcul(ray, normal, material);
+    finalColor = vec4(color * lightColor, 1.0);
+  }
  
-  vec4 finalColor = vec4(color * lightColor, 1.0);
   imageStore(imageOut, pixel, finalColor);
 }
