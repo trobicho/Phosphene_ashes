@@ -1,6 +1,16 @@
 #pragma once
 #include "command.hpp"
 
+struct  ImageWrapper {
+  ImageWrapper(){};
+  ImageWrapper(VkFormat argFormat): format(argFormat){};
+
+  VkImage           image{VK_NULL_HANDLE};
+  VkFormat          format;
+  VkImageView       imageView{VK_NULL_HANDLE};
+  VkDeviceMemory    memory{VK_NULL_HANDLE};
+};
+
 struct  BufferWrapper {
   VkBuffer        buffer = VK_NULL_HANDLE;
   VkDeviceMemory  memory = VK_NULL_HANDLE;
@@ -37,6 +47,14 @@ class MemoryAllocator { //TODO: Real allocator
       createBuffer(size, usage, propertyFlags, buffer.buffer, buffer.memory);
     };
     void  destroyBuffer(BufferWrapper &buffer);
+
+    void  createImage(const VkExtent3D& extent
+                      , VkImageUsageFlagBits usage
+                      , VkImageLayout layout
+                      , VkImageAspectFlagBits aspect
+                      , VkComponentMapping components
+                      , ImageWrapper &image);
+    void  destroyImage(ImageWrapper &image);
     
     VkDeviceAddress getBufferDeviceAddress(BufferWrapper &buffer);
     VkDeviceAddress getAccelerationStructureDeviceAddress(AccelKHR &accel);

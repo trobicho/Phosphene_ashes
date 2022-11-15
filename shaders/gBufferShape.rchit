@@ -8,7 +8,7 @@
 #extension GL_EXT_buffer_reference2 : require
 
 #include "hostDevice.h"
-#include "pathcommon.glsl"
+#include "gBufferCommon.glsl"
 
 layout(location = 0) rayPayloadInEXT hitPayload prd;
 
@@ -30,9 +30,9 @@ void main()
   const vec3 worldNrm = normalize(vec3(attribs.normal * gl_ObjectToWorldEXT));  // Transforming the normal to world space
   const vec3 worldPos = vec3(gl_ObjectToWorldEXT * vec4(attribs.pos + attribs.normal * shape.marchingMinDist * 2.5, 1.0));
 
-  prd.asHit = true;
-  prd.matId = shape.materialId;
+  prd.color = material.transmittance;
   prd.normal = worldNrm;
-  prd.hitPos = worldPos;
-  prd.color = vec3(1.0);
+  prd.depth = length(worldPos - gl_WorldRayOriginEXT);
+  prd.matId = int(shape.materialId);
+  prd.asHit = true;
 }

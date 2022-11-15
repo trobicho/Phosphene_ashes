@@ -8,7 +8,7 @@
 #extension GL_EXT_buffer_reference2 : require
 
 #include "hostDevice.h"
-#include "pathcommon.glsl"
+#include "gBufferCommon.glsl"
 
 layout(location = 0) rayPayloadInEXT hitPayload prd;
 
@@ -21,11 +21,10 @@ hitAttributeEXT vec2 attribs;
 
 void main()
 {
-  // Object data                                                                    
-  MeshDesc  objResource = meshDescs.i[gl_InstanceCustomIndexEXT];
-  Indices   indices     = Indices(objResource.indexAddress);
-  Vertices  vertices    = Vertices(objResource.vertexAddress);
-  Material  material    = materials.i[objResource.materialId];
+  MeshDesc  mesh = meshDescs.i[gl_InstanceCustomIndexEXT];
+  Indices   indices = Indices(mesh.indexAddress);
+  Vertices  vertices = Vertices(mesh.vertexAddress);
+  Material  material = materials.i[mesh.materialId];
 
   // Indices of the triangle                                                        
   ivec3 ind = indices.i[gl_PrimitiveID];
@@ -34,7 +33,6 @@ void main()
   Vertex v0 = vertices.v[ind.x];
   Vertex v1 = vertices.v[ind.y];
   Vertex v2 = vertices.v[ind.z];
-
   const vec3 barycentrics = vec3(1.0 - attribs.x - attribs.y, attribs.x, attribs.y);
 
   // Computing the coordinates of the hit position
@@ -45,11 +43,9 @@ void main()
   const vec3 normal = v0.normal * barycentrics.x + v1.normal * barycentrics.y + v2.normal * barycentrics.z;
   const vec3 worldNrm = normalize(vec3(normal * gl_WorldToObjectEXT));  // Transforming the normal to world space
 
-
-  prd.asHit = true;
-  prd.matId = objResource.materialId;
+  prd.color = material.transmittance;
   prd.normal = worldNrm;
-  prd.hitPos = worldPos + worldNrm * 0.0001;
-  prd.color = vec3(0.4f, 0.8f, 1.0f);
-  prd.color = vec3(1.0f);
+  prd.depth = length(worldPos - gl_WorldRayOriginEXT);
+  prd.matId = int(mesh.materialId);
+  prd.asHit = true;
 }

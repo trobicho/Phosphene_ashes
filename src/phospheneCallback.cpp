@@ -14,19 +14,18 @@ void  Phosphene::callbackWindowResize(int width, int height) {
     throw PhosHelper::FatalVulkanInitError("Failed to create Surface");
   m_vkImpl.recreateSwapchain(m_surface, width, height);
 
-  vkDestroyImage(m_device, m_offscreenColor, nullptr);
-  vkFreeMemory(m_device, m_offscreenImageMemory, nullptr);
-  vkDestroyImageView(m_device, m_offscreenImageView, nullptr);
   createOffscreenRender();
+  createGBuffer();
 
   m_camera.eventChangeAspectRatio(m_width, m_height);
-  m_vkImpl.updatePostDescSet(m_offscreenImageView);
+  m_vkImpl.updatePostDescSet(m_offscreenImage.imageView);
   ImGuiIO& io = ImGui::GetIO(); (void)io;
   io.DisplaySize = ImVec2(static_cast<float>(m_width), static_cast<float>(m_height));
   ImGui::SetNextWindowSize(ImVec2(static_cast<float>(m_width), static_cast<float>(m_height)));
   ImGui::SetNextWindowPos(ImVec2(0, 0));
   updateRtImage();
   deviceWait();
+  m_update = true;
   m_mutexEvent.unlock();
 }
 
