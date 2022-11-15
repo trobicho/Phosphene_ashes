@@ -14,7 +14,7 @@ Phosphene::Phosphene(GLFWwindow *window): m_window(window) {
     .clearColor = glm::vec4(0.1, 0.1, 0.6, 1.0),
     .nbLights = 0,
     .nbConsecutiveRay = 0,
-    .pathMaxRecursion = 6,
+    .pathMaxRecursion = 3,
   };
 
   int width = 0;
@@ -187,7 +187,7 @@ void  Phosphene::draw() {
   if (m_update) {
     m_gbufferPipeline.updateUBO(commandBuffer, sizeof(m_globalUniform), m_globalUBO, &m_globalUniform);
     m_scene.update(m_gbufferPipeline, commandBuffer, false);
-    //m_gbufferPipeline.raytrace(commandBuffer, m_width, m_height);
+    m_gbufferPipeline.raytrace(commandBuffer, m_width, m_height);
   }
 
   {
@@ -314,12 +314,6 @@ void  Phosphene::createGBuffer() {
 
   m_alloc.createImage(extent, usage, VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_ASPECT_COLOR_BIT, components, m_gbuffer.color);
   m_alloc.createImage(extent, usage, VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_ASPECT_COLOR_BIT, components, m_gbuffer.normal);
-  components = {
-    .r = VK_COMPONENT_SWIZZLE_IDENTITY,
-    .g = VK_COMPONENT_SWIZZLE_ZERO,
-    .b = VK_COMPONENT_SWIZZLE_ZERO,
-    .a = VK_COMPONENT_SWIZZLE_ZERO,
-  };
   m_alloc.createImage(extent, usage, VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_ASPECT_COLOR_BIT, components, m_gbuffer.depth);
   m_alloc.createImage(extent, usage, VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_ASPECT_COLOR_BIT, components, m_gbuffer.material);
 }

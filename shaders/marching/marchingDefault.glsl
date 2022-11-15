@@ -1,6 +1,6 @@
 #include "../hostDevice.h"
 
-layout(set = 2, binding = eShapeDescs, scalar) buffer ShapeDesc_ { ShapeDesc i[]; } shapeDescs;
+layout(set = 3, binding = eShapeDescs, scalar) buffer ShapeDesc_ { ShapeDesc i[]; } shapeDescs;
 
 hitAttributeEXT block {
   vec3  pos;

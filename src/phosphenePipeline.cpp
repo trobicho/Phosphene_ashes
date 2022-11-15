@@ -30,26 +30,27 @@ void  Phosphene::updateRtImage() {
   std::vector<RtBuilder::DescriptorSetUpdateInfo>  gbufferUpdateInfo = {
     {
       .type = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,
-      .binding = BindingsRtx::eImageOut,
+      .binding = BindingsGBuffer::eGBufferColor,
       .pInfo = &colorInfo,
     },
     {
       .type = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,
-      .binding = BindingsRtx::eImageOut,
+      .binding = BindingsGBuffer::eGBufferNormal,
       .pInfo = &normalInfo,
     },
     {
       .type = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,
-      .binding = BindingsRtx::eImageOut,
+      .binding = BindingsGBuffer::eGBufferDepth,
       .pInfo = &depthInfo,
     },
     {
       .type = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,
-      .binding = BindingsRtx::eImageOut,
+      .binding = BindingsGBuffer::eGBufferMaterial,
       .pInfo = &materialInfo,
     }
   };
-  m_gbufferPipeline.updateDescSet("gbuffer", updateInfo);
+  m_gbufferPipeline.updateDescSet("gbuffer", gbufferUpdateInfo);
+  m_rtPipeline.updateDescSet("gbuffer", gbufferUpdateInfo);
 }
 
 void  Phosphene::updateRtTlas(AccelKHR& tlas) {
@@ -78,8 +79,8 @@ void  Phosphene::updateRtGlobalUBO() {
     .binding = BindingsCommon::eGlobals,
     .pInfo = &bufferInfo,
   };
-  m_rtPipeline.updateDescSet("common", updateInfo);
   m_gbufferPipeline.updateDescSet("common", updateInfo);
+  m_rtPipeline.updateDescSet("common", updateInfo);
 }
 
 static std::vector<RtBuilder::DescriptorSetWrapper> commonBindings() {
@@ -107,6 +108,35 @@ static std::vector<RtBuilder::DescriptorSetWrapper> commonBindings() {
         (VkDescriptorSetLayoutBinding) {
           .binding = BindingsCommon::eGlobals,
           .descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+          .descriptorCount = 1,
+          .stageFlags = VK_SHADER_STAGE_RAYGEN_BIT_KHR,
+        },
+      }
+    },
+    (RtBuilder::DescriptorSetWrapper) {
+      .name = "gbuffer",
+      .layoutBinds = {
+        (VkDescriptorSetLayoutBinding) {
+          .binding = BindingsGBuffer::eGBufferColor,
+          .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,
+          .descriptorCount = 1,
+          .stageFlags = VK_SHADER_STAGE_RAYGEN_BIT_KHR,
+        },
+        (VkDescriptorSetLayoutBinding) {
+          .binding = BindingsGBuffer::eGBufferNormal,
+          .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,
+          .descriptorCount = 1,
+          .stageFlags = VK_SHADER_STAGE_RAYGEN_BIT_KHR,
+        },
+        (VkDescriptorSetLayoutBinding) {
+          .binding = BindingsGBuffer::eGBufferDepth,
+          .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,
+          .descriptorCount = 1,
+          .stageFlags = VK_SHADER_STAGE_RAYGEN_BIT_KHR,
+        },
+        (VkDescriptorSetLayoutBinding) {
+          .binding = BindingsGBuffer::eGBufferMaterial,
+          .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,
           .descriptorCount = 1,
           .stageFlags = VK_SHADER_STAGE_RAYGEN_BIT_KHR,
         },
@@ -147,7 +177,7 @@ void  Phosphene::buildRtPipelineBasicLights() {
       .binding = BindingsSceneOther::eLights,
       .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
       .descriptorCount = 1,
-      .stageFlags = VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR,
+      .stageFlags = VK_SHADER_STAGE_RAYGEN_BIT_KHR,
       }
     }
   });
@@ -184,7 +214,7 @@ void  Phosphene::buildRtPipelineBasicLights() {
     };
     builder.addHitGroup(hitGroup);
   }
-  builder.setMaxRecursion(2);
+  builder.setMaxRecursion(1);
   m_rtPipeline.destroy();
   builder.build(m_rtPipeline);
   builder.destroyModules();

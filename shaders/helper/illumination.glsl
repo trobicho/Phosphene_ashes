@@ -1,5 +1,4 @@
 #extension GL_GOOGLE_include_directive : enable
-#include "hostDevice.h"
 
 vec3 computeDiffuse(const Material mat, const vec3 lightDir, const vec3 normal)
 {

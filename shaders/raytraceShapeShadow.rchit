@@ -15,9 +15,9 @@ layout(location = 0) rayPayloadInEXT hitPayload prd;
 layout(location = 1) rayPayloadEXT bool isShadowed;
 
 layout(set = 0, binding = eTlas) uniform accelerationStructureEXT topLevelAS;
-layout(set = 2, binding = eShapeDescs, scalar) buffer ShapeDesc_ { ShapeDesc i[]; } shapeDescs;
-layout(set = 2, binding = eMaterials, scalar) buffer Material_ { Material i[]; } materials;
-layout(set = 3, binding = eLights, scalar) buffer Light_ { Light i[]; } lights;
+layout(set = 3, binding = eShapeDescs, scalar) buffer ShapeDesc_ { ShapeDesc i[]; } shapeDescs;
+layout(set = 3, binding = eMaterials, scalar) buffer Material_ { Material i[]; } materials;
+layout(set = 4, binding = eLights, scalar) buffer Light_ { Light i[]; } lights;
 
 hitAttributeEXT block {
   vec3  pos;

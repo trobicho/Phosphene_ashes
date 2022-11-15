@@ -62,6 +62,7 @@ SHADERS_NAME =	post.vert \
 				raytraceMeshShadow.rchit \
 				raytraceShapeShadow.rchit \
 				pathtrace.rgen \
+				pathtrace2.rgen \
 				pathtrace.rmiss \
 				pathtraceMesh.rchit \
 				pathtraceShape.rchit \

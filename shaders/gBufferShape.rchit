@@ -12,8 +12,8 @@
 
 layout(location = 0) rayPayloadInEXT hitPayload prd;
 
-layout(set = 2, binding = eShapeDescs, scalar) buffer ShapeDesc_ { ShapeDesc i[]; } shapeDescs;
-layout(set = 2, binding = eMaterials, scalar) buffer Material_ { Material i[]; } materials;
+layout(set = 3, binding = eShapeDescs, scalar) buffer ShapeDesc_ { ShapeDesc i[]; } shapeDescs;
+layout(set = 3, binding = eMaterials, scalar) buffer Material_ { Material i[]; } materials;
 
 hitAttributeEXT block {
   vec3  pos;

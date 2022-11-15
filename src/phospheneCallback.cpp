@@ -25,6 +25,7 @@ void  Phosphene::callbackWindowResize(int width, int height) {
   ImGui::SetNextWindowPos(ImVec2(0, 0));
   updateRtImage();
   deviceWait();
+  m_update = true;
   m_mutexEvent.unlock();
 }
 

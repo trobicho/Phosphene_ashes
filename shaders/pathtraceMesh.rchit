@@ -15,8 +15,8 @@ layout(location = 0) rayPayloadInEXT hitPayload prd;
 layout(buffer_reference, scalar) buffer Vertices {Vertex v[]; }; // Positions of an object
 layout(buffer_reference, scalar) buffer Indices {ivec3 i[]; }; // Triangle indices
 
-layout(set = 2, binding = eMeshDescs, scalar) buffer MeshDesc_ { MeshDesc i[]; } meshDescs;
-layout(set = 2, binding = eMaterials, scalar) buffer Material_ { Material i[]; } materials;
+layout(set = 3, binding = eMeshDescs, scalar) buffer MeshDesc_ { MeshDesc i[]; } meshDescs;
+layout(set = 3, binding = eMaterials, scalar) buffer Material_ { Material i[]; } materials;
 hitAttributeEXT vec2 attribs;
 
 void main()
