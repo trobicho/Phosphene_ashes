@@ -25,7 +25,8 @@ START_BINDING(BindingsRtx) //Binding set 0
 END_BINDING();
 
 START_BINDING(BindingsCommon) //Binding set 1
-  eGlobals = 0
+  eGlobals = 0,
+  ePathTracing = 1
 END_BINDING();
 
 START_BINDING(BindingsGBuffer) //Binding set 2
@@ -51,6 +52,11 @@ struct  GlobalUniforms {
   mat4  viewInverse;
   mat4  projInverse;
   float time;
+};
+
+struct  PathTracingUniform {
+  uint  nbConsecutiveRay;
+  uint  pathMaxRecursion;
 };
 
 // Push constant structure for the ray tracer

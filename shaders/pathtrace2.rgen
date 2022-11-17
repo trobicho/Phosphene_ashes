@@ -16,7 +16,7 @@ layout(set = 0, binding = eImageOut, rgba32f) uniform image2D image;
 layout(set = 2, binding = eGBufferColor, rgba32f) uniform image2D gBufferColor;
 layout(set = 2, binding = eGBufferNormal, rgba32f) uniform image2D gBufferNormal;
 layout(set = 2, binding = eGBufferDepth, r32f) uniform image2D gBufferDepth;
-layout(set = 2, binding = eGBufferMaterial, r32i) uniform iimage2D gBufferMaterial;
+layout(set = 2, binding = eGBufferMaterial, rg32i) uniform iimage2D gBufferMaterial;
 
 layout(set = 1, binding = eGlobals) uniform _GlobalUniforms { GlobalUniforms uni; };
 layout(set = 3, binding = eMaterials, scalar) buffer Material_ { Material i[]; } materials;

@@ -14,7 +14,7 @@ Phosphene::Phosphene(GLFWwindow *window): m_window(window) {
     .clearColor = glm::vec4(0.1, 0.1, 0.6, 1.0),
     .nbLights = 0,
     .nbConsecutiveRay = 0,
-    .pathMaxRecursion = 3,
+    .pathMaxRecursion = 6,
   };
 
   int width = 0;

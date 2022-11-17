@@ -16,12 +16,19 @@ layout(set = 1, binding = eGlobals) uniform _GlobalUniforms { GlobalUniforms uni
 layout(set = 2, binding = eGBufferColor, rgba32f) uniform image2D gBufferColor;
 layout(set = 2, binding = eGBufferNormal, rgba32f) uniform image2D gBufferNormal;
 layout(set = 2, binding = eGBufferDepth, r32f) uniform image2D gBufferDepth;
-layout(set = 2, binding = eGBufferMaterial, r32i) uniform iimage2D gBufferMaterial;
+layout(set = 2, binding = eGBufferMaterial, rg32i) uniform iimage2D gBufferMaterial;
 
 layout(set = 3, binding = eMaterials, scalar) buffer Material_ { Material i[]; } materials;
+layout(set = 3, binding = eMeshDescs, scalar) buffer MeshDesc_ { MeshDesc i[]; } meshDescs;
+layout(set = 3, binding = eShapeDescs, scalar) buffer ShapeDesc_ { ShapeDesc i[]; } shapeDescs;
 layout(set = 4, binding = eLights, scalar) buffer Light_ { Light i[]; } lights;
 
 layout(location = 0) rayPayloadEXT bool isShadowed;
+
+layout(push_constant) uniform _PushConstantRay
+{
+  PushConstantRay pcRay;
+};
 
 struct  Ray {
   vec3 origin;
@@ -29,23 +36,37 @@ struct  Ray {
   vec3 hitPos;
 };
 
-vec3 lightCalcul(const Ray ray, const vec3 normal, const Material material)
+struct  PixelInfo {
+  vec3  normal;
+  int   objId;
+  int   matId;
+};
+
+vec3 lightCalcul(const Ray ray, const PixelInfo pixelInfo, const Material material, Light light)
 {
   float attenuation = 1;
 
-  vec3  lightDir = lights.i[0].pos - ray.hitPos;
+  vec3  lightDir = light.pos - ray.hitPos;
   float lightDistance = length(lightDir);
   lightDir = normalize(lightDir);
 
   vec3  specular = vec3(0.0);
   vec3  diffuse = vec3(0, 0, 0);
   float dl2 = lightDistance * lightDistance;
+  vec3  normal = normalize(pixelInfo.normal);
+
+  vec3  origin = ray.hitPos;
+
+  if (pixelInfo.objId < 0)
+  {
+    ShapeDesc shape = shapeDescs.i[-pixelInfo.objId];
+    origin += pixelInfo.normal * shape.marchingMinDist * 1.5;
+  }
 
   if(dot(normal, lightDir) > 0)
   {
     float tMin   = 0.001;
     float tMax   = lightDistance;
-    vec3  origin = ray.hitPos;
     vec3  rayDir = lightDir;
     uint  flags =
       gl_RayFlagsTerminateOnFirstHitEXT | gl_RayFlagsOpaqueEXT | gl_RayFlagsSkipClosestHitShaderEXT;
@@ -69,7 +90,7 @@ vec3 lightCalcul(const Ray ray, const vec3 normal, const Material material)
     else
       specular = computePhong(material, ray.direction, lightDir, normal);
   }
-  return ((diffuse + specular) * (lights.i[0].intensity / dl2) * attenuation);
+  return ((diffuse + specular) * (light.intensity / dl2) * attenuation);
 }
 
 void main() 
@@ -87,16 +108,24 @@ void main()
   vec3  color = imageLoad(gBufferColor, pixel).xyz;
   vec3  normal = imageLoad(gBufferNormal, pixel).xyz;
   float depth = imageLoad(gBufferDepth, pixel).x;
-  int   matId = imageLoad(gBufferMaterial, pixel).x;
+  int   objId = imageLoad(gBufferMaterial, pixel).x;
+  int   matId = imageLoad(gBufferMaterial, pixel).y;
   vec4 finalColor = vec4(color, 1.0);
 
+/*
   if (matId >= 0 )
   {
+    PixelInfo pixelInfo = PixelInfo(normal, objId, matId);
     Ray ray = Ray(origin.xyz, direction.xyz, (origin + direction * depth).xyz);
     Material  material = materials.i[matId];
-    vec3 lightColor = lightCalcul(ray, normal, material);
+
+    vec3  lightColor = vec3(0.0);
+    for (int l=0; l < pcRay.nbLights; l++) {
+      lightColor += lightCalcul(ray, pixelInfo, material, lights.i[l]);
+    }
     finalColor = vec4(color * lightColor, 1.0);
   }
+*/
  
   imageStore(imageOut, pixel, finalColor);
 }

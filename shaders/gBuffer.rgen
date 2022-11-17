@@ -12,7 +12,7 @@ layout(set = 1, binding = eGlobals) uniform _GlobalUniforms { GlobalUniforms uni
 layout(set = 2, binding = eGBufferColor, rgba32f) uniform image2D gBufferColor;
 layout(set = 2, binding = eGBufferNormal, rgba32f) uniform image2D gBufferNormal;
 layout(set = 2, binding = eGBufferDepth, r32f) uniform image2D gBufferDepth;
-layout(set = 2, binding = eGBufferMaterial, r32i) uniform iimage2D gBufferMaterial;
+layout(set = 2, binding = eGBufferMaterial, rg32i) uniform iimage2D gBufferMaterial;
 
 layout(location = 0) rayPayloadEXT hitPayload hit;
 
@@ -48,5 +48,5 @@ void main()
   imageStore(gBufferColor, pixel, vec4(hit.color, 1.0));
   imageStore(gBufferNormal, pixel, vec4(hit.normal, 1.0));
   imageStore(gBufferDepth, pixel, vec4(hit.depth));
-  imageStore(gBufferMaterial, pixel, ivec4(hit.matId));
+  imageStore(gBufferMaterial, pixel, ivec4(hit.objId, hit.matId, 0, 0));
 }

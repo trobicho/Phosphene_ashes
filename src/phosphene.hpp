@@ -22,7 +22,7 @@ struct  GBuffer {
   ImageWrapper  color = ImageWrapper(VK_FORMAT_R32G32B32A32_SFLOAT);
   ImageWrapper  normal = ImageWrapper(VK_FORMAT_R32G32B32A32_SFLOAT);
   ImageWrapper  depth = ImageWrapper(VK_FORMAT_R32_SFLOAT);
-  ImageWrapper  material = ImageWrapper(VK_FORMAT_R32_SINT);
+  ImageWrapper  material = ImageWrapper(VK_FORMAT_R32G32_SINT);
 };
 
 class Phosphene {

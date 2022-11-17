@@ -9,7 +9,7 @@
 
 #include "marchingBasicSD.glsl"
 #
-#define ITER  4
+#define ITER  2
 
 float sdCross(in vec3 p)
 {

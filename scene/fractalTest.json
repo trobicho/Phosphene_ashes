@@ -10,7 +10,7 @@
       "refractionIndex": 0.0,
       "shininess": 17.0,
       "dissolve": 0.0,
-      "intensity": 50.0
+      "intensity": 100.0
     },
     {
       "name": "light2",
@@ -23,6 +23,17 @@
       "shininess": 17.0,
       "dissolve": 0.0,
       "intensity": 500.0
+    },
+    {
+      "name": "mandelbox",
+      "ambiant": {"r": 0.0, "g": 0.0, "b": 0.0},
+      "diffuse": {"r": 0.9, "g": 1.0, "b": 1.0},
+      "specular": {"r": 0.8, "g": 0.0, "b": 0.0},
+      "transmittance": {"r": 0.8, "g": 0.5, "b": 0.6},
+      "emission": {"r": 0.0, "g": 0.0, "b": 0.0},
+
+      "shininess": 17.0,
+      "dissolve": 0.0
     }
   ],
   "shaders" : [
@@ -87,10 +98,11 @@
     {
       "name": "test",
       "shape": "test",
+	  "material": "mandelbox",
       "position": [0.0, 0.0, 200.0],
       "scale": 100.0,
-      "marchingMaxStep": 3000,
-      "marchingMinDist": 0.001,
+      "marchingMaxStep": 10000,
+      "marchingMinDist": 0.0000005,
       "transform": [
         [1.0, 0.0, 0.0],
         [0.0, 1.0, 0.0],
@@ -100,7 +112,7 @@
     {
       "name": "light",
       "shape": "sphere",
-      "position": [0.0, 0.0, 30.0],
+      "position": [0.0, 0.0, -108.0],
       "scale": 6.0,
       "material": "light2"
     },

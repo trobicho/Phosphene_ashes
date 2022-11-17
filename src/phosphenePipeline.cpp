@@ -149,19 +149,19 @@ static std::vector<RtBuilder::DescriptorSetWrapper> commonBindings() {
           .binding = BindingsScene::eMeshDescs,
           .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
           .descriptorCount = 1,
-          .stageFlags = VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR,
+          .stageFlags = VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR | VK_SHADER_STAGE_RAYGEN_BIT_KHR,
         },
         (VkDescriptorSetLayoutBinding) {
           .binding = BindingsScene::eShapeDescs,
           .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
           .descriptorCount = 1,
-          .stageFlags = VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR | VK_SHADER_STAGE_INTERSECTION_BIT_KHR,
+          .stageFlags = VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR | VK_SHADER_STAGE_RAYGEN_BIT_KHR | VK_SHADER_STAGE_INTERSECTION_BIT_KHR,
         },
         (VkDescriptorSetLayoutBinding) {
           .binding = BindingsScene::eMaterials,
           .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
           .descriptorCount = 1,
-          .stageFlags = VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR | VK_SHADER_STAGE_RAYGEN_BIT_KHR,
+          .stageFlags = VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR | VK_SHADER_STAGE_RAYGEN_BIT_KHR | VK_SHADER_STAGE_RAYGEN_BIT_KHR,
         }
       }
     }

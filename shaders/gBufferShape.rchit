@@ -27,12 +27,15 @@ void main()
   ShapeDesc shape = shapeDescs.i[gl_InstanceCustomIndexEXT];
   Material  material    = materials.i[shape.materialId];
 
-  const vec3 worldNrm = normalize(vec3(attribs.normal * gl_ObjectToWorldEXT));  // Transforming the normal to world space
+  const vec3 worldNrm = (vec3(attribs.normal * gl_ObjectToWorldEXT));  // Transforming the normal to world space
   const vec3 worldPos = vec3(gl_ObjectToWorldEXT * vec4(attribs.pos + attribs.normal * shape.marchingMinDist * 2.5, 1.0));
 
-  prd.color = material.transmittance;
+  //prd.color = material.transmittance;
+  prd.color = attribs.color;
   prd.normal = worldNrm;
   prd.depth = length(worldPos - gl_WorldRayOriginEXT);
+  prd.objId = int(gl_InstanceCustomIndexEXT);
   prd.matId = int(shape.materialId);
   prd.asHit = true;
+  prd.objId = -prd.objId;
 }

@@ -9,7 +9,7 @@
 
 #include "marchingFold.glsl"
 
-#define ITERATION 20
+#define ITERATION 15
 
 vec4    orbitTrap = vec4(1.0);
 

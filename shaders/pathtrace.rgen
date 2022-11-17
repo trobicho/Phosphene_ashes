@@ -94,7 +94,7 @@ bool  brdfSample(inout Ray ray)
 
 void  main() 
 {
-  randN += pcRay.nbConsecutiveRay * 0.586;
+  //seed *= pcRay.nbConsecutiveRay * 0.586;
   const vec2 pixelCenter = vec2(gl_LaunchIDEXT.xy) + vec2(0.5) + box_muller() / 2.5;
   const vec2 inUV = pixelCenter/vec2(gl_LaunchSizeEXT.xy);
   vec2 d = inUV * 2.0 - 1.0;
@@ -117,16 +117,17 @@ void  main()
   rayLaunch(ray);
   vec3 endColor = prd.color;
 
-  if (prd.asHit) 
+  if (prd.asHit)
   {
     bool hitSky = false;
+    hitSky = !brdfSample(ray);
     for (int i = 0; i < pcRay.pathMaxRecursion; i++)
     {
-      hitSky = !brdfSample(ray);
       if (!hitSky)
         rayLaunch(ray);
       else
         break;
+      hitSky = !brdfSample(ray);
     }
     endColor = ray.color * ray.intensity;
   }

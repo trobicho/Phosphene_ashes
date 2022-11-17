@@ -46,6 +46,7 @@ void main()
   prd.color = material.transmittance;
   prd.normal = worldNrm;
   prd.depth = length(worldPos - gl_WorldRayOriginEXT);
+  prd.objId = int(gl_InstanceCustomIndexEXT);
   prd.matId = int(mesh.materialId);
   prd.asHit = true;
 }
