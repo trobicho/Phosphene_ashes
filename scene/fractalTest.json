@@ -102,7 +102,7 @@
       "position": [0.0, 0.0, 200.0],
       "scale": 100.0,
       "marchingMaxStep": 10000,
-      "marchingMinDist": 0.0000005,
+      "marchingMinDist": 0.000005,
       "transform": [
         [1.0, 0.0, 0.0],
         [0.0, 1.0, 0.0],

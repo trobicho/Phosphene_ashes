@@ -1,0 +1,73 @@
+{
+  "materials": [
+    {
+      "name": "box",
+      "ambiant": {"r": 0.0, "g": 0.0, "b": 0.0},
+      "diffuse": {"r": 0.9, "g": 1.0, "b": 1.0},
+      "specular": {"r": 0.8, "g": 0.0, "b": 0.0},
+      "transmittance": {"r": 0.8, "g": 0.5, "b": 0.6},
+      "emission": {"r": 0.0, "g": 0.0, "b": 0.0},
+
+      "shininess": 17.0,
+      "dissolve": 0.0
+    }
+  ],
+  "shaders" : [
+    {
+      "name" : "box",
+      "type" : "intersection",
+      "spv" : "box.rint.spv"
+    }
+  ],
+  "meshs": [
+    {
+      "name" : "cow",
+      "filepath": "obj/cow.obj",
+      "type": "wavefront",
+      "scale": 1.0
+    }
+  ],
+  "shapes": [
+    {
+      "name" : "test",
+      "aabb" : {
+        "min" : [-3.5, -3.5, -3.5],
+        "max" : [3.5, 3.5, 3.5]
+      },
+      "intersection" : "box"
+    }
+  ],
+  "lights": [
+    {
+      "position": [0.0, 0.0, -100.0],
+      "color": [1.0, 1.0, 1.0],
+      "intensity": 10000
+    }
+  ],
+  "instances": [
+    {
+      "name": "test",
+      "shape": "test",
+      "position": [0.0, 0.0, 20.0],
+      "scale": 10.0,
+      "marchingMaxStep": 10000,
+      "marchingMinDist": 0.0000005,
+      "transform": [
+        [100000.0, 0.0, 0.0],
+        [0.0, 100000.0, 0.0],
+        [0.0, 0.0, -1.0]
+      ]
+    },
+    {
+      "name": "cow1",
+      "mesh": "cow",
+      "position": [0.0, 100.0, 30.0],
+      "scale": 0.5,
+      "transform": [
+        [0.0, 0.0, 1.0],
+        [0.0, -1.0, 0.0],
+        [-1.0, 0.0, 0.0]
+      ]
+    }
+  ]
+}
