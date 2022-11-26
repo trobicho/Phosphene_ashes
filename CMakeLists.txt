@@ -49,7 +49,7 @@ add_executable(${PROJECT_NAME} ${cpps} ${hpps})
 include(FindVulkan)
 target_link_libraries(${PROJECT_NAME} PRIVATE Vulkan::Vulkan)
 
-include(/home/tom/git_repo/vcpkg/scripts/buildsystems/vcpkg.cmake)
+include(${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake)
 
 find_package(glfw3 CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE glfw)
