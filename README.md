@@ -1,6 +1,6 @@
 # Phosphene_ashes (ashes of phosphene)
 
-Ah better than the other Vulkan repo.
+Ah better than the others Vulkan repo.
 
 This one is being rebuild on a currently private repo, changing the architecture this one was suppose to be redone anyway.
 
