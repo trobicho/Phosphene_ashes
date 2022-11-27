@@ -8,6 +8,9 @@ Changing the architecture this one was suppose to be redone anyway.
 
 that was the sketch for the project and learning RTX pipelines.
 
+Currently this program doesn't choose the device it just take the first one that happen to be the one I need in my PC
+(will be added just to make it work on other platforms).
+
 ## Project
 
 Global illumination Renderer with Raymarching + Raytracing using RTX pipelines.
