@@ -2,7 +2,8 @@ cmake_minimum_required (VERSION 3.9)
 
 project ("phosphene")
 set(CMAKE_CXX_STANDARD 17)
-SET(CMAKE_C_FLAGS "-g")
+set(CMAKE_C_FLAGS "-g")
+set(VCPKG_ROOT $ENV{VCPKG_ROOT})
 
 set(cpps src/main.cpp
     src/phosphene.cpp

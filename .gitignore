@@ -57,6 +57,8 @@ tags
 *.spv
 phosphene
 Phosphene
+phosphene_ashes
+Phosphene_ashes
 
 #CMAKE
 build/
