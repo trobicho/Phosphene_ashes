@@ -2,9 +2,7 @@
 
 Ah better than the other Vulkan repo.
 
-This one is being rebuild on a currently private repo.
-
-Changing the architecture this one was suppose to be redone anyway.
+This one is being rebuild on a currently private repo, changing the architecture this one was suppose to be redone anyway.
 
 that was the sketch for the project and learning RTX pipelines.
 
