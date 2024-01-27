@@ -59,6 +59,7 @@ phosphene
 Phosphene
 phosphene_ashes
 Phosphene_ashes
+.cache/
 
 #CMAKE
 build/

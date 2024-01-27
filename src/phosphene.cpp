@@ -1,6 +1,7 @@
 #include "phosphene.hpp"
 #include "helper/extensions.hpp"
 
+#include <imgui_impl_vulkan.h>
 #include <iostream>
 
 Phosphene::Phosphene(GLFWwindow *window): m_window(window) {
@@ -90,15 +91,8 @@ Phosphene::Phosphene(GLFWwindow *window): m_window(window) {
       .CheckVkResultFn = nullptr,
     };
     ImGui_ImplVulkan_Init(&init_info, m_vkImpl.m_renderPass);
-    CommandPool cmdPool;
-    cmdPool.init(m_device, m_graphicsQueueFamilyIndex);
-    auto cmdBuffer = cmdPool.createCommandBuffer();
-    cmdPool.beginRecord(cmdBuffer);
-    ImGui_ImplVulkan_CreateFontsTexture(cmdBuffer);
-    vkEndCommandBuffer(cmdBuffer);
-    cmdPool.submitAndWait(cmdBuffer);
-    cmdPool.destroy();
-    ImGui_ImplVulkan_DestroyFontUploadObjects();
+    ImGui_ImplVulkan_CreateFontsTexture();
+    ImGui_ImplVulkan_DestroyFontsTexture();
     ImGui::SetNextWindowSize(ImVec2(static_cast<float>(m_width), static_cast<float>(m_height)));
     ImGui::SetNextWindowPos(ImVec2(0, 0));
     ImGui_ImplVulkan_SetMinImageCount(m_vkImpl.m_swapchainWrap.imageCount);
