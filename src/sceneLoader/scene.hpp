@@ -44,6 +44,19 @@ class   PhosObjectMesh : public PhosNamedObject {
     VkDeviceAddress       blasDeviceAddress = 0;
 };
 
+class   PhosObjectVdb : public PhosNamedObject {
+  public:
+    PhosObjectVdb(){};
+
+    void      destroy(MemoryAllocator &alloc) {
+		}
+
+    uint32_t  strideAabb(){return(sizeof(VkAabbPositionsKHR));}
+    void      createBuffer(MemoryAllocator &alloc);
+    
+		VkAabbPositionsKHR  aabb;
+};
+
 class   PhosObjectProcedural : public PhosNamedObject { //TODO: m_ or not m_ ?
   public:
     PhosObjectProcedural(){};
@@ -118,6 +131,7 @@ class   PhosScene {
     MemoryAllocator*                  m_alloc;
     std::vector<PhosObjectMesh>       m_meshs;
     std::vector<PhosObjectProcedural> m_proceduraShapes;
+    std::vector<PhosObjectVdb>				m_vdbs;
     std::vector<PhosObjectInstance>   m_instances;
     std::vector<Light>                m_lights;
     std::vector<PhosHitShader>        m_hitShaders;
@@ -126,13 +140,16 @@ class   PhosScene {
   private:
     MeshDesc    buildMeshDesc(PhosObjectInstance& instance, PhosObjectMesh* mesh);
     ShapeDesc   buildShapeDesc(PhosObjectInstance& instance, PhosObjectProcedural* shape);
+		VdbDesc			buildVdbDesc(PhosObjectInstance& instance, PhosObjectVdb* vdb);
 
     uint32_t  event = 0;
     BufferWrapper           m_lightsBuffer;
 
     std::vector<MeshDesc>   m_meshDescs;
     std::vector<ShapeDesc>  m_shapeDescs;
+    std::vector<VdbDesc>		m_vdbDescs;
     BufferWrapper           m_meshDescsBuffer;
     BufferWrapper           m_shapeDescsBuffer;
+    BufferWrapper           m_vdbDescsBuffer;
     BufferWrapper           m_materialsBuffer;
 };

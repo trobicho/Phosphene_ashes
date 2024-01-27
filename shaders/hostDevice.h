@@ -107,4 +107,10 @@ struct  ShapeDesc {
   Aabb  aabb;
 };
 
+struct  VdbDesc {
+  int   textureId;
+  uint  materialId;
+  Aabb  aabb;
+};
+
 #endif

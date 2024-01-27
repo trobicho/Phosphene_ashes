@@ -24,6 +24,7 @@ set(cpps src/main.cpp
     src/raytracing/rayPicker.cpp
     src/sceneLoader/sceneLoader.cpp
     src/sceneLoader/objLoader.cpp
+    src/sceneLoader/vdbLoader.cpp
     src/sceneLoader/scene.cpp
 	src/phosGui.cpp
 )
@@ -41,6 +42,7 @@ set(hpps src/phosphene.hpp
     src/raytracing/rayPicker.hpp
     src/sceneLoader/sceneLoader.hpp
     src/sceneLoader/objLoader.hpp
+    src/sceneLoader/vdbLoader.hpp
     src/sceneLoader/scene.hpp
     shaders/hostDevice.h
 )
@@ -63,3 +65,12 @@ target_link_libraries(${PROJECT_NAME} PRIVATE nlohmann_json::nlohmann_json)
 
 find_package(tinyobjloader CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE tinyobjloader::tinyobjloader)
+
+find_package(OpenVDB CONFIG REQUIRED)
+target_link_libraries(${PROJECT_NAME} PUBLIC OpenVDB::openvdb)
+
+find_package(TBB CONFIG REQUIRED)
+target_link_libraries(${PROJECT_NAME} PRIVATE TBB::tbb TBB::tbbmalloc)
+
+find_package(blosc CONFIG REQUIRED)
+target_link_libraries(${PROJECT_NAME} PRIVATE blosc_static)

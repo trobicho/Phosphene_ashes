@@ -30,6 +30,7 @@ SRCS_NAME = main.cpp \
 			raytracing/rayPicker.cpp \
 			sceneLoader/sceneLoader.cpp \
 			sceneLoader/objLoader.cpp \
+			sceneLoader/vdbLoader.cpp \
 			sceneLoader/scene.cpp \
 			phosGui.cpp \
 
@@ -46,6 +47,7 @@ HDRS_NAME = phosphene.hpp \
 			raytracing/rayPicker.hpp \
 			sceneLoader/sceneLoader.hpp \
 			sceneLoader/objLoader.hpp \
+			sceneLoader/vdbLoader.hpp \
 			sceneLoader/scene.hpp \
 			../shaders/hostDevice.h \
 			../shaders/hostDevicePicker.h \

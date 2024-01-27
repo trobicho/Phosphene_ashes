@@ -1,7 +1,9 @@
 #include "camera.hpp"
+#include <iostream>
+
+#define	GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtx/projection.hpp>
-#include <iostream>
 
 Camera::Camera() {
 }

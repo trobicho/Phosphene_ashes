@@ -6,8 +6,15 @@
 			"name": "imgui",
 			"features": ["vulkan-binding", "glfw-binding"]
 		},
+		{
+			"name": "openvdb",
+			"features": ["nanovdb", "tools"]
+		},
 		"glfw3",
 		"nlohmann-json",
-		"tinyobjloader"
+		"tinyobjloader",
+		"tbb",
+		"blosc",
+		"cuda"
 	]
 }

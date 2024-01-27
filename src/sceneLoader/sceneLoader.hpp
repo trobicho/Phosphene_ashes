@@ -16,6 +16,7 @@ class SceneLoader
   private:
     bool  parseInstance(json &instanceData, PhosObjectInstance &instance);
     bool  parseMesh(json &meshData, PhosObjectMesh &mesh);
+    bool  parseVdb(json &vdbData, PhosObjectVdb &vdb);
     bool  parseProceduralShape(json &shapeData, PhosObjectProcedural &shape);
     bool  parseShader(json& shaderData, PhosHitShader& shape);
     bool  parseMaterial(json& materialData, PhosMaterial& material);

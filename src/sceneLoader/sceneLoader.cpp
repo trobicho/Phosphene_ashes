@@ -1,5 +1,6 @@
 #include "sceneLoader.hpp"
 #include "objLoader.hpp"
+#include "vdbLoader.hpp"
 #include <iostream>
 #include <map>
 #include <numeric>
@@ -151,6 +152,38 @@ bool  SceneLoader::parseMesh(json& meshData, PhosObjectMesh& mesh) {
       ObjLoader::load(filepath, mesh, config);
     }
     return (true);
+  }
+  return (false);
+}
+
+bool  SceneLoader::parseVdb(json& vdbData, PhosObjectVdb& vdb) {
+	VdbLoader::VdbLoaderConfig  config = {
+		.scenePath = m_scenePath,
+		.useRelativePath = true,
+	};
+	if (vdbData["scale"].is_number())
+		config.scale = static_cast<float>(vdbData["scale"]);
+	if (vdbData["name"].is_string())
+		vdb.name = vdbData["name"];
+	if (vdbData["filepath"].is_string()) {
+		std::string filepath = vdbData["filepath"];
+		if (filepath[0] == '/' || filepath[0] == '~')
+			config.useRelativePath = false;
+	}
+  if (vdbData["aabb"].is_object()) {
+    glm::vec3 min, max;
+		if (parseVec3(vdbData["aabb"]["min"], min) && parseVec3(vdbData["aabb"]["max"], max)) {
+			vdb.aabb = {
+        .minX = min.x,
+        .minY = min.y,
+        .minZ = min.z,
+        .maxX = max.x,
+        .maxY = max.y,
+        .maxZ = max.z,
+      };
+    }
+		else
+			return (false);
   }
   return (false);
 }

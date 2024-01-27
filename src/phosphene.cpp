@@ -1,4 +1,5 @@
 #include "phosphene.hpp"
+#include "sceneLoader/vdbLoader.hpp"
 #include "helper/extensions.hpp"
 
 #include <imgui_impl_vulkan.h>
@@ -101,7 +102,7 @@ Phosphene::Phosphene(GLFWwindow *window): m_window(window) {
   {
     m_rayPicker.init(m_device, m_physicalDevice, m_graphicsQueueFamilyIndex);
   }
-
+	VdbLoader::initialize();
 }
 
 bool  Phosphene::loadScene(const std::string &filename) {

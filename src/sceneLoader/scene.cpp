@@ -244,3 +244,18 @@ ShapeDesc PhosScene::buildShapeDesc(PhosObjectInstance& instance, PhosObjectProc
   };
   return (shapeDesc);
 }
+
+VdbDesc PhosScene::buildVdbDesc(PhosObjectInstance& instance, PhosObjectVdb* vdb) {
+  if (instance.materialName == "")
+    instance.materialName = PHOS_DEFAULT_MAT_NAME;
+  uint32_t matId = PhosNamedObject::getIdFromName(m_materials, instance.materialName);
+  VdbDesc vdbDesc = {
+    .textureId = -1,
+    .materialId = matId,
+    .aabb = {
+      .min = glm::vec3(vdb->aabb.minX, vdb->aabb.minY, vdb->aabb.minZ),
+      .max = glm::vec3(vdb->aabb.maxX, vdb->aabb.maxY, vdb->aabb.maxZ),
+    },
+  };
+  return (vdbDesc);
+}
