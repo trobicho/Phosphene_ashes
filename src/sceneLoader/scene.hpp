@@ -6,9 +6,12 @@
 #include "../raytracing/pipelineBuilder.hpp"
 #include <string>
 #include <vector>
+#include "nanovdb/NanoVDB.h"
+#include "nanovdb/util/IO.h"
 
 #define PHOS_OBJECT_TYPE_MESH         1
 #define PHOS_OBJECT_TYPE_PROCEDURAL   2
+#define PHOS_OBJECT_TYPE_VDB					3
 
 #define PHOS_DEFAULT_MAT_NAME           "phosDefaultMaterial"
 #define PHOS_DEFAULT_RINT_ENTRY_POINT   "main"//"phosDefaultEntryPoint"
@@ -50,11 +53,24 @@ class   PhosObjectVdb : public PhosNamedObject {
 
     void      destroy(MemoryAllocator &alloc) {
 		}
+		
+		struct VdbGrid : public PhosNamedObject {
+			VdbGrid(){};
+			VdbGrid(const VdbGrid& vdbGrid) {
+				name = vdbGrid.name; 
+			};
+
+			nanovdb::GridHandle<nanovdb::HostBuffer>	handle;
+		};
 
     uint32_t  strideAabb(){return(sizeof(VkAabbPositionsKHR));}
     void      createBuffer(MemoryAllocator &alloc);
     
-		VkAabbPositionsKHR  aabb;
+		VkAabbPositionsKHR  	aabb;
+		std::vector<VdbGrid>	grids;
+    
+		BufferWrapper       aabbBuffer;
+    VkDeviceAddress     blasDeviceAddress = 0;
 };
 
 class   PhosObjectProcedural : public PhosNamedObject { //TODO: m_ or not m_ ?
@@ -130,7 +146,7 @@ class   PhosScene {
 
     MemoryAllocator*                  m_alloc;
     std::vector<PhosObjectMesh>       m_meshs;
-    std::vector<PhosObjectProcedural> m_proceduraShapes;
+    std::vector<PhosObjectProcedural> m_proceduralShapes;
     std::vector<PhosObjectVdb>				m_vdbs;
     std::vector<PhosObjectInstance>   m_instances;
     std::vector<Light>                m_lights;

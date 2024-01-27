@@ -35,12 +35,23 @@ void  PhosObjectProcedural::createBuffer(MemoryAllocator &alloc) {
       , aabbBuffer);
   alloc.stagingMakeAndCopy(strideAabb(), aabbBuffer, (void*)&aabb);
 }
+
+void  PhosObjectVdb::createBuffer(MemoryAllocator &alloc) {
+  alloc.createBuffer(strideAabb()
+      , static_cast<VkBufferUsageFlagBits>(VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT
+          | VK_BUFFER_USAGE_TRANSFER_DST_BIT
+          | VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR
+          | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT)
+      , VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
+      , aabbBuffer);
+  alloc.stagingMakeAndCopy(strideAabb(), aabbBuffer, (void*)&aabb);
+}
     
 void  PhosScene::destroy() {
   for (auto& mesh : m_meshs) {
     mesh.destroy(*m_alloc);
   }
-  for (auto& shape: m_proceduraShapes) {
+  for (auto& shape: m_proceduralShapes) {
     shape.destroy(*m_alloc);
   }
   m_alloc->destroyBuffer(m_lightsBuffer);
@@ -53,14 +64,16 @@ void* PhosScene::getInstanceObject(PhosObjectInstance &instance) {
   if (instance.objectType == PHOS_OBJECT_TYPE_MESH)
     return (PhosNamedObject::getObjectFromName(m_meshs, instance.objectName));
   else if (instance.objectType == PHOS_OBJECT_TYPE_PROCEDURAL)
-    return (PhosNamedObject::getObjectFromName(m_proceduraShapes, instance.objectName));
+    return (PhosNamedObject::getObjectFromName(m_proceduralShapes, instance.objectName));
+  else if (instance.objectType == PHOS_OBJECT_TYPE_VDB)
+    return (PhosNamedObject::getObjectFromName(m_vdbs, instance.objectName));
   throw PhosHelper::FatalError(std::string("Invalid Instance(" + instance.name
         + ") objectType{" + std::to_string(instance.objectType)
         + "} ObjectName(" + instance.objectName + ")"));
 }
 
 void  PhosScene::setShapesHitBindingIndex(uint32_t offset) {
-  for (auto& shape : m_proceduraShapes) {
+  for (auto& shape : m_proceduralShapes) {
     uint32_t        index = 0;
     PhosHitShader*  shader;
     shader = PhosNamedObject::getObjectFromName(m_hitShaders, shape.intersectionShaderName, &index);
@@ -76,12 +89,15 @@ void  PhosScene::allocateResources() {
   for (auto& mesh : m_meshs) {
     mesh.createBuffer(*m_alloc);
   }
-  for (auto& shape : m_proceduraShapes) {
+  for (auto& shape : m_proceduralShapes) {
     shape.createBuffer(*m_alloc);
+  }
+  for (auto& vdb: m_vdbs) {
+    vdb.createBuffer(*m_alloc);
   }
   uint32_t meshCustomIndex = 0;
   uint32_t shapeCustomIndex = 0;
-  uint32_t proceduralShapeCustomIndex = 0;
+  uint32_t vdbCustomIndex = 0;
   for (auto& instance : m_instances) {
     void* obj = getInstanceObject(instance);
     if (obj == nullptr) {
@@ -99,6 +115,12 @@ void  PhosScene::allocateResources() {
       auto shapeDesc = buildShapeDesc(instance, shape);
       m_shapeDescs.push_back(shapeDesc);
       instance.customIndex = shapeCustomIndex++;
+    }
+    else if (instance.objectType == PHOS_OBJECT_TYPE_VDB) {
+      PhosObjectVdb* vdb = static_cast<PhosObjectVdb*>(obj);
+      auto vdbDesc = buildVdbDesc(instance, vdb);
+      m_vdbDescs.push_back(vdbDesc);
+      instance.customIndex = vdbCustomIndex++;
     }
   }
   size_t  sizeLights = static_cast<size_t>(sizeof(m_lights[0]) * m_lights.size()); 
@@ -138,6 +160,14 @@ void  PhosScene::allocateResources() {
         , m_shapeDescsBuffer);
     m_alloc->stagingMakeAndCopy(sizeShapeDescs, m_shapeDescsBuffer, m_shapeDescs.data());
   }
+  size_t  sizeVdbDescs = static_cast<size_t>(sizeof(m_vdbDescs[0]) * m_vdbDescs.size()); 
+  if (sizeVdbDescs > 0) {
+    m_alloc->createBuffer(sizeVdbDescs
+        , static_cast<VkBufferUsageFlagBits>(VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT)
+        , VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
+        , m_vdbDescsBuffer);
+    m_alloc->stagingMakeAndCopy(sizeVdbDescs, m_vdbDescsBuffer, m_vdbDescs.data());
+	}
 }
 
 void  PhosScene::update(Pipeline pipeline, bool forceUpdate) {

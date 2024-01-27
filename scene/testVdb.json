@@ -2,11 +2,11 @@
   "vdbs": [
     {
       "name" : "sphere",
-			"filepath" : "obj/sphere.vdb"
+			"filepath" : "obj/sphere.vdb",
       "aabb" : {
         "min" : [-1.0, -1.0, -1.0],
         "max" : [1.0, 1.0, 1.0]
-      },
+      }
     }
   ],
   "lights": [
@@ -19,7 +19,7 @@
   "instances": [
     {
       "name": "sphere",
-      "shape": "sphere",
+      "vdb": "sphere",
       "position": [0.0, 0.0, 0.0],
       "scale": 1.0,
       "transform": [

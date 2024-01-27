@@ -68,7 +68,12 @@ void  SceneLoader::load(const std::string& filename) {
   for (auto &shapeData : data["shapes"]) {
     PhosObjectProcedural  shape;
     if (parseProceduralShape(shapeData, shape))
-      m_scene.m_proceduraShapes.push_back(shape);
+      m_scene.m_proceduralShapes.push_back(shape);
+  }
+  for (auto &vdbData : data["vdbs"]) {
+    PhosObjectVdb	vdb;
+    if (parseVdb(vdbData, vdb))
+      m_scene.m_vdbs.push_back(vdb);
   }
   for (auto &instanceData : data["instances"]) {
     PhosObjectInstance  instance;
@@ -95,6 +100,10 @@ bool  SceneLoader::parseInstance(json& instanceData, PhosObjectInstance& instanc
   else if (instanceData["shape"].is_string()) {
     instance.objectName = instanceData["shape"];
     instance.objectType = PHOS_OBJECT_TYPE_PROCEDURAL;
+  }
+  else if (instanceData["vdb"].is_string()) {
+    instance.objectName = instanceData["vdb"];
+    instance.objectType = PHOS_OBJECT_TYPE_VDB;
   }
   else {
     return (false);
@@ -165,10 +174,20 @@ bool  SceneLoader::parseVdb(json& vdbData, PhosObjectVdb& vdb) {
 		config.scale = static_cast<float>(vdbData["scale"]);
 	if (vdbData["name"].is_string())
 		vdb.name = vdbData["name"];
+	if (vdbData["grids"].is_array()) {
+		for (auto &gridData: vdbData["grids"]) {
+			if (gridData.is_string()) {
+				PhosObjectVdb::VdbGrid grid;
+				grid.name = gridData;
+				vdb.grids.push_back(grid);
+			}
+		}
+	}
 	if (vdbData["filepath"].is_string()) {
 		std::string filepath = vdbData["filepath"];
 		if (filepath[0] == '/' || filepath[0] == '~')
 			config.useRelativePath = false;
+		VdbLoader::load(filepath, vdb, config);
 	}
   if (vdbData["aabb"].is_object()) {
     glm::vec3 min, max;
@@ -185,7 +204,7 @@ bool  SceneLoader::parseVdb(json& vdbData, PhosObjectVdb& vdb) {
 		else
 			return (false);
   }
-  return (false);
+  return (true);
 }
 
 bool  SceneLoader::parseProceduralShape(json& shapeData, PhosObjectProcedural& shape) {

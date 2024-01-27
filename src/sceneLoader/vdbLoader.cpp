@@ -15,20 +15,30 @@ void	initialize() {
 	openvdb::initialize();
 }
 
-void  load(const std::string filename, PhosObjectVdb &mesh, const VdbLoaderConfig &config) {
+void  load(const std::string filename, PhosObjectVdb &vdb, const VdbLoaderConfig &config) {
   std::string inputFile = filename;
   if (config.useRelativePath)
     inputFile = config.scenePath + filename;
 
 	openvdb::io::File file(inputFile);
 	file.open(true);
-	auto vdbGridPtrs = file.getGrids();
-	for (auto& grid : *vdbGridPtrs) {
-		std::string name = grid->getName();
-		std::cout << "grid: (" << name << ")" << std::endl;
+	if (vdb.grids.size() > 0) {
+		for (auto& grid : vdb.grids) {
+			auto vdbGrid = file.readGrid(grid.name);
+			grid.handle = nanovdb::openToNanoVDB(vdbGrid);
+		}
 	}
-	auto vdbGrid = file.readGrid("density");
-	auto handle = nanovdb::openToNanoVDB(vdbGrid);
+	else {
+		auto vdbGridPtrs = file.getGrids();
+		for (auto& gridPtr : *vdbGridPtrs) {
+			PhosObjectVdb::VdbGrid	grid;
+			grid.name = gridPtr->getName();
+			std::cout << "grid: (" << grid.name << ")" << std::endl;
+			auto vdbGrid = file.readGrid(grid.name);
+			vdb.grids.push_back(grid);
+			vdb.grids.back().handle = nanovdb::openToNanoVDB(vdbGrid);
+		}
+	}
 	file.close();
 }
 

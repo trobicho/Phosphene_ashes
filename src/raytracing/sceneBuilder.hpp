@@ -32,6 +32,7 @@ class   SceneBuilder {
 
     void  modelToVkGeometry(PhosObjectProcedural& model);
     void  modelToVkGeometry(PhosObjectMesh& model);
+    void  modelToVkGeometry(PhosObjectVdb& model);
     void  cmdCreateBlas(VkCommandBuffer cmdBuffer
                         , std::vector<uint32_t> indices
                         , std::vector<BuildAccelerationStructure> buildAs
