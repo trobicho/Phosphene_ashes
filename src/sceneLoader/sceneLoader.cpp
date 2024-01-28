@@ -1,5 +1,6 @@
 #include "sceneLoader.hpp"
 #include "objLoader.hpp"
+#include "scene.hpp"
 #include "vdbLoader.hpp"
 #include <iostream>
 #include <map>
@@ -88,6 +89,12 @@ void  SceneLoader::load(const std::string& filename) {
     }
     m_scene.m_lights.push_back(light);
   }
+	m_scene.m_vdbDefaultHitShader = {
+		.pName = PHOS_DEFAULT_RINT_ENTRY_POINT,
+		.spv = "vdb.rint.spv",
+		.type = VK_SHADER_STAGE_INTERSECTION_BIT_KHR,
+	};
+	m_scene.m_vdbDefaultHitShader.name = "vdbDefaultHitShader";
 }
 
 bool  SceneLoader::parseInstance(json& instanceData, PhosObjectInstance& instance) {

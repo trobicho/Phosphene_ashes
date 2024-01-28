@@ -71,6 +71,7 @@ void  PhosScene::destroy() {
   m_alloc->destroyBuffer(m_lightsBuffer);
   m_alloc->destroyBuffer(m_meshDescsBuffer);
   m_alloc->destroyBuffer(m_shapeDescsBuffer);
+  m_alloc->destroyBuffer(m_vdbDescsBuffer);
   m_alloc->destroyBuffer(m_materialsBuffer);
 }
 
@@ -212,6 +213,19 @@ void  PhosScene::update(Pipeline pipeline, bool forceUpdate) {
       };
       pipeline.updateDescSet("scene", updateInfo);
     }
+    if (m_vdbDescs.size() > 0) {
+      VkDescriptorBufferInfo bufferInfo = {
+        .buffer = m_vdbDescsBuffer.buffer,
+        .offset = 0,
+        .range = VK_WHOLE_SIZE,
+      };
+      RtBuilder::DescriptorSetUpdateInfo  updateInfo = {
+        .type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+        .binding = BindingsScene::eVdbDescs,
+        .pInfo = &bufferInfo,
+      };
+      pipeline.updateDescSet("scene", updateInfo);
+		}
     if (m_materials.size() > 0) {
       VkDescriptorBufferInfo bufferInfo = {
         .buffer = m_materialsBuffer.buffer,

@@ -1,0 +1,36 @@
+{
+  "materials": [
+    {
+      "name": "dragonMat",
+      "transmittance": {"r": 0.3, "g": 0.3, "b": 0.6},
+      "specular": 0.8,
+      "shininess": 17.0
+    }
+  ],
+  "vdbs": [
+    {
+      "name" : "sphereVdb",
+			"filepath" : "obj/sphere.vdb",
+      "aabb" : {
+        "min" : [-5.0, -5.0, -5.0],
+        "max" : [5.0, 5.0, 5.0]
+      }
+    }
+  ],
+  "lights": [
+    {
+      "position": [0.0, -30.0, 30.0],
+      "color": [1.0, 1.0, 1.0],
+      "intensity": 100.0
+    }
+  ],
+  "instances": [
+    {
+      "name": "sphereVdb",
+      "vdb": "sphereVdb",
+      "position": [0.0, 0.0, 30.0],
+      "scale": 2.0,
+			"material": "dragonMat"
+    }
+  ]
+}

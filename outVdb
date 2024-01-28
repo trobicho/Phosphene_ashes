@@ -1,0 +1,138 @@
+./src/main.cpp:        && !phosphene.loadScene("./scene/testVdb.json"))
+./src/main.cpp:    if (!phosphene.loadScene("./scene/testVdb.json"))
+./src/phosphene.hpp:#define	DEFAULT_VDB_HITSHADER	""
+./src/phosphenePipeline.cpp:          .binding = BindingsScene::eVdbDescs,
+./src/phosphenePipeline.cpp:  builder.addHitShader("vdbCHit", "./spv/raytraceVdbShadow.rchit.spv", VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR);
+./src/phosphenePipeline.cpp:	if (m_scene.hasVdb()) {
+./src/phosphenePipeline.cpp:    builder.addHitShader(m_scene.m_vdbDefaultHitShader.name, "./spv/" + m_scene.m_vdbDefaultHitShader.spv, m_scene.m_vdbDefaultHitShader.type);
+./src/phosphenePipeline.cpp:      .closestHitName = "vdbCHit",
+./src/phosphenePipeline.cpp:      .intersectionName = m_scene.m_vdbDefaultHitShader.name,
+./src/phosphenePipeline.cpp:  builder.addHitShader("vdbCHit", "./spv/pathtraceVdb.rchit.spv", VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR);
+./src/phosphenePipeline.cpp:	if (m_scene.hasVdb()) {
+./src/phosphenePipeline.cpp:    builder.addHitShader(m_scene.m_vdbDefaultHitShader.name, "./spv/" + m_scene.m_vdbDefaultHitShader.spv, m_scene.m_vdbDefaultHitShader.type);
+./src/phosphenePipeline.cpp:      .closestHitName = "vdbCHit",
+./src/phosphenePipeline.cpp:      .intersectionName = m_scene.m_vdbDefaultHitShader.name,
+./src/phosphenePipeline.cpp:          .binding = BindingsScene::eVdbDescs,
+./src/phosphenePipeline.cpp:  builder.addHitShader("vdbCHit", "./spv/gBufferVdb.rchit.spv", VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR);
+./src/phosphenePipeline.cpp:	if (m_scene.hasVdb()) {
+./src/phosphenePipeline.cpp:    builder.addHitShader(m_scene.m_vdbDefaultHitShader.name, "./spv/" + m_scene.m_vdbDefaultHitShader.spv, m_scene.m_vdbDefaultHitShader.type);
+./src/phosphenePipeline.cpp:      .closestHitName = "vdbCHit",
+./src/phosphenePipeline.cpp:      .intersectionName = m_scene.m_vdbDefaultHitShader.name,
+./src/raytracing/sceneBuilder.cpp:  for (auto& vdb: scene.m_vdbs) {
+./src/raytracing/sceneBuilder.cpp:    modelToVkGeometry(vdb);
+./src/raytracing/sceneBuilder.cpp:  uint32_t  vdbIdx = 0;
+./src/raytracing/sceneBuilder.cpp:      scene.m_vdbs[vdbIdx].blasDeviceAddress = m_alloc->getAccelerationStructureDeviceAddress(m_blas[idx]);
+./src/raytracing/sceneBuilder.cpp:      vdbIdx++;
+./src/raytracing/sceneBuilder.cpp:    else if (instance.objectType == PHOS_OBJECT_TYPE_VDB) {
+./src/raytracing/sceneBuilder.cpp:      auto vdbAddr = static_cast<PhosObjectVdb*>(objectAddr);
+./src/raytracing/sceneBuilder.cpp:      if (vdbAddr == nullptr) {
+./src/raytracing/sceneBuilder.cpp:        std::string error = "unable to get vdb address for: " + instance.objectName;
+./src/raytracing/sceneBuilder.cpp:      blasAddr = vdbAddr->blasDeviceAddress;
+./src/raytracing/sceneBuilder.cpp:			hitShaderBinding = scene.getVdbHitBindingIndex();
+./src/raytracing/sceneBuilder.cpp:void  SceneBuilder::modelToVkGeometry(PhosObjectVdb& vdb) {
+./src/raytracing/sceneBuilder.cpp:  VkDeviceAddress aabbAddress = m_alloc->getBufferDeviceAddress(vdb.aabbBuffer);
+./src/raytracing/sceneBuilder.cpp:    .stride = vdb.strideAabb(),
+./src/raytracing/sceneBuilder.hpp:    void  modelToVkGeometry(PhosObjectVdb& model);
+./src/phosphene.cpp:#include "sceneLoader/vdbLoader.hpp"
+./src/phosphene.cpp:	VdbLoader::initialize();
+./src/phosphene.cpp:	if (m_scene.hasVdb()) {
+./src/phosphene.cpp:		m_scene.setVdbHitBindingIndex(1);
+./src/sceneLoader/vdbLoader.cpp:#include "vdbLoader.hpp"
+./src/sceneLoader/vdbLoader.cpp:#define NANOVDB_USE_OPENVDB
+./src/sceneLoader/vdbLoader.cpp:#include "openvdb/openvdb.h"
+./src/sceneLoader/vdbLoader.cpp:#include "openvdb/tools/LevelSetSphere.h"
+./src/sceneLoader/vdbLoader.cpp:#include "nanovdb/NanoVDB.h"
+./src/sceneLoader/vdbLoader.cpp:#include "nanovdb/util/IO.h"
+./src/sceneLoader/vdbLoader.cpp:#include "nanovdb/util/CreateNanoGrid.h"
+./src/sceneLoader/vdbLoader.cpp:namespace VdbLoader {
+./src/sceneLoader/vdbLoader.cpp:	openvdb::initialize();
+./src/sceneLoader/vdbLoader.cpp:void  load(const std::string filename, PhosObjectVdb &vdb, const VdbLoaderConfig &config) {
+./src/sceneLoader/vdbLoader.cpp:	openvdb::io::File file(inputFile);
+./src/sceneLoader/vdbLoader.cpp:	if (vdb.grids.size() > 0) {
+./src/sceneLoader/vdbLoader.cpp:		for (auto& grid : vdb.grids) {
+./src/sceneLoader/vdbLoader.cpp:			auto vdbGrid = file.readGrid(grid.name);
+./src/sceneLoader/vdbLoader.cpp:			grid.handle = nanovdb::openToNanoVDB(vdbGrid);
+./src/sceneLoader/vdbLoader.cpp:		auto vdbGridPtrs = file.getGrids();
+./src/sceneLoader/vdbLoader.cpp:		for (auto& gridPtr : *vdbGridPtrs) {
+./src/sceneLoader/vdbLoader.cpp:			PhosObjectVdb::VdbGrid	grid;
+./src/sceneLoader/vdbLoader.cpp:			auto vdbGrid = file.readGrid(grid.name);
+./src/sceneLoader/vdbLoader.cpp:			grid.handle = nanovdb::openToNanoVDB(vdbGrid);
+./src/sceneLoader/vdbLoader.cpp:			vdb.grids.push_back(std::move(grid));
+./src/sceneLoader/sceneLoader.cpp:#include "vdbLoader.hpp"
+./src/sceneLoader/sceneLoader.cpp:  for (auto &vdbData : data["vdbs"]) {
+./src/sceneLoader/sceneLoader.cpp:    PhosObjectVdb	vdb;
+./src/sceneLoader/sceneLoader.cpp:    if (parseVdb(vdbData, vdb))
+./src/sceneLoader/sceneLoader.cpp:      m_scene.m_vdbs.push_back(std::move(vdb));
+./src/sceneLoader/sceneLoader.cpp:	m_scene.m_vdbDefaultHitShader = {
+./src/sceneLoader/sceneLoader.cpp:		.spv = "vdb.rint.spv",
+./src/sceneLoader/sceneLoader.cpp:  else if (instanceData["vdb"].is_string()) {
+./src/sceneLoader/sceneLoader.cpp:    instance.objectName = instanceData["vdb"];
+./src/sceneLoader/sceneLoader.cpp:    instance.objectType = PHOS_OBJECT_TYPE_VDB;
+./src/sceneLoader/sceneLoader.cpp:bool  SceneLoader::parseVdb(json& vdbData, PhosObjectVdb& vdb) {
+./src/sceneLoader/sceneLoader.cpp:	VdbLoader::VdbLoaderConfig  config = {
+./src/sceneLoader/sceneLoader.cpp:	if (vdbData["scale"].is_number())
+./src/sceneLoader/sceneLoader.cpp:		config.scale = static_cast<float>(vdbData["scale"]);
+./src/sceneLoader/sceneLoader.cpp:	if (vdbData["name"].is_string())
+./src/sceneLoader/sceneLoader.cpp:		vdb.name = vdbData["name"];
+./src/sceneLoader/sceneLoader.cpp:	if (vdbData["grids"].is_array()) {
+./src/sceneLoader/sceneLoader.cpp:		for (auto &gridData: vdbData["grids"]) {
+./src/sceneLoader/sceneLoader.cpp:				PhosObjectVdb::VdbGrid grid;
+./src/sceneLoader/sceneLoader.cpp:				vdb.grids.push_back(std::move(grid));
+./src/sceneLoader/sceneLoader.cpp:	if (vdbData["filepath"].is_string()) {
+./src/sceneLoader/sceneLoader.cpp:		std::string filepath = vdbData["filepath"];
+./src/sceneLoader/sceneLoader.cpp:		VdbLoader::load(filepath, vdb, config);
+./src/sceneLoader/sceneLoader.cpp:  if (vdbData["aabb"].is_object()) {
+./src/sceneLoader/sceneLoader.cpp:		if (parseVec3(vdbData["aabb"]["min"], min) && parseVec3(vdbData["aabb"]["max"], max)) {
+./src/sceneLoader/sceneLoader.cpp:			vdb.aabb = {
+./src/sceneLoader/scene.hpp:#include "nanovdb/NanoVDB.h"
+./src/sceneLoader/scene.hpp:#include "nanovdb/util/IO.h"
+./src/sceneLoader/scene.hpp:#define PHOS_OBJECT_TYPE_VDB					3
+./src/sceneLoader/scene.hpp:class   PhosObjectVdb : public PhosNamedObject {
+./src/sceneLoader/scene.hpp:    PhosObjectVdb(){};
+./src/sceneLoader/scene.hpp:		struct VdbGrid : public PhosNamedObject {
+./src/sceneLoader/scene.hpp:			VdbGrid(){};
+./src/sceneLoader/scene.hpp:			VdbGrid(const VdbGrid& vdbGrid) { //SHOULD NOT BE USED except for checking name
+./src/sceneLoader/scene.hpp:				name = vdbGrid.name;
+./src/sceneLoader/scene.hpp:			nanovdb::GridHandle<nanovdb::HostBuffer>	handle;
+./src/sceneLoader/scene.hpp:		std::vector<VdbGrid>	grids;
+./src/sceneLoader/scene.hpp:    void            setVdbHitBindingIndex(uint32_t offset = 0) {m_vdbHitBindingIndex = offset;}
+./src/sceneLoader/scene.hpp:    uint32_t				getVdbHitBindingIndex() {return (m_vdbHitBindingIndex);}
+./src/sceneLoader/scene.hpp:		bool						hasVdb() {return (m_vdbs.size() > 0);}
+./src/sceneLoader/scene.hpp:    std::vector<PhosObjectVdb>				m_vdbs;
+./src/sceneLoader/scene.hpp:    PhosHitShader											m_vdbDefaultHitShader;
+./src/sceneLoader/scene.hpp:		VdbDesc			buildVdbDesc(PhosObjectInstance& instance, PhosObjectVdb* vdb);
+./src/sceneLoader/scene.hpp:    std::vector<VdbDesc>		m_vdbDescs;
+./src/sceneLoader/scene.hpp:    BufferWrapper           m_vdbDescsBuffer;
+./src/sceneLoader/scene.hpp:		uint32_t								m_vdbHitBindingIndex = 0;
+./src/sceneLoader/sceneLoader.hpp:    bool  parseVdb(json &vdbData, PhosObjectVdb &vdb);
+./src/sceneLoader/scene.cpp:void  PhosObjectVdb::createBuffer(MemoryAllocator &alloc) {
+./src/sceneLoader/scene.cpp:  for (auto& vdb: m_vdbs) {
+./src/sceneLoader/scene.cpp:    vdb.destroy(*m_alloc);
+./src/sceneLoader/scene.cpp:  m_alloc->destroyBuffer(m_vdbDescsBuffer);
+./src/sceneLoader/scene.cpp:  else if (instance.objectType == PHOS_OBJECT_TYPE_VDB)
+./src/sceneLoader/scene.cpp:    return (PhosNamedObject::getObjectFromName(m_vdbs, instance.objectName));
+./src/sceneLoader/scene.cpp:  for (auto& vdb: m_vdbs) {
+./src/sceneLoader/scene.cpp:    vdb.createBuffer(*m_alloc);
+./src/sceneLoader/scene.cpp:  uint32_t vdbCustomIndex = 0;
+./src/sceneLoader/scene.cpp:    else if (instance.objectType == PHOS_OBJECT_TYPE_VDB) {
+./src/sceneLoader/scene.cpp:      PhosObjectVdb* vdb = static_cast<PhosObjectVdb*>(obj);
+./src/sceneLoader/scene.cpp:      auto vdbDesc = buildVdbDesc(instance, vdb);
+./src/sceneLoader/scene.cpp:      m_vdbDescs.push_back(vdbDesc);
+./src/sceneLoader/scene.cpp:      instance.customIndex = vdbCustomIndex++;
+./src/sceneLoader/scene.cpp:  size_t  sizeVdbDescs = static_cast<size_t>(sizeof(m_vdbDescs[0]) * m_vdbDescs.size()); 
+./src/sceneLoader/scene.cpp:  if (sizeVdbDescs > 0) {
+./src/sceneLoader/scene.cpp:    m_alloc->createBuffer(sizeVdbDescs
+./src/sceneLoader/scene.cpp:        , m_vdbDescsBuffer);
+./src/sceneLoader/scene.cpp:    m_alloc->stagingMakeAndCopy(sizeVdbDescs, m_vdbDescsBuffer, m_vdbDescs.data());
+./src/sceneLoader/scene.cpp:    if (m_vdbDescs.size() > 0) {
+./src/sceneLoader/scene.cpp:        .buffer = m_vdbDescsBuffer.buffer,
+./src/sceneLoader/scene.cpp:        .binding = BindingsScene::eVdbDescs,
+./src/sceneLoader/scene.cpp:VdbDesc PhosScene::buildVdbDesc(PhosObjectInstance& instance, PhosObjectVdb* vdb) {
+./src/sceneLoader/scene.cpp:  VdbDesc vdbDesc = {
+./src/sceneLoader/scene.cpp:      .min = glm::vec3(vdb->aabb.minX, vdb->aabb.minY, vdb->aabb.minZ),
+./src/sceneLoader/scene.cpp:      .max = glm::vec3(vdb->aabb.maxX, vdb->aabb.maxY, vdb->aabb.maxZ),
+./src/sceneLoader/scene.cpp:    .gridAddress = m_alloc->getBufferDeviceAddress(vdb->grids[0].deviceBuffer),
+./src/sceneLoader/scene.cpp:  return (vdbDesc);
+./src/sceneLoader/vdbLoader.hpp:namespace VdbLoader {
+./src/sceneLoader/vdbLoader.hpp:struct  VdbLoaderConfig {
+./src/sceneLoader/vdbLoader.hpp:void  load(const std::string filename, PhosObjectVdb &mesh, const VdbLoaderConfig &config);

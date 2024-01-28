@@ -1,0 +1,82 @@
+./src/phosphenePipeline.cpp:          .binding = BindingsScene::eShapeDescs,
+./src/phosphenePipeline.cpp:  builder.addHitShader("shapeCHit", "./spv/raytraceShapeShadow.rchit.spv", VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR);
+./src/phosphenePipeline.cpp:      .closestHitName = "shapeCHit",
+./src/phosphenePipeline.cpp:  builder.addHitShader("shapeCHit", "./spv/pathtraceShape.rchit.spv", VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR);
+./src/phosphenePipeline.cpp:      .closestHitName = "shapeCHit",
+./src/phosphenePipeline.cpp:          .binding = BindingsScene::eShapeDescs,
+./src/phosphenePipeline.cpp:  builder.addHitShader("shapeCHit", "./spv/gBufferShape.rchit.spv", VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR);
+./src/phosphenePipeline.cpp:      .closestHitName = "shapeCHit",
+./src/raytracing/sceneBuilder.cpp:  for (auto& shape : scene.m_proceduralShapes) {
+./src/raytracing/sceneBuilder.cpp:    modelToVkGeometry(shape);
+./src/raytracing/sceneBuilder.cpp:  uint32_t  shapeIdx = 0;
+./src/raytracing/sceneBuilder.cpp:		else if (m_blasInput[idx].asGeometry.geometryType == VK_GEOMETRY_TYPE_AABBS_KHR && shapeIdx < scene.m_proceduralShapes.size()) {
+./src/raytracing/sceneBuilder.cpp:      scene.m_proceduralShapes[shapeIdx].blasDeviceAddress = m_alloc->getAccelerationStructureDeviceAddress(m_blas[idx]);
+./src/raytracing/sceneBuilder.cpp:      shapeIdx++;
+./src/raytracing/sceneBuilder.cpp:      auto shapeAddr = static_cast<PhosObjectProcedural*>(objectAddr);
+./src/raytracing/sceneBuilder.cpp:      if (shapeAddr == nullptr) {
+./src/raytracing/sceneBuilder.cpp:        std::string error = "unable to get shape address for: " + instance.objectName;
+./src/raytracing/sceneBuilder.cpp:      blasAddr = shapeAddr->blasDeviceAddress;
+./src/raytracing/sceneBuilder.cpp:      hitShaderBinding = shapeAddr->hitShaderBindingIndex;
+./src/raytracing/sceneBuilder.cpp:void  SceneBuilder::modelToVkGeometry(PhosObjectProcedural& shape) {
+./src/raytracing/sceneBuilder.cpp:  VkDeviceAddress aabbAddress = m_alloc->getBufferDeviceAddress(shape.aabbBuffer);
+./src/raytracing/sceneBuilder.cpp:    .stride = shape.strideAabb(),
+./src/phosphene.cpp:		m_scene.setShapesHitBindingIndex(2);
+./src/phosphene.cpp:		m_scene.setShapesHitBindingIndex(1);
+./src/sceneLoader/sceneLoader.cpp:  for (auto &shapeData : data["shapes"]) {
+./src/sceneLoader/sceneLoader.cpp:    PhosObjectProcedural  shape;
+./src/sceneLoader/sceneLoader.cpp:    if (parseProceduralShape(shapeData, shape))
+./src/sceneLoader/sceneLoader.cpp:      m_scene.m_proceduralShapes.push_back(shape);
+./src/sceneLoader/sceneLoader.cpp:  else if (instanceData["shape"].is_string()) {
+./src/sceneLoader/sceneLoader.cpp:    instance.objectName = instanceData["shape"];
+./src/sceneLoader/sceneLoader.cpp:bool  SceneLoader::parseProceduralShape(json& shapeData, PhosObjectProcedural& shape) {
+./src/sceneLoader/sceneLoader.cpp:  if (shapeData["name"].is_string())
+./src/sceneLoader/sceneLoader.cpp:    shape.name = shapeData["name"];
+./src/sceneLoader/sceneLoader.cpp:  if (shapeData["aabb"].is_object()) {
+./src/sceneLoader/sceneLoader.cpp:    if (parseVec3(shapeData["aabb"]["min"], min) && parseVec3(shapeData["aabb"]["max"], max)) {
+./src/sceneLoader/sceneLoader.cpp:      shape.aabb = {
+./src/sceneLoader/sceneLoader.cpp:  if (shapeData["intersection"].is_string())
+./src/sceneLoader/sceneLoader.cpp:    shape.intersectionShaderName = shapeData["intersection"];
+./src/sceneLoader/sceneLoader.cpp:  return (shape.intersectionShaderName != "");
+./src/sceneLoader/scene.hpp:    void            setShapesHitBindingIndex(uint32_t offset = 0);
+./src/sceneLoader/scene.hpp:    std::vector<PhosObjectProcedural> m_proceduralShapes;
+./src/sceneLoader/scene.hpp:    ShapeDesc   buildShapeDesc(PhosObjectInstance& instance, PhosObjectProcedural* shape);
+./src/sceneLoader/scene.hpp:    std::vector<ShapeDesc>  m_shapeDescs;
+./src/sceneLoader/scene.hpp:    BufferWrapper           m_shapeDescsBuffer;
+./src/sceneLoader/sceneLoader.hpp:    bool  parseProceduralShape(json &shapeData, PhosObjectProcedural &shape);
+./src/sceneLoader/sceneLoader.hpp:    bool  parseShader(json& shaderData, PhosHitShader& shape);
+./src/sceneLoader/scene.cpp:  for (auto& shape: m_proceduralShapes) {
+./src/sceneLoader/scene.cpp:    shape.destroy(*m_alloc);
+./src/sceneLoader/scene.cpp:  m_alloc->destroyBuffer(m_shapeDescsBuffer);
+./src/sceneLoader/scene.cpp:    return (PhosNamedObject::getObjectFromName(m_proceduralShapes, instance.objectName));
+./src/sceneLoader/scene.cpp:void  PhosScene::setShapesHitBindingIndex(uint32_t offset) {
+./src/sceneLoader/scene.cpp:  for (auto& shape : m_proceduralShapes) {
+./src/sceneLoader/scene.cpp:    shader = PhosNamedObject::getObjectFromName(m_hitShaders, shape.intersectionShaderName, &index);
+./src/sceneLoader/scene.cpp:          std::string("Invalid intersection shader: " + shape.intersectionShaderName));
+./src/sceneLoader/scene.cpp:    shape.hitShaderBindingIndex = offset + index;
+./src/sceneLoader/scene.cpp:  for (auto& shape : m_proceduralShapes) {
+./src/sceneLoader/scene.cpp:    shape.createBuffer(*m_alloc);
+./src/sceneLoader/scene.cpp:  uint32_t shapeCustomIndex = 0;
+./src/sceneLoader/scene.cpp:      PhosObjectProcedural* shape = static_cast<PhosObjectProcedural*>(obj);
+./src/sceneLoader/scene.cpp:      auto shapeDesc = buildShapeDesc(instance, shape);
+./src/sceneLoader/scene.cpp:      m_shapeDescs.push_back(shapeDesc);
+./src/sceneLoader/scene.cpp:      instance.customIndex = shapeCustomIndex++;
+./src/sceneLoader/scene.cpp:  size_t  sizeShapeDescs = static_cast<size_t>(sizeof(m_shapeDescs[0]) * m_shapeDescs.size()); 
+./src/sceneLoader/scene.cpp:  if (sizeShapeDescs > 0) {
+./src/sceneLoader/scene.cpp:    m_alloc->createBuffer(sizeShapeDescs
+./src/sceneLoader/scene.cpp:        , m_shapeDescsBuffer);
+./src/sceneLoader/scene.cpp:    m_alloc->stagingMakeAndCopy(sizeShapeDescs, m_shapeDescsBuffer, m_shapeDescs.data());
+./src/sceneLoader/scene.cpp:    if (m_shapeDescs.size() > 0) {
+./src/sceneLoader/scene.cpp:        .buffer = m_shapeDescsBuffer.buffer,
+./src/sceneLoader/scene.cpp:        .binding = BindingsScene::eShapeDescs,
+./src/sceneLoader/scene.cpp:ShapeDesc PhosScene::buildShapeDesc(PhosObjectInstance& instance, PhosObjectProcedural* shape) {
+./src/sceneLoader/scene.cpp:  ShapeDesc shapeDesc = {
+./src/sceneLoader/scene.cpp:      .min = glm::vec3(shape->aabb.minX, shape->aabb.minY, shape->aabb.minZ),
+./src/sceneLoader/scene.cpp:      .max = glm::vec3(shape->aabb.maxX, shape->aabb.maxY, shape->aabb.maxZ),
+./src/sceneLoader/scene.cpp:  return (shapeDesc);
+./src/sceneLoader/objLoader.cpp:  auto& shapes = reader.GetShapes();
+./src/sceneLoader/objLoader.cpp:  for (size_t s = 0; s < shapes.size(); s++) {
+./src/sceneLoader/objLoader.cpp:    for (size_t f = 0; f < shapes[s].mesh.num_face_vertices.size(); f++) {
+./src/sceneLoader/objLoader.cpp:      size_t fv = size_t(shapes[s].mesh.num_face_vertices[f]);
+./src/sceneLoader/objLoader.cpp:        tinyobj::index_t idx = shapes[s].mesh.indices[index_offset + v];
+./src/sceneLoader/objLoader.cpp:      if (shapes[s].mesh.indices[index_offset].normal_index < 0) {
+./src/sceneLoader/objLoader.cpp:      //shapes[s].mesh.material_ids[f];

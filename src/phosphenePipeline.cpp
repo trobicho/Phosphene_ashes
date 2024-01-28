@@ -204,22 +204,39 @@ void  Phosphene::buildRtPipelineBasicLights() {
   builder.setRayGenStage("./spv/raytrace.rgen.spv");
   builder.addMissStage("./spv/raytrace.rmiss.spv");
   builder.addMissStage("./spv/raytraceShadow.rmiss.spv");
-  builder.addHitShader("cHit", "./spv/raytraceMeshShadow.rchit.spv", VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR);
-  builder.addHitShader("shapeCHit", "./spv/raytraceShapeShadow.rchit.spv", VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR);
-  RtBuilder::HitGroup hitGroup = {
-    .type = VK_RAY_TRACING_SHADER_GROUP_TYPE_TRIANGLES_HIT_GROUP_KHR,
-    .closestHitName = "cHit",
-  };
-  builder.addHitGroup(hitGroup);
-  for (auto& hitShader : m_scene.m_hitShaders) {
-    builder.addHitShader(hitShader.name, "./spv/" + hitShader.spv, hitShader.type);
-    RtBuilder::HitGroup hitGroup = {
-      .type = VK_RAY_TRACING_SHADER_GROUP_TYPE_PROCEDURAL_HIT_GROUP_KHR,
-      .closestHitName = "shapeCHit",
-      .intersectionName = hitShader.name,
-    };
-    builder.addHitGroup(hitGroup);
-  }
+
+	if (m_scene.hasMesh()) {
+		builder.addHitShader("cHit", "./spv/raytraceMeshShadow.rchit.spv", VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR);
+		RtBuilder::HitGroup hitGroup = {
+			.type = VK_RAY_TRACING_SHADER_GROUP_TYPE_TRIANGLES_HIT_GROUP_KHR,
+			.closestHitName = "cHit",
+		};
+		builder.addHitGroup(hitGroup);
+	}
+	if (m_scene.hasVdb()) {
+		builder.addHitShader("vdbCHit", "./spv/raytraceVdbShadow.rchit.spv", VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR);
+		if (m_scene.hasVdb()) {
+			builder.addHitShader(m_scene.m_vdbDefaultHitShader.name, "./spv/" + m_scene.m_vdbDefaultHitShader.spv, m_scene.m_vdbDefaultHitShader.type);
+			RtBuilder::HitGroup hitGroup = {
+				.type = VK_RAY_TRACING_SHADER_GROUP_TYPE_PROCEDURAL_HIT_GROUP_KHR,
+				.closestHitName = "vdbCHit",
+				.intersectionName = m_scene.m_vdbDefaultHitShader.name,
+			};
+			builder.addHitGroup(hitGroup);
+		}
+	}
+	if (m_scene.hasShape()) {
+		builder.addHitShader("shapeCHit", "./spv/raytraceShapeShadow.rchit.spv", VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR);
+		for (auto& hitShader : m_scene.m_hitShaders) {
+			builder.addHitShader(hitShader.name, "./spv/" + hitShader.spv, hitShader.type);
+			RtBuilder::HitGroup hitGroup = {
+				.type = VK_RAY_TRACING_SHADER_GROUP_TYPE_PROCEDURAL_HIT_GROUP_KHR,
+				.closestHitName = "shapeCHit",
+				.intersectionName = hitShader.name,
+			};
+			builder.addHitGroup(hitGroup);
+		}
+	}
   builder.setMaxRecursion(1);
   m_rtPipeline.destroy();
   builder.build(m_rtPipeline);
@@ -248,22 +265,37 @@ void  Phosphene::buildRtPipelinePathTracing() {
   builder.addPushConstant(pushConsant);
   builder.setRayGenStage("./spv/pathtrace.rgen.spv");
   builder.addMissStage("./spv/pathtrace.rmiss.spv");
-  builder.addHitShader("cHit", "./spv/pathtraceMesh.rchit.spv", VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR);
-  builder.addHitShader("shapeCHit", "./spv/pathtraceShape.rchit.spv", VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR);
-  RtBuilder::HitGroup hitGroup = {
-    .type = VK_RAY_TRACING_SHADER_GROUP_TYPE_TRIANGLES_HIT_GROUP_KHR,
-    .closestHitName = "cHit",
-  };
-  builder.addHitGroup(hitGroup);
-  for (auto& hitShader : m_scene.m_hitShaders) {
-    builder.addHitShader(hitShader.name, "./spv/" + hitShader.spv, hitShader.type);
+
+	if (m_scene.hasMesh()) {
+		builder.addHitShader("cHit", "./spv/pathtraceMesh.rchit.spv", VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR);
+		RtBuilder::HitGroup hitGroup = {
+			.type = VK_RAY_TRACING_SHADER_GROUP_TYPE_TRIANGLES_HIT_GROUP_KHR,
+			.closestHitName = "cHit",
+		};
+		builder.addHitGroup(hitGroup);
+	}
+	if (m_scene.hasVdb()) {
+		builder.addHitShader("vdbCHit", "./spv/pathtraceVdb.rchit.spv", VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR);
+    builder.addHitShader(m_scene.m_vdbDefaultHitShader.name, "./spv/" + m_scene.m_vdbDefaultHitShader.spv, m_scene.m_vdbDefaultHitShader.type);
     RtBuilder::HitGroup hitGroup = {
       .type = VK_RAY_TRACING_SHADER_GROUP_TYPE_PROCEDURAL_HIT_GROUP_KHR,
-      .closestHitName = "shapeCHit",
-      .intersectionName = hitShader.name,
+      .closestHitName = "vdbCHit",
+      .intersectionName = m_scene.m_vdbDefaultHitShader.name,
     };
     builder.addHitGroup(hitGroup);
-  }
+	}
+	if (m_scene.hasShape()) {
+		builder.addHitShader("shapeCHit", "./spv/pathtraceShape.rchit.spv", VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR);
+		for (auto& hitShader : m_scene.m_hitShaders) {
+			builder.addHitShader(hitShader.name, "./spv/" + hitShader.spv, hitShader.type);
+			RtBuilder::HitGroup hitGroup = {
+				.type = VK_RAY_TRACING_SHADER_GROUP_TYPE_PROCEDURAL_HIT_GROUP_KHR,
+				.closestHitName = "shapeCHit",
+				.intersectionName = hitShader.name,
+			};
+			builder.addHitGroup(hitGroup);
+		}
+	}
   builder.setMaxRecursion(1);
   m_rtPipeline.destroy();
   builder.build(m_rtPipeline);
@@ -373,22 +405,37 @@ void  Phosphene::buildGBufferPipeline() {
   builder.addPushConstant(pushConsant);
   builder.setRayGenStage("./spv/gBuffer.rgen.spv");
   builder.addMissStage("./spv/gBuffer.rmiss.spv");
-  builder.addHitShader("cHit", "./spv/gBufferMesh.rchit.spv", VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR);
-  builder.addHitShader("shapeCHit", "./spv/gBufferShape.rchit.spv", VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR);
-  RtBuilder::HitGroup hitGroup = {
-    .type = VK_RAY_TRACING_SHADER_GROUP_TYPE_TRIANGLES_HIT_GROUP_KHR,
-    .closestHitName = "cHit",
-  };
-  builder.addHitGroup(hitGroup);
-  for (auto& hitShader : m_scene.m_hitShaders) {
-    builder.addHitShader(hitShader.name, "./spv/" + hitShader.spv, hitShader.type);
+
+	if (m_scene.hasMesh()) {
+		builder.addHitShader("cHit", "./spv/gBufferMesh.rchit.spv", VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR);
+		RtBuilder::HitGroup hitGroup = {
+			.type = VK_RAY_TRACING_SHADER_GROUP_TYPE_TRIANGLES_HIT_GROUP_KHR,
+			.closestHitName = "cHit",
+		};
+		builder.addHitGroup(hitGroup);
+	}
+	if (m_scene.hasVdb()) {
+		builder.addHitShader("vdbCHit", "./spv/gBufferVdb.rchit.spv", VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR);
+    builder.addHitShader(m_scene.m_vdbDefaultHitShader.name, "./spv/" + m_scene.m_vdbDefaultHitShader.spv, m_scene.m_vdbDefaultHitShader.type);
     RtBuilder::HitGroup hitGroup = {
       .type = VK_RAY_TRACING_SHADER_GROUP_TYPE_PROCEDURAL_HIT_GROUP_KHR,
-      .closestHitName = "shapeCHit",
-      .intersectionName = hitShader.name,
+      .closestHitName = "vdbCHit",
+      .intersectionName = m_scene.m_vdbDefaultHitShader.name,
     };
     builder.addHitGroup(hitGroup);
-  }
+	}
+	if (m_scene.hasShape()) {
+		builder.addHitShader("shapeCHit", "./spv/gBufferShape.rchit.spv", VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR);
+		for (auto& hitShader : m_scene.m_hitShaders) {
+			builder.addHitShader(hitShader.name, "./spv/" + hitShader.spv, hitShader.type);
+			RtBuilder::HitGroup hitGroup = {
+				.type = VK_RAY_TRACING_SHADER_GROUP_TYPE_PROCEDURAL_HIT_GROUP_KHR,
+				.closestHitName = "shapeCHit",
+				.intersectionName = hitShader.name,
+			};
+			builder.addHitGroup(hitGroup);
+		}
+	}
   builder.setMaxRecursion(1);
   m_gbufferPipeline.destroy();
   builder.build(m_gbufferPipeline);

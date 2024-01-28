@@ -1,5 +1,7 @@
 #include "phosStartVk.hpp"
+#include <fstream>
 #include <iostream>
+#include <sstream>
 
 namespace PhosStartVk {
 
@@ -126,9 +128,14 @@ void              createLogicalDeviceAndQueue(VkDevice &device
     .ppEnabledExtensionNames = deviceExtentions.data(),
     //.pEnabledFeatures = &deviceFeature,
   };
-  if (vkCreateDevice(physicalDevice, &deviceInfo
-      , nullptr, &device) != VK_SUCCESS)
-    throw PhosHelper::FatalVulkanInitError("Failed to create logical device!");
+	VkResult result;
+  if ((result = vkCreateDevice(physicalDevice, &deviceInfo
+      , nullptr, &device)) != VK_SUCCESS) {
+		std::stringstream error; 
+		error << "Failed to create logical device! (";
+		error << PhosHelper::VkResultToString(result) << ")";
+    throw PhosHelper::FatalVulkanInitError(error.str());
+	}
   vkGetDeviceQueue(device, queueFamilyIndex, 0, &queue);
 }
 

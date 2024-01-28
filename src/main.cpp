@@ -32,11 +32,11 @@ int main(int ac, char **av) {
 
   if (ac > 1) {
     if (!phosphene.loadScene(av[1])
-        && !phosphene.loadScene("./scene/test.json"))
+        && !phosphene.loadScene("./scene/testVdb.json"))
       return (EXIT_FAILURE);
   }
   else {
-    if (!phosphene.loadScene("./scene/test.json"))
+    if (!phosphene.loadScene("./scene/testVdb.json"))
       return (EXIT_FAILURE);
   }
 

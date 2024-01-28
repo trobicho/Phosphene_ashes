@@ -115,10 +115,16 @@ bool  Phosphene::loadScene(const std::string &filename) {
   }
   buildPipeline("basicLights");
   buildGBufferPipeline();
-  m_scene.setShapesHitBindingIndex(1);
-  m_scene.allocateResources();
-  m_sceneBuilder.buildBlas(m_scene, 0);
-  m_sceneBuilder.buildTlas(m_scene, 0); 
+	uint32_t	offset = 0;
+	if (m_scene.hasMesh())
+		offset++;
+	m_scene.setVdbHitBindingIndex(offset);
+	if (m_scene.hasVdb())
+		offset++;
+	m_scene.setShapesHitBindingIndex(offset);
+	m_scene.allocateResources();
+	m_sceneBuilder.buildBlas(m_scene, 0);
+	m_sceneBuilder.buildTlas(m_scene, 0); 
   m_scene.update(m_rtPipeline, true);
   m_scene.update(m_gbufferPipeline, true);
   m_pcRay.nbConsecutiveRay = 0;

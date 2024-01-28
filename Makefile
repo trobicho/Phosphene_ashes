@@ -58,16 +58,19 @@ SHADERS_NAME =	post.vert \
 				gBuffer.rmiss \
 				gBufferMesh.rchit \
 				gBufferShape.rchit \
+				gBufferVdb.rchit \
 				raytrace.rgen \
 				raytrace.rmiss \
 				raytraceShadow.rmiss \
 				raytraceMeshShadow.rchit \
 				raytraceShapeShadow.rchit \
+				raytraceVdbShadow.rchit \
 				pathtrace.rgen \
 				pathtrace2.rgen \
 				pathtrace.rmiss \
 				pathtraceMesh.rchit \
 				pathtraceShape.rchit \
+				pathtraceVdb.rchit \
 				sphere.rint \
 				marching/mandelbulb.rint \
 				marching/menger.rint \

@@ -18,6 +18,8 @@
 #define VIEW_GBUFFER_NORMAL
 #define VIEW_GBUFFER_DEPTH
 
+#define	DEFAULT_VDB_HITSHADER	""
+
 struct  GBuffer {
   ImageWrapper  color = ImageWrapper(VK_FORMAT_R32G32B32A32_SFLOAT);
   ImageWrapper  normal = ImageWrapper(VK_FORMAT_R32G32B32A32_SFLOAT);

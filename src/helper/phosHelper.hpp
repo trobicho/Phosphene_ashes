@@ -22,6 +22,10 @@ namespace PhosHelper {
 }
 
 namespace PhosHelper {
+	std::string VkResultToString(VkResult result);
+}
+
+namespace PhosHelper {
   class	FatalError: public std::exception
   {
     public:

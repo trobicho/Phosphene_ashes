@@ -140,6 +140,7 @@ void  SceneBuilder::buildTlas(PhosScene& scene, VkBuildAccelerationStructureFlag
       }
       blasAddr = vdbAddr->blasDeviceAddress;
       flags =  VK_GEOMETRY_INSTANCE_FORCE_OPAQUE_BIT_KHR;
+			hitShaderBinding = scene.getVdbHitBindingIndex();
     }
     if (blasAddr != 0) {
       instanceCount++;

@@ -1,10 +1,10 @@
 #pragma once
-#include <algorithm>
 #include "../helper/phosHelper.hpp"
 #include "../helper/phosNamedObject.hpp"
 #include "../helper/allocator.hpp"
 #include "../../shaders/hostDevice.h"
 #include "../raytracing/pipelineBuilder.hpp"
+#include <cstdint>
 #include <string>
 #include <vector>
 #include "nanovdb/NanoVDB.h"
@@ -61,6 +61,10 @@ class   PhosObjectVdb : public PhosNamedObject {
 		
 		struct VdbGrid : public PhosNamedObject {
 			VdbGrid(){};
+			VdbGrid(VdbGrid&& vdbGrid) {
+				name = vdbGrid.name;
+				handle = std::move(vdbGrid.handle);
+			}
 			VdbGrid(const VdbGrid& vdbGrid) { //SHOULD NOT BE USED except for checking name
 				name = vdbGrid.name;
 			};
@@ -149,6 +153,11 @@ class   PhosScene {
     void*           getInstanceObject(PhosObjectInstance &instance);
     uint32_t        getLightCount() {return (m_lights.size());}
     void            setShapesHitBindingIndex(uint32_t offset = 0);
+    void            setVdbHitBindingIndex(uint32_t offset = 0) {m_vdbHitBindingIndex = offset;}
+    uint32_t				getVdbHitBindingIndex() {return (m_vdbHitBindingIndex);}
+		bool						hasMesh() {return (m_meshs.size() > 0);}
+		bool						hasShape() {return (m_proceduralShapes.size() > 0);}
+		bool						hasVdb() {return (m_vdbs.size() > 0);}
 
     void  allocateResources();
     void  update(Pipeline pipeline, bool forceUpdate = false);
@@ -161,6 +170,7 @@ class   PhosScene {
     std::vector<PhosObjectInstance>   m_instances;
     std::vector<Light>                m_lights;
     std::vector<PhosHitShader>        m_hitShaders;
+    PhosHitShader											m_vdbDefaultHitShader;
     std::vector<PhosMaterial>         m_materials;
 
   private:
@@ -178,4 +188,6 @@ class   PhosScene {
     BufferWrapper           m_shapeDescsBuffer;
     BufferWrapper           m_vdbDescsBuffer;
     BufferWrapper           m_materialsBuffer;
+
+		uint32_t								m_vdbHitBindingIndex = 0;
 };

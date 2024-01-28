@@ -33,10 +33,22 @@ void  main()
     ray.origin = ray.origin + ray.direction * dist;
     distT = dist;
   }
-	Hit	hit = Hit(true, ray.origin, distT, 0);
+	Hit	hit = Hit(true, ray.origin + ray.direction * 1.0, distT, 1);
 	float reportDist = abs(hit.dist) / length(gl_ObjectRayDirectionEXT);
+  if (hit.asHit) {
+    attribs.pos = hit.pos;
+    attribs.step = hit.step;
+    if ((gl_IncomingRayFlagsEXT & gl_RayFlagsSkipClosestHitShaderEXT) == 0) {
+      Ray   rayNormal = {hit.pos, ray.direction};
+      vec3  normal = -ray.direction;
+      attribs.normal = normal;
+      attribs.color = vec3(1.0, 0.3, 1.0);
+    }
+	}
+
 	if (reportDist < gl_RayTminEXT)
 		reportDist = gl_RayTminEXT;
+	//reportIntersectionEXT(reportDist, 1);
 	reportIntersectionEXT(reportDist, 1);
 
 	/*
