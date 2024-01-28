@@ -35,8 +35,8 @@ void  load(const std::string filename, PhosObjectVdb &vdb, const VdbLoaderConfig
 			grid.name = gridPtr->getName();
 			std::cout << "grid: (" << grid.name << ")" << std::endl;
 			auto vdbGrid = file.readGrid(grid.name);
-			vdb.grids.push_back(grid);
-			vdb.grids.back().handle = nanovdb::openToNanoVDB(vdbGrid);
+			grid.handle = nanovdb::openToNanoVDB(vdbGrid);
+			vdb.grids.push_back(std::move(grid));
 		}
 	}
 	file.close();

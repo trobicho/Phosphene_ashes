@@ -74,6 +74,7 @@ SHADERS_NAME =	post.vert \
 				marching/mandelbox.rint \
 				marching/test.rint \
 				marching/test2.rint \
+				vdb/vdb.rint \
 
 SHADER_DEPS_NAME = marching/marching.glsl \
 					marching/marchingFold.glsl \
@@ -83,6 +84,7 @@ SHADER_DEPS_NAME = marching/marching.glsl \
 					helper/illumination.glsl \
 					helper/pathIllumination.glsl \
 					helper/rand.glsl \
+					vdb/marching.glsl \
 
 SHADERS_RESULT_NAME =	$(addsuffix .spv, $(notdir $(SHADERS_NAME)))
 

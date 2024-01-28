@@ -25,7 +25,7 @@ hitAttributeEXT block {
 void main()
 {
   ShapeDesc shape = shapeDescs.i[gl_InstanceCustomIndexEXT];
-  Material  material    = materials.i[shape.materialId];
+  Material  material = materials.i[shape.materialId];
 
   const vec3 worldNrm = normalize(vec3(attribs.normal * gl_ObjectToWorldEXT));  // Transforming the normal to world space
   const vec3 worldPos = vec3(gl_ObjectToWorldEXT * vec4(attribs.pos + attribs.normal * shape.marchingMinDist * 2.5, 1.0));

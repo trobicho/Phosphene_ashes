@@ -3,6 +3,9 @@
     {
       "name" : "sphere",
 			"filepath" : "obj/sphere.vdb",
+			"grids" : [
+				"ls_sphere"
+			],
       "aabb" : {
         "min" : [-1.0, -1.0, -1.0],
         "max" : [1.0, 1.0, 1.0]

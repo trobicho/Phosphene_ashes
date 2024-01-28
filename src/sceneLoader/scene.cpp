@@ -39,12 +39,23 @@ void  PhosObjectProcedural::createBuffer(MemoryAllocator &alloc) {
 void  PhosObjectVdb::createBuffer(MemoryAllocator &alloc) {
   alloc.createBuffer(strideAabb()
       , static_cast<VkBufferUsageFlagBits>(VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT
-          | VK_BUFFER_USAGE_TRANSFER_DST_BIT
-          | VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR
-          | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT)
+        | VK_BUFFER_USAGE_TRANSFER_DST_BIT
+        | VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR
+        | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT)
       , VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
       , aabbBuffer);
   alloc.stagingMakeAndCopy(strideAabb(), aabbBuffer, (void*)&aabb);
+
+	for (auto& grid: grids) {
+		alloc.createBuffer(grid.handle.size()
+				, static_cast<VkBufferUsageFlagBits>(VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT
+					| VK_BUFFER_USAGE_TRANSFER_DST_BIT
+          | VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR
+          | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT)
+      	, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
+      	, grid.deviceBuffer);
+		alloc.stagingMakeAndCopy(grid.handle.size(), grid.deviceBuffer, (void*)grid.handle.data());
+	}
 }
     
 void  PhosScene::destroy() {
@@ -53,6 +64,9 @@ void  PhosScene::destroy() {
   }
   for (auto& shape: m_proceduralShapes) {
     shape.destroy(*m_alloc);
+  }
+  for (auto& vdb: m_vdbs) {
+    vdb.destroy(*m_alloc);
   }
   m_alloc->destroyBuffer(m_lightsBuffer);
   m_alloc->destroyBuffer(m_meshDescsBuffer);
@@ -286,6 +300,7 @@ VdbDesc PhosScene::buildVdbDesc(PhosObjectInstance& instance, PhosObjectVdb* vdb
       .min = glm::vec3(vdb->aabb.minX, vdb->aabb.minY, vdb->aabb.minZ),
       .max = glm::vec3(vdb->aabb.maxX, vdb->aabb.maxY, vdb->aabb.maxZ),
     },
+    .gridAddress = m_alloc->getBufferDeviceAddress(vdb->grids[0].deviceBuffer),
   };
   return (vdbDesc);
 }

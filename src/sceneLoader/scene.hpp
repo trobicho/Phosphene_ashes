@@ -1,4 +1,5 @@
 #pragma once
+#include <algorithm>
 #include "../helper/phosHelper.hpp"
 #include "../helper/phosNamedObject.hpp"
 #include "../helper/allocator.hpp"
@@ -52,15 +53,24 @@ class   PhosObjectVdb : public PhosNamedObject {
     PhosObjectVdb(){};
 
     void      destroy(MemoryAllocator &alloc) {
+      alloc.destroyBuffer(aabbBuffer);
+			for (auto& grid : grids) {
+      	grid.destroy(alloc);
+			}
 		}
 		
 		struct VdbGrid : public PhosNamedObject {
 			VdbGrid(){};
-			VdbGrid(const VdbGrid& vdbGrid) {
-				name = vdbGrid.name; 
+			VdbGrid(const VdbGrid& vdbGrid) { //SHOULD NOT BE USED except for checking name
+				name = vdbGrid.name;
 			};
 
+			void      destroy(MemoryAllocator &alloc) {
+      	alloc.destroyBuffer(deviceBuffer);
+			}
+
 			nanovdb::GridHandle<nanovdb::HostBuffer>	handle;
+			BufferWrapper       											deviceBuffer;
 		};
 
     uint32_t  strideAabb(){return(sizeof(VkAabbPositionsKHR));}

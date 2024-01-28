@@ -2,6 +2,7 @@
 #define HOST_DEVICE_HEADER
 
 #ifdef __cplusplus
+#include <cstdint>
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
 using vec2 = glm::vec2;
@@ -38,8 +39,9 @@ END_BINDING();
 START_BINDING(BindingsScene) //Binding set 3
   eMeshDescs = 0,
   eShapeDescs = 1,
-  eTextures = 2,
-  eMaterials = 3
+  eVdbDescs = 2,
+  eTextures = 3,
+  eMaterials = 4
 END_BINDING();
 
 START_BINDING(BindingsSceneOther) //Binding set 4
@@ -108,9 +110,10 @@ struct  ShapeDesc {
 };
 
 struct  VdbDesc {
-  int   textureId;
-  uint  materialId;
-  Aabb  aabb;
+  int   		textureId;
+  uint  		materialId;
+  Aabb  		aabb;
+	uint64_t	gridAddress;
 };
 
 #endif

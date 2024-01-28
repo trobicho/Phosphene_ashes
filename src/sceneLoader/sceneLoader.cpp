@@ -73,7 +73,7 @@ void  SceneLoader::load(const std::string& filename) {
   for (auto &vdbData : data["vdbs"]) {
     PhosObjectVdb	vdb;
     if (parseVdb(vdbData, vdb))
-      m_scene.m_vdbs.push_back(vdb);
+      m_scene.m_vdbs.push_back(std::move(vdb));
   }
   for (auto &instanceData : data["instances"]) {
     PhosObjectInstance  instance;
@@ -179,7 +179,7 @@ bool  SceneLoader::parseVdb(json& vdbData, PhosObjectVdb& vdb) {
 			if (gridData.is_string()) {
 				PhosObjectVdb::VdbGrid grid;
 				grid.name = gridData;
-				vdb.grids.push_back(grid);
+				vdb.grids.push_back(std::move(grid));
 			}
 		}
 	}
