@@ -51,6 +51,7 @@ HDRS_NAME = phosphene.hpp \
 			sceneLoader/scene.hpp \
 			../shaders/hostDevice.h \
 			../shaders/hostDevicePicker.h \
+			../shaders/hostDeviceVdb.h \
 
 SHADERS_NAME =	post.vert \
                 post.frag \
@@ -88,6 +89,9 @@ SHADER_DEPS_NAME = marching/marching.glsl \
 					helper/pathIllumination.glsl \
 					helper/rand.glsl \
 					vdb/marching.glsl \
+					hostDevice.h \
+					hostDevicePicker.h \
+					hostDeviceVdb.h \
 
 SHADERS_RESULT_NAME =	$(addsuffix .spv, $(notdir $(SHADERS_NAME)))
 

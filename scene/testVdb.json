@@ -64,8 +64,8 @@
       "name" : "sphereVdb",
 			"filepath" : "obj/sphere.vdb",
       "aabb" : {
-        "min" : [-5.0, -5.0, -5.0],
-        "max" : [5.0, 5.0, 5.0]
+        "min" : [-100.0, -100.0, -100.0],
+        "max" : [100.0, 100.0, 100.0]
       }
     }
   ],
@@ -99,7 +99,7 @@
       "name": "sphereVdb",
       "vdb": "sphereVdb",
       "position": [0.0, 0.0, 30.0],
-      "scale": 1.0,
+      "scale": 0.02,
 			"material": "mandelMat1"
     },
     {

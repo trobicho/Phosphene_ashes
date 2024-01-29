@@ -5,12 +5,23 @@
 #extension GL_GOOGLE_include_directive : enable
 
 #extension GL_EXT_shader_explicit_arithmetic_types_int64 : require
+#extension GL_EXT_buffer_reference : require
 #extension GL_EXT_buffer_reference2 : require
 
 #include "../hostDevice.h"
 #include "marching.glsl"
 
+layout(buffer_reference, scalar) buffer GridBuffer {uint data[]; }; // Positions of an object
+
 layout(set = 3, binding = eVdbDescs, scalar) buffer VdbDesc_ { VdbDesc i[]; } vdbDescs;
+
+VdbDesc vdb = vdbDescs.i[gl_InstanceCustomIndexEXT];
+
+GridBuffer	gridBuffer = GridBuffer(vdb.gridAddress);
+
+#define pnanovdb_buf_data gridBuffer.data
+
+#include "../hostDeviceVdb.h"
 
 hitAttributeEXT block {
   vec3  pos;
@@ -19,9 +30,53 @@ hitAttributeEXT block {
   vec3  color;
 }attribs;
 
+Hit   marching(const Ray ray, const float minDist, const float maxDist)
+{
+	pnanovdb_buf_t 					buf; //unused
+	pnanovdb_grid_handle_t	grid;
+	grid.address.byte_offset = 0;
+
+	pnanovdb_tree_handle_t		tree = pnanovdb_grid_get_tree(buf, grid);
+	pnanovdb_root_handle_t		treeRoot = pnanovdb_tree_get_root(buf, tree);
+	pnanovdb_uint32_t 				gridType = pnanovdb_grid_get_grid_type(buf, grid);
+	pnanovdb_readaccessor_t		readAccesssor;
+	pnanovdb_readaccessor_init(readAccesssor, treeRoot);
+
+	float	hit = 0.0;
+	float	v = 0.0;
+	vec3	delta = ray.direction;
+	
+	pnanovdb_bool_t	result = pnanovdb_hdda_zero_crossing(
+			gridType,
+			buf,
+			readAccesssor,
+			ray.origin, minDist,
+			ray.direction, maxDist,
+			hit,
+			v,
+			delta);
+
+	if (result) {
+		float hitDistWorld = hit;
+		vec3	pos = ray.origin + ray.direction * hitDistWorld;
+		attribs.normal = delta;
+		return (Hit(true, pos, hitDistWorld, 10));
+	}
+	else {
+		vec3	pos = ray.origin + ray.direction * maxDist;
+		return (Hit(false, pos, maxDist, 1));
+	}
+}
+
+vec3  getColor(in Hit hit)
+{
+	return (vec3(1.0));
+  vec3 color = vec3(1.0 / sqrt(hit.step * 1.0));
+  return (color);
+}
+
 void  main()
 {
-  VdbDesc vdb = vdbDescs.i[gl_InstanceCustomIndexEXT];
 
   Ray ray = {gl_ObjectRayOriginEXT, normalize(gl_ObjectRayDirectionEXT)};
 
@@ -33,34 +88,13 @@ void  main()
     ray.origin = ray.origin + ray.direction * dist;
     distT = dist;
   }
-	Hit	hit = Hit(true, ray.origin + ray.direction * 1.0, distT, 1);
-	float reportDist = abs(hit.dist) / length(gl_ObjectRayDirectionEXT);
-  if (hit.asHit) {
-    attribs.pos = hit.pos;
-    attribs.step = hit.step;
-    if ((gl_IncomingRayFlagsEXT & gl_RayFlagsSkipClosestHitShaderEXT) == 0) {
-      Ray   rayNormal = {hit.pos, ray.direction};
-      vec3  normal = -ray.direction;
-      attribs.normal = normal;
-      attribs.color = vec3(1.0, 0.3, 1.0);
-    }
-	}
 
-	if (reportDist < gl_RayTminEXT)
-		reportDist = gl_RayTminEXT;
-	//reportIntersectionEXT(reportDist, 1);
-	reportIntersectionEXT(reportDist, 1);
-
-	/*
-  Hit hit = marching(ray, minDist, maxDist, vdb.marchingMaxStep);
+  Hit hit = marching(ray, minDist, maxDist);
   hit.dist += distT;
   if (hit.asHit) {
     attribs.pos = hit.pos;
     attribs.step = hit.step;
     if ((gl_IncomingRayFlagsEXT & gl_RayFlagsSkipClosestHitShaderEXT) == 0) {
-      Ray   rayNormal = {hit.pos, ray.direction};
-      vec3  normal = getNormal(rayNormal, minDist);
-      attribs.normal = normal;
       attribs.color = getColor(hit);
     }
 
@@ -69,5 +103,4 @@ void  main()
       reportDist = gl_RayTminEXT;
     reportIntersectionEXT(reportDist, 1);
   }
-	*/
 }
