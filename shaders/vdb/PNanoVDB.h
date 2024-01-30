@@ -15,13 +15,11 @@
 #define NANOVDB_PNANOVDB_H_HAS_BEEN_INCLUDED
 
 // ------------------------------------------------ Configuration -----------------------------------------------------------
-#define PNANOVDB_GLSL
-#define PNANOVDB_ADDRESS_32
 
 // platforms
 //#define PNANOVDB_C
 //#define PNANOVDB_HLSL
-//#define PNANOVDB_GLSL
+#define PNANOVDB_GLSL
 
 // addressing mode
 // PNANOVDB_ADDRESS_32
@@ -3334,7 +3332,7 @@ PNANOVDB_FORCE_INLINE pnanovdb_bool_t pnanovdb_hdda_zero_crossing(
     PNANOVDB_IN(pnanovdb_vec3_t) direction, float tmax,
     PNANOVDB_INOUT(float) thit,
     PNANOVDB_INOUT(float) v,
-    PNANOVDB_INOUT(vec3) delta
+    PNANOVDB_INOUT(pnanovdb_coord_t) ijk
 )
 {
     pnanovdb_coord_t bbox_min = pnanovdb_root_get_bbox_min(buf, PNANOVDB_DEREF(acc).root);
@@ -3349,7 +3347,8 @@ PNANOVDB_FORCE_INLINE pnanovdb_bool_t pnanovdb_hdda_zero_crossing(
     }
 
     pnanovdb_vec3_t pos = pnanovdb_hdda_ray_start(origin, tmin, direction);
-    pnanovdb_coord_t ijk = pnanovdb_hdda_pos_to_ijk(PNANOVDB_REF(pos));
+    //pnanovdb_coord_t ijk = pnanovdb_hdda_pos_to_ijk(PNANOVDB_REF(pos));
+    ijk = pnanovdb_hdda_pos_to_ijk(PNANOVDB_REF(pos));
 
     pnanovdb_address_t address = pnanovdb_readaccessor_get_value_address(PNANOVDB_GRID_TYPE_FLOAT, buf, acc, PNANOVDB_REF(ijk));
     float v0 = pnanovdb_read_float(buf, address);
@@ -3375,7 +3374,6 @@ PNANOVDB_FORCE_INLINE pnanovdb_bool_t pnanovdb_hdda_zero_crossing(
             if (PNANOVDB_DEREF(v) * v0 < 0.f)
             {
                 PNANOVDB_DEREF(thit) = hdda.tmin;
-                PNANOVDB_DEREF(delta) = hdda.delta;
                 return PNANOVDB_TRUE;
             }
         }

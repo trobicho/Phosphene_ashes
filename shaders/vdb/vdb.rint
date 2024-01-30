@@ -30,6 +30,21 @@ hitAttributeEXT block {
   vec3  color;
 }attribs;
 
+vec3	getNormal(const Ray ray, vec3 pos, pnanovdb_coord_t ijk)
+{
+	vec3	normal = vec3(0.0);
+	pnanovdb_coord_t voxel = ijk;
+	vec3 voxelFloat = vec3(voxel) + 0.5;
+	vec3 dist = pos - voxelFloat;
+	if (abs(dist.x) > abs(dist.y) && abs(dist.x) > abs(dist.z))
+		normal.x = dist.x;
+	else if (abs(dist.y) > abs(dist.z))
+		normal.y = dist.y;
+	else
+		normal.z = dist.z;
+	return (normalize(normal));
+}
+
 Hit   marching(const Ray ray, const float minDist, const float maxDist)
 {
 	pnanovdb_buf_t 					buf; //unused
@@ -46,7 +61,8 @@ Hit   marching(const Ray ray, const float minDist, const float maxDist)
 	float	v = 0.0;
 	vec3	delta = ray.direction;
 	
-	pnanovdb_bool_t	result = pnanovdb_hdda_zero_crossing(
+	pnanovdb_coord_t	ijk;
+	pnanovdb_bool_t		result = pnanovdb_hdda_zero_crossing(
 			gridType,
 			buf,
 			readAccesssor,
@@ -54,12 +70,12 @@ Hit   marching(const Ray ray, const float minDist, const float maxDist)
 			ray.direction, maxDist,
 			hit,
 			v,
-			delta);
+			ijk);
 
 	if (result) {
 		float hitDistWorld = hit;
 		vec3	pos = ray.origin + ray.direction * hitDistWorld;
-		attribs.normal = delta;
+		attribs.normal = getNormal(ray, pos, ijk);
 		return (Hit(true, pos, hitDistWorld, 10));
 	}
 	else {
@@ -81,7 +97,7 @@ void  main()
   Ray ray = {gl_ObjectRayOriginEXT, normalize(gl_ObjectRayDirectionEXT)};
 
   float maxDist = length(vdb.aabb.max - vdb.aabb.min) + 0.1f;
-  float minDist = 0;
+  float minDist = 0.001;
   float   dist = hitAabb(vdb.aabb, ray);
   float   distT = 0;
   if (dist > 0) {

@@ -117,16 +117,16 @@ void  main()
   rayLaunch(ray);
   vec3 endColor = prd.color;
 
+  bool hitSky = !brdfSample(ray);
   if (prd.asHit) 
   {
-    bool hitSky = false;
     for (int i = 0; i < pcRay.pathMaxRecursion; i++)
     {
-      hitSky = !brdfSample(ray);
       if (!hitSky)
         rayLaunch(ray);
       else
         break;
+			hitSky = !brdfSample(ray);
     }
     endColor = ray.color * ray.intensity;
   }

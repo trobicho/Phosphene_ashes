@@ -89,6 +89,7 @@ void main()
   float depth = imageLoad(gBufferDepth, pixel).x;
   int   matId = imageLoad(gBufferMaterial, pixel).x;
   vec4 finalColor = vec4(color, 1.0);
+  //vec4 finalColor = vec4((normal + 1.0) / 2.0, 1.0);
 
   if (matId >= 0 )
   {
