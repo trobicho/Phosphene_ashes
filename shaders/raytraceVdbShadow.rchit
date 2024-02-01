@@ -29,11 +29,11 @@ hitAttributeEXT block {
 void main()
 {
   VdbDesc		vdb = vdbDescs.i[gl_InstanceCustomIndexEXT];
-  Material  material    = materials.i[vdb.materialId];
+  Material  material = materials.i[vdb.materialId];
 
   const vec3 worldNrm = normalize(vec3(attribs.normal * gl_ObjectToWorldEXT));  // Transforming the normal to world space
   //const vec3 worldPos = vec3(gl_ObjectToWorldEXT * vec4(attribs.pos, 1.0));
-  const vec3 worldPos = vec3(gl_ObjectToWorldEXT * vec4(attribs.pos + attribs.normal * 0.025, 1.0));
+  const vec3 worldPos = vec3(gl_ObjectToWorldEXT * vec4(attribs.pos, 1.0));
 
   float attenuation = 1;
 

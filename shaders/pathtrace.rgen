@@ -38,7 +38,7 @@ struct  Ray
 void  rayLaunch(const Ray ray)
 {
   uint  rayFlags = gl_RayFlagsOpaqueEXT;
-  float tMin     = 0.0001;
+  float tMin     = 0.001;
   float tMax     = 10000.0;
 
   traceRayEXT(topLevelAS, // acceleration structure
@@ -117,9 +117,9 @@ void  main()
   rayLaunch(ray);
   vec3 endColor = prd.color;
 
-  bool hitSky = !brdfSample(ray);
   if (prd.asHit) 
   {
+		bool hitSky = !brdfSample(ray);
     for (int i = 0; i < pcRay.pathMaxRecursion; i++)
     {
       if (!hitSky)
