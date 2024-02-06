@@ -2,5 +2,5 @@
 #include "phosHelper.hpp"
 
 namespace PhosHelper {
-  void  loadRtExtension(VkDevice &device);
+  void  loadRtExtensions(VkDevice &device);
 }

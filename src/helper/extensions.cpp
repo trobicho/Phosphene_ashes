@@ -9,7 +9,7 @@ static PFN_vkCmdBuildAccelerationStructuresKHR  pfn_vkCmdBuildAccelerationStruct
 static PFN_vkGetAccelerationStructureDeviceAddressKHR pfn_vkGetAccelerationStructureDeviceAddressKHR = 0;
 static PFN_vkCmdTraceRaysKHR  pfn_vkCmdTraceRaysKHR = 0;
 
-void  PhosHelper::loadRtExtension(VkDevice &device) {
+void  PhosHelper::loadRtExtensions(VkDevice &device) {
   pfn_vkCreateRayTracingPipelinesKHR =
     reinterpret_cast<PFN_vkCreateRayTracingPipelinesKHR>(vkGetDeviceProcAddr(device, "vkCreateRayTracingPipelinesKHR"));
   pfn_vkGetRayTracingShaderGroupHandlesKHR =
