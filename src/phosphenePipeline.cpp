@@ -392,7 +392,6 @@ void  Phosphene::buildGBufferPipeline() {
   RtBuilder::PushConstant pushConsant = {
     .range = (VkPushConstantRange) {
       .stageFlags = VK_SHADER_STAGE_RAYGEN_BIT_KHR
-        | VK_SHADER_STAGE_RAYGEN_BIT_KHR
         | VK_SHADER_STAGE_MISS_BIT_KHR,
       .offset = 0,
       .size = sizeof(m_pcRay),

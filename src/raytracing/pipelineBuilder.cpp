@@ -231,7 +231,7 @@ void  PipelineBuilder::createShaderBindingTable(VkPipeline pipeline, std::vector
       pData += m_shaderBindingTable.hitRegion.stride;
     }
     vkUnmapMemory(m_device, m_shaderBindingTable.buffer.memory);
-    vkDestroyBuffer(m_device, m_shaderBindingTable.buffer.buffer, nullptr);
+    //vkDestroyBuffer(m_device, m_shaderBindingTable.buffer.buffer, nullptr);
     m_shaderBindingTable.buffer.buffer = VK_NULL_HANDLE;
   }
 }
